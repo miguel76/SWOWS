@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Dataflow Graphs</title>
+    <style>
+      table {
+         border-style: solid;
+         border-width: 2px;
+         padding: 2px;
+      }
+      th {
+         border-style: solid;
+         border-width: 2px;
+         padding: 4px;
+      }
+      td {
+         border-style: solid;
+         border-width: 2px;
+         padding: 4px;
+      }
+    </style>
+  </head>
+  <body>
+
+<p>This package contain classes and interfaces that allow to build and execute a <a href="#dataflow">Dataflow Graph</a>.</p>
+<p>The main class that can be used for this task is {@link org.swows.producer.DataflowProducer}.</p>
+<p>The single elements used in a data flow are instances of classes implementing {@link org.swows.producer.Producer}. Extend {@link org.swows.producer.GraphProducer}
+or {@link org.swows.producer.DatasetProducer} to extend available graph operators.</p>
+
+<h3 id="dataflow">Dataflow Graphs</h3>
+
+<p>
+Dataflow Graphs are special RDF graphs used to define RDF graphs that are function of other graphs.
+Dataflow Graphs are instances of an ontology associated with the namespace <code>http://www.swows.org/spinx#</code> abbreviated below with the prefix <code>spinx:</code>.
+The ontology it's explained together to the associated semantics.
+</p>
+
+<p>
+In the following table are summarized the prefix mappings will use.
+</p>
+
+<table class="descrTable prefixes">
+<thead>
+<tr>
+<th class="descrTable">Prefix</th><th class="descrTable">Expansion</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:</code></td><td class="descrTable"><code>&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>sp:</code></td><td class="descrTable"><code>&lt;http://spinrdf.org/sp#&gt;</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:</code></td><td class="descrTable"><code>&lt;http://www.swows.org/spinx#&gt;</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>jena:</code></td><td class="descrTable"><code>&lt;http://jena.hpl.hp.com/2003/&gt;</code></td>
+</tr>
+
+</table>
+
+<p>
+The graphs used in the dataflow are represented by nodes with type <code>spinx:Graph</code>. This is a generic type and is never used directly, for each following case the specific subtype will be introduced.
+</p>
+
+<h3>Input Graphs</h3>
+
+<p>
+Input graphs are the inputs of the current dataflow. They are represented by nodes with type <code>spinx:InputGraph</code>. There can be unlimited named input graphs and a single unnamed input graph (the default input graph).
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:InputGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:id</code></td><td class="descrTable">no</td><td class="descrTable">associated name (for named input graphs)</td>
+</tr>
+</table>
+
+<h3>Output Graphs</h3>
+
+<p>
+Output graphs are the outputs of the current dataflow. They are represented by nodes with type <code>spinx:OutputGraph</code>. There can be unlimited named output graphs and a single unnamed output graph (the default output graph).
+The output graph nodes must be connected to (with <code>spinx:input</code> property) to another node of type <code>spinx:Graph</code>
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:OutputGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:id</code></td><td class="descrTable">no</td><td class="descrTable">associated name (for named output graphs)</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:input</code></td><td class="descrTable">yes</td><td class="descrTable">the graph node this output is connected to</td>
+</tr>
+</table>
+
+<h3>Inline Graphs</h3>
+
+<p>
+Inline graphs are graphs for which the content is directly defined in the dataflow graph.
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:InlineGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:config</code></td><td class="descrTable">yes</td><td class="descrTable">the <code>rdf:List</code> of <code>sp:Triple</code> resources representing triples contained in the graph.</td></tr>
+</table>
+
+<h3>Union Graphs</h3>
+
+<p>
+Union graphs are graphs formed by the union of the triples of a set of graphs. They are represented by nodes with type <code>spinx:UnionGraph</code>, and are connected to each one of the graphs composing the union via the <code>spinx:input</code> property.
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:UnionGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:input</code></td><td class="descrTable">yes</td><td class="descrTable">one of the graphs to be composed</td>
+</tr>
+</table>
+
+<h3>Intersection Graphs</h3>
+
+<p>
+Intersection graphs are graphs formed by the intersection of the triples of a set of graphs. They are represented by nodes with type <code>spinx:IntersectionGraph</code>, and are connected to each one of the graphs composing the intersection via the <code>spinx:input</code> property.
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:IntersectionGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:input</code></td><td class="descrTable">yes</td><td class="descrTable">one of the graphs to be composed</td>
+</tr>
+</table>
+
+
+<h3>Construct Graphs</h3>
+
+<p>
+Construct graphs are graphs built by executing a Construct <a href="http://spinrdf.org/sp.html">SPARQL</a> query against a set of graphs. They are represented by nodes with type <code>spinx:ConstructGraph</code>, and are connected to the query definition in <a href="http://spinrdf.org/sp.html">SPIN-SPARQL Syntax</a> via the <code>spinx:config</code> property.
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:ConstructGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:config</code></td><td class="descrTable">yes</td><td class="descrTable">the <code>sp:Construct</code> resource describing the query in SPIN-SPARQL Syntax</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:from</code></td><td class="descrTable">not</td><td class="descrTable">the default input graph for the query</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:fromNamed</code></td><td class="descrTable">not</td><td class="descrTable">a named input graph for the query</td>
+</tr>
+</table>
+
+<h3>Inference Graphs</h3>
+
+<p>
+Inference graphs are graphs built by executing a Construct <a href="http://spinrdf.org/sp.html">SPARQL</a> query against a set of graphs. They are represented by nodes with type <code>spinx:ConstructGraph</code>, and are connected to the query definition in <a href="http://spinrdf.org/sp.html">SPIN-SPARQL Syntax</a> via the <code>spinx:config</code> property.
+</p>
+
+<table class="descrTable properties">
+<thead>
+<tr>
+<th class="descrTable">Property</th><th class="descrTable">Required</th><th class="descrTable">Value</th>
+</tr>
+</thead>
+<tr>
+<td class="descrTable"><code>rdf:type</code></td><td class="descrTable">yes</td><td class="descrTable"><code>spinx:InferenceGraph</code></td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:input</code></td><td class="descrTable">yes</td><td class="descrTable">the graph before applying schema/ontology rules</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:schema</code></td><td class="descrTable">yes</td><td class="descrTable">the graph containing the schema/ontology</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:reasonerType</code></td><td class="descrTable">yes</td><td class="descrTable">
+a resource indicating the kind of reasoner to be used
+<dl>
+<dt><code>jena:OWLFBRuleReasoner</code></dt>
+<dd>A hybrid forward/backward implementation of the OWL closure rules</dd>
+Reasoner configuration for the OWL mini reasoner
+<dt><code>jena:OWLMiniReasoner</code></dt>
+<dd>Reasoner configuration for the <a href="http://jena.sourceforge.net/javadoc/com/hp/hpl/jena/reasoner/rulesys/OWLMiniReasoner.html">OWL mini reasoner</a></dd>
+<dt><code>jena:OWLMicroReasoner</code></dt>
+<dd>Reasoner configuration for the <a href="http://jena.sourceforge.net/javadoc/com/hp/hpl/jena/reasoner/rulesys/OWLMicroReasoner.html">OWL micro reasoner</a></dd>
+<dt><code>jena:RDFSFBRuleReasoner</code></dt>
+<dd>A backward chaining implementation of the RDFS closure rules based upon the basic backward rule interpreter</dd>
+<dt><code>jena:RDFSForwardRuleReasoner</code></dt>
+<dd>A pure forward chaining implementation of the RDFS closure rules based upon the basic forward rule interpreter</a></dd>
+<dt><code>jena:RDFSRuleReasoner</code></dt>
+<dd>A full implemention of RDFS reasoning using a hybrid rule system, together with optimized subclass/subproperty closure using the transitive graph caches</dd>
+</dl>
+</td>
+</tr>
+<tr>
+<td class="descrTable"><code>spinx:reasonerConfig</code></td><td class="descrTable">not</td><td class="descrTable">reasoner configuration, see single reasoner factory description</td>
+</tr>
+
+</table>
+
+
+  </body>
+</html>
