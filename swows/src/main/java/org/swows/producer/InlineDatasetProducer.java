@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.swows.graph.DynamicDatasetMap;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
 
 public class InlineDatasetProducer extends DatasetProducer {
 	
@@ -49,8 +50,8 @@ public class InlineDatasetProducer extends DatasetProducer {
 	}
 
 	@Override
-	public DatasetGraph createDataset(DatasetGraph inputDataset) {
-		DatasetGraph dataset = new DatasetGraphMap(inputProducer.createGraph(inputDataset));
+	public DynamicDataset createDataset(DynamicDataset inputDataset) {
+		DynamicDataset dataset = new DynamicDatasetMap(inputProducer.createGraph(inputDataset));
 		for (Node currNameNode : namedInputProducers.keySet())
 			dataset.addGraph( currNameNode,	namedInputProducers.get(currNameNode).createGraph(inputDataset) );
 		return dataset;

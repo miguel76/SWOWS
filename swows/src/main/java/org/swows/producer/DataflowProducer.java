@@ -23,13 +23,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
@@ -81,7 +82,7 @@ public class DataflowProducer extends DatasetProducer {
 	 * @param confGraph the configuration graph
 	 * @param inputProd the producer of the input dataset
 	 */
-	public DataflowProducer(final Graph confGraph, DatasetProducer inputProd) {
+	public DataflowProducer(final DynamicGraph confGraph, DatasetProducer inputProd) {
 		this(
 				new GraphProducer() {
 					@Override
@@ -89,7 +90,7 @@ public class DataflowProducer extends DatasetProducer {
 						return false;
 					}
 					@Override
-					public Graph createGraph(DatasetGraph inputDs) {
+					public DynamicGraph createGraph(DynamicDataset inputDs) {
 						return confGraph;
 					}
 				},
@@ -102,7 +103,7 @@ public class DataflowProducer extends DatasetProducer {
 	 * @param confGraph the configuration graph
 	 * @param inputDataset the input dataset
 	 */
-	public DataflowProducer(final Graph confGraph, final DatasetGraph inputDataset) {
+	public DataflowProducer(final DynamicGraph confGraph, final DynamicDataset inputDataset) {
 		this(
 				confGraph,
 				new DatasetProducer() {
@@ -112,7 +113,7 @@ public class DataflowProducer extends DatasetProducer {
 					}
 
 					@Override
-					public DatasetGraph createDataset(DatasetGraph inputDataset2) {
+					public DynamicDataset createDataset(DynamicDataset inputDataset2) {
 						return inputDataset;
 					}
 				} );
@@ -231,7 +232,7 @@ public class DataflowProducer extends DatasetProducer {
 						return false;
 					}
 					@Override
-					public DatasetGraph createDataset(DatasetGraph inputDataset) {
+					public DynamicDataset createDataset(DynamicDataset inputDataset) {
 						return inputDataset;
 					}
 				};
@@ -338,9 +339,9 @@ public class DataflowProducer extends DatasetProducer {
 	 * @see org.swows.producer.DatasetProducer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public DatasetGraph createDataset(DatasetGraph parentInputDataset) {
+	public DynamicDataset createDataset(DynamicDataset parentInputDataset) {
 		final Graph configGraph = confProducer.createGraph(parentInputDataset);
-		DatasetGraph inputDataset = inputProd.createDataset(parentInputDataset);
+		DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		//final Dataset inputDs = DatasetFactory.create(inputDataset);
 
 		return getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null).createDataset(inputDataset);

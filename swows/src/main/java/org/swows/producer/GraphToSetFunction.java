@@ -2,8 +2,10 @@ package org.swows.producer;
 
 import java.util.Iterator;
 
-import org.swows.graph.BuildingGraph;
-import org.swows.graph.PushGraphListener;
+import org.swows.graph.DynamicChangingGraph;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.GraphUpdate;
+import org.swows.graph.events.Listener;
 import org.swows.vocabulary.Instance;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -31,14 +33,14 @@ public abstract class GraphToSetFunction extends GraphFunction {
 	}
 
 	@Override
-	public Graph exec(final Graph input) {
-		final BuildingGraph buildingGraph = new BuildingGraph(execWorker(input));
-		input.getEventManager().register(new PushGraphListener(input) {
-			public boolean changed() {
-				buildingGraph.setBaseGraph(execWorker(input), input);
-				return false;
+	public DynamicGraph exec(final DynamicGraph input) {
+		final DynamicChangingGraph buildingGraph = new DynamicChangingGraph(execWorker(input));
+		input.getEventManager2().register(new Listener() {
+			@Override
+			public void notifyUpdate(Graph source, GraphUpdate update) {
+				buildingGraph.setBaseGraph(execWorker(input));
 			}
-		});
+		} );
 		return buildingGraph;
 	}
 

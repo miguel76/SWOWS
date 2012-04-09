@@ -19,11 +19,8 @@
  */
 package org.swows.producer;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-
-//import com.hp.hpl.jena.graph.Graph;
-//import com.hp.hpl.jena.graph.Node;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Interface Producer is implemented by all the classes
@@ -59,7 +56,7 @@ public interface Producer {
 	 * @param inputDataset the input dataset of the containing dataflow
 	 * @return the created graph
 	 */
-	public Graph createGraph(DatasetGraph inputDataset);
+	public DynamicGraph createGraph(DynamicDataset inputDataset);
 	
 	/**
 	 * Generates a dataset.
@@ -67,6 +64,6 @@ public interface Producer {
 	 * @param inputDataset the input dataset of the containing dataflow
 	 * @return the generated dataset
 	 */
-	public DatasetGraph createDataset(DatasetGraph inputDataset);
+	public DynamicDataset createDataset(DynamicDataset inputDataset);
 
 }

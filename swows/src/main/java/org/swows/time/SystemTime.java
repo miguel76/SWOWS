@@ -2,12 +2,12 @@ package org.swows.time;
 
 import java.util.TimerTask;
 
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.runnable.LocalTimer;
 import org.swows.vocabulary.Instance;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEvents;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
@@ -17,7 +17,7 @@ public class SystemTime extends TimerTask {
 	private static final int DEFAULT_PERIOD = 5;
 	
 	private long updatePeriod;
-	private Graph timeGraph;
+	private DynamicGraphFromGraph timeGraph;
 	private Triple currTriple;
 		
 	public SystemTime() {
@@ -30,10 +30,9 @@ public class SystemTime extends TimerTask {
 	
 	public void run() {
 		Triple newTriple = tripleFromTime();
-		timeGraph.getEventManager().notifyEvent(timeGraph, GraphEvents.startRead);
 		timeGraph.delete(currTriple);
 		timeGraph.add(newTriple);
-		timeGraph.getEventManager().notifyEvent(timeGraph, GraphEvents.finishRead);
+		timeGraph.sendUpdateEvents();
 	}
 	
 //	private static Triple tripleFromTime(long time) {
@@ -50,8 +49,8 @@ public class SystemTime extends TimerTask {
 				Node.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
 	}
 	
-	public Graph getGraph() {
-		timeGraph = GraphFactory.createGraphMem();
+	public DynamicGraph getGraph() {
+		timeGraph = new DynamicGraphFromGraph( GraphFactory.createGraphMem() );
 		currTriple = tripleFromTime();
 		timeGraph.add(currTriple);
 		if (timeGraph == null) {

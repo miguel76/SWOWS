@@ -19,6 +19,9 @@
  */
 package org.swows.producer;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -28,7 +31,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.reasoner.Reasoner;
 import com.hp.hpl.jena.reasoner.ReasonerRegistry;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 /**
  * The Class InferenceGraphProducer executes inference on
@@ -80,11 +82,12 @@ public class InferenceGraphProducer extends GraphProducer {
 	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return
-			reasoner
-				.bindSchema(schemaProd.createGraph(inputDataset))
-				.bind(inputProd.createGraph(inputDataset));
+			new DynamicGraphFromGraph(
+					reasoner
+					.bindSchema(schemaProd.createGraph(inputDataset))
+					.bind(inputProd.createGraph(inputDataset)));
 	}
 
 	/* (non-Javadoc)

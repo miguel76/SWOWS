@@ -20,6 +20,8 @@
 package org.swows.producer;
 
 import org.swows.graph.SparqlConstructGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.Instance;
@@ -30,7 +32,6 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 /**
  * The Class SparqlConstructFunction executes a SPARQL
@@ -185,7 +186,7 @@ public class SparqlConstructFunction extends GraphProducer {
 	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(final DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
 		
 		Graph conf = configProducer.createGraph(inputDataset);
 		final Model confModel = ModelFactory.createModelForGraph(conf);
@@ -232,12 +233,8 @@ public class SparqlConstructFunction extends GraphProducer {
 		Graph resultGraph = queryExecution.execConstruct().getGraph();
 		*/
 		
-		DatasetGraph queryDatasetGraph = inputProducer.createDataset(inputDataset);
-
-		Graph resultGraph = new SparqlConstructGraph(query, queryDatasetGraph);
-
-		return resultGraph;
-		//return queryExecution.execConstruct().getGraph();
+		DynamicDataset queryDatasetGraph = inputProducer.createDataset(inputDataset);
+		return new SparqlConstructGraph(query, queryDatasetGraph);
 	}
 
 }

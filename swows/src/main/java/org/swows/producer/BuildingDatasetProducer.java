@@ -25,12 +25,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.swows.graph.DynamicDatasetCollection;
 import org.swows.graph.RecursionGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
-import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphCollection;
 
 /**
  * The Class BuildingGraphProducer returns an empty graph
@@ -55,7 +56,7 @@ public class BuildingDatasetProducer extends DatasetProducer {
 		if (localDefaultGraphs.containsKey(inputDataset))
 			return localDefaultGraphs.get(inputDataset);
 		else {
-			RecursionGraph newLocalGraph = new RecursionGraph(Graph.emptyGraph);
+			RecursionGraph newLocalGraph = new RecursionGraph(DynamicGraph.emptyGraph);
 			localDefaultGraphs.put(inputDataset, newLocalGraph);
 			return newLocalGraph;
 		}
@@ -72,7 +73,7 @@ public class BuildingDatasetProducer extends DatasetProducer {
 		if (thisInputDatasetNamedMap.containsKey(graphName))
 			return thisInputDatasetNamedMap.get(graphName);
 		else {
-			RecursionGraph newLocalGraph = new RecursionGraph(Graph.emptyGraph);
+			RecursionGraph newLocalGraph = new RecursionGraph(DynamicGraph.emptyGraph);
 			thisInputDatasetNamedMap.put(graphName, newLocalGraph);
 			return newLocalGraph;
 		}
@@ -88,8 +89,8 @@ public class BuildingDatasetProducer extends DatasetProducer {
 		prod.registerListener(
 				new DatasetProducerListener() {
 					@Override
-					public void notifyDatasetCreation(DatasetGraph inputDataset, DatasetGraph dataset) {
-						getLocalDefaultGraph(inputDataset).setBaseGraph(dataset.getDefaultGraph(),null);
+					public void notifyDatasetCreation(DynamicDataset inputDataset, DynamicDataset dataset) {
+						getLocalDefaultGraph(inputDataset).setBaseGraph(dataset.getDefaultGraph());
 						if (graphNameSet == null) {
 							graphNameSet = new HashSet<Node>();
 							Iterator<Node> graphNames = dataset.listGraphNodes();
@@ -99,7 +100,7 @@ public class BuildingDatasetProducer extends DatasetProducer {
 						Iterator<Node> graphNames = dataset.listGraphNodes();
 						while (graphNames.hasNext()) {
 							Node graphName = graphNames.next();
-							getLocalNamedGraph(inputDataset, graphName).setBaseGraph(dataset.getGraph(graphName), null);
+							getLocalNamedGraph(inputDataset, graphName).setBaseGraph(dataset.getGraph(graphName));
 						}
 					}
 				});
@@ -114,14 +115,14 @@ public class BuildingDatasetProducer extends DatasetProducer {
 	}
 
 	@Override
-	public DatasetGraph createDataset(final DatasetGraph inputDataset) {
-		return new DatasetGraphCollection() {
+	public DynamicDataset createDataset(final DynamicDataset inputDataset) {
+		return new DynamicDatasetCollection() {
 			@Override
-			public Graph getGraph(Node graphNode) {
+			public DynamicGraph getGraph(Node graphNode) {
 				return getLocalNamedGraph(inputDataset, graphNode);
 			}
 			@Override
-			public Graph getDefaultGraph() {
+			public DynamicGraph getDefaultGraph() {
 				return getLocalDefaultGraph(inputDataset);
 			}
 			@Override

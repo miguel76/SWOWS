@@ -23,9 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.swows.graph.SingleGraphDataset;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Class CachedProducer connects to another producer
@@ -41,10 +40,10 @@ public class CachedProducer implements Producer {
 	private Producer connectedProducer;
 
 	/** The cached graphs. */
-	private Map<DatasetGraph,Graph> cachedGraphs = new HashMap<DatasetGraph, Graph>();
+	private Map<DynamicDataset,DynamicGraph> cachedGraphs = new HashMap<DynamicDataset, DynamicGraph>();
 	
 	/** The cached datasets. */
-	private Map<DatasetGraph,DatasetGraph> cachedDatasets = new HashMap<DatasetGraph, DatasetGraph>();
+	private Map<DynamicDataset,DynamicDataset> cachedDatasets = new HashMap<DynamicDataset, DynamicDataset>();
 
 	/**
 	 * Instantiates a new cached producer.
@@ -67,14 +66,14 @@ public class CachedProducer implements Producer {
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		if (cachedGraphs.containsKey(inputDataset)) {
 			return cachedGraphs.get(inputDataset);
 		} else {
 			if (cachedDatasets.containsKey(inputDataset)) {
 				return cachedDatasets.get(inputDataset).getDefaultGraph();
 			} else {
-				Graph newGraph = connectedProducer.createGraph(inputDataset);
+				DynamicGraph newGraph = connectedProducer.createGraph(inputDataset);
 				cachedGraphs.put(inputDataset, newGraph);
 				return newGraph;
 			}
@@ -85,14 +84,14 @@ public class CachedProducer implements Producer {
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public DatasetGraph createDataset(DatasetGraph inputDataset) {
+	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		if (cachedDatasets.containsKey(inputDataset)) {
 			return cachedDatasets.get(inputDataset);
 		} else {
 			if (cachedGraphs.containsKey(inputDataset)) {
 				return new SingleGraphDataset(cachedGraphs.get(inputDataset));
 			} else {
-				DatasetGraph newDataset = connectedProducer.createDataset(inputDataset);
+				DynamicDataset newDataset = connectedProducer.createDataset(inputDataset);
 				cachedDatasets.put(inputDataset, newDataset);
 				return newDataset;
 			}

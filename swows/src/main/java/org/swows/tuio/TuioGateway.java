@@ -8,6 +8,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.runnable.LocalTimer;
 import org.swows.vocabulary.TUIO;
 
@@ -19,7 +21,6 @@ import TUIO.TuioTime;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEvents;
 import com.hp.hpl.jena.graph.GraphMaker;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -33,15 +34,15 @@ public class TuioGateway implements TuioListener {
 	private static GraphMaker graphMaker = new SimpleGraphMaker(); 
 
     private TuioClient tuioClient;
-    private Graph tuioGraph;
+    
+    private DynamicGraphFromGraph tuioGraph;
+    
     private Node tuioSourceNode;
     private Map<TuioPoint, Node> point2nodeMapping = new HashMap<TuioPoint, Node>();
     private boolean isReceiving = false;
     private Logger logger;
     
     private void startReceiving() {
-    	if (!isReceiving)
-    		tuioGraph.getEventManager().notifyEvent(tuioGraph, GraphEvents.startRead);
     	isReceiving = true;
     }
     
@@ -50,7 +51,7 @@ public class TuioGateway implements TuioListener {
     		LocalTimer.get().schedule(new TimerTask() {
 				@Override
 				public void run() {
-					tuioGraph.getEventManager().notifyEvent(tuioGraph, GraphEvents.finishRead);
+					tuioGraph.sendUpdateEvents();
 				}
 			}, 0);
     	}
@@ -82,9 +83,9 @@ public class TuioGateway implements TuioListener {
 		setup();
 	}
 
-	public Graph getGraph() {
+	public DynamicGraph getGraph() {
 		if (tuioGraph == null) {
-			tuioGraph = graphMaker.createGraph();
+			tuioGraph = new DynamicGraphFromGraph( graphMaker.createGraph() );
 			tuioSourceNode = TUIO.defaultSource.asNode();
 			tuioGraph.add(new Triple(tuioSourceNode, RDF.type.asNode(), TUIO.Source.asNode()));
 			tuioGraph.add(new Triple(tuioSourceNode, TUIO.updateTime.asNode(), T0));

@@ -1,11 +1,12 @@
 package org.swows.producer;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 public class SelectGraphProducer extends GraphProducer {
 
@@ -43,7 +44,7 @@ public class SelectGraphProducer extends GraphProducer {
 	}
 
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return inputProducer.createDataset(inputDataset).getGraph(graphNameNode);
 	}
 

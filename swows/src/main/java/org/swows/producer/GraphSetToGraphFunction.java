@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -30,7 +32,6 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 /**
  * The Abstract Class GraphSetToGraphFunction is the
@@ -151,15 +152,15 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(final DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
 		final Iterator<Producer> prodIter = producerList.iterator();
-		return exec(new Iterator<Graph>() {
+		return exec(new Iterator<DynamicGraph>() {
 			@Override
 			public boolean hasNext() {
 				return prodIter.hasNext();
 			}
 			@Override
-			public Graph next() {
+			public DynamicGraph next() {
 				return prodIter.next().createGraph(inputDataset);
 			}
 			@Override
@@ -175,6 +176,6 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 * @param input the input
 	 * @return the graph
 	 */
-	public abstract Graph exec(Iterator<Graph> input);
+	public abstract DynamicGraph exec(Iterator<DynamicGraph> input);
 
 }

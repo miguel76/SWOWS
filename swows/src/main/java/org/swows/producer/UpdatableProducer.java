@@ -3,6 +3,8 @@ package org.swows.producer;
 import java.util.Iterator;
 
 import org.swows.graph.UpdatableGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -46,7 +48,7 @@ public class UpdatableProducer extends GraphProducer {
 	}
 
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return new UpdatableGraph(
 				baseGraphProducer.createGraph(inputDataset),
 				addGraphProducer.createGraph(inputDataset),

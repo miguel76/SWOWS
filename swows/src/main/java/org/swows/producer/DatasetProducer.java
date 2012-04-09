@@ -19,8 +19,8 @@
  */
 package org.swows.producer;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Abstract Class DatasetProducer is the common
@@ -34,7 +34,7 @@ public abstract class DatasetProducer implements Producer {
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public abstract DatasetGraph createDataset(DatasetGraph inputDataset);
+	public abstract DynamicDataset createDataset(DynamicDataset inputDataset);
 
 	/**
 	 * Return the default graph of the dataset returned by {@code createDataset(inputDataset)}.
@@ -44,7 +44,7 @@ public abstract class DatasetProducer implements Producer {
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return createDataset(inputDataset).getDefaultGraph();
 	}
 

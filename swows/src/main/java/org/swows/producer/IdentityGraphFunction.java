@@ -20,6 +20,8 @@
 package org.swows.producer;
 
 
+import org.swows.graph.events.DynamicGraph;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 
@@ -45,7 +47,7 @@ public class IdentityGraphFunction extends GraphFunction {
 	 * @see org.swows.producer.GraphFunction#exec(com.hp.hpl.jena.graph.Graph)
 	 */
 	@Override
-	public Graph exec(Graph input) {
+	public DynamicGraph exec(DynamicGraph input) {
 		return input;
 	}
 

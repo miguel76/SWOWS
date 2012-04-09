@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Class NotifyingProducer encapsulates another
@@ -74,7 +74,7 @@ public class NotifyingProducer implements Producer {
 		}
 	}
 
-	private void notifyGraphCreation(DatasetGraph datasetInput, Graph newGraph) {
+	private void notifyGraphCreation(DynamicDataset datasetInput, DynamicGraph newGraph) {
 		if (listenersSet != null) {
 			Iterator<ProducerListener> listeners = listenersSet.iterator();
 			while (listeners.hasNext()) {
@@ -83,7 +83,7 @@ public class NotifyingProducer implements Producer {
 		}
 	}
 
-	private void notifyDatasetCreation(DatasetGraph datasetInput, DatasetGraph newDataset) {
+	private void notifyDatasetCreation(DynamicDataset datasetInput, DynamicDataset newDataset) {
 		if (listenersSet != null) {
 			Iterator<ProducerListener> listeners = listenersSet.iterator();
 			while (listeners.hasNext()) {
@@ -96,8 +96,8 @@ public class NotifyingProducer implements Producer {
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public DatasetGraph createDataset(DatasetGraph inputDataset) {
-		DatasetGraph innerDataset = innerProducer.createDataset(inputDataset);
+	public DynamicDataset createDataset(DynamicDataset inputDataset) {
+		DynamicDataset innerDataset = innerProducer.createDataset(inputDataset);
 		notifyDatasetCreation(inputDataset, innerDataset);
 		return innerDataset;
 	}
@@ -106,8 +106,8 @@ public class NotifyingProducer implements Producer {
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
-		Graph innerGraph = innerProducer.createGraph(inputDataset);
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
+		DynamicGraph innerGraph = innerProducer.createGraph(inputDataset);
 		notifyGraphCreation(inputDataset, innerGraph);
 		return innerGraph;
 	}

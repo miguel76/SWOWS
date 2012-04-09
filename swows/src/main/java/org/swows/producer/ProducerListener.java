@@ -19,8 +19,8 @@
  */
 package org.swows.producer;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The listener interface for receiving producer events.
@@ -40,7 +40,7 @@ public interface ProducerListener {
 	 * @param inputDataset the input dataset
 	 * @param graph the created graph
 	 */
-	public void notifyGraphCreation(DatasetGraph inputDataset, Graph graph);
+	public void notifyGraphCreation(DynamicDataset inputDataset, DynamicGraph graph);
 
 	/**
 	 * Notify dataset creation.
@@ -48,6 +48,6 @@ public interface ProducerListener {
 	 * @param inputDataset the input dataset
 	 * @param dataset the created dataset
 	 */
-	public void notifyDatasetCreation(DatasetGraph inputDataset, DatasetGraph dataset);
+	public void notifyDatasetCreation(DynamicDataset inputDataset, DynamicDataset dataset);
 
 }

@@ -22,6 +22,8 @@ package org.swows.producer;
 import java.util.Iterator;
 
 import org.swows.graph.MultiUnion;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -31,29 +33,6 @@ import com.hp.hpl.jena.graph.Node;
  * graphs.
  */
 public class UnionFunction extends GraphSetToGraphFunction {
-
-/*
-	public static Factory<GraphSetToGraphFunction> factory =
-		new Factory<GraphSetToGraphFunction>() {
-			@Override
-			public GraphSetToGraphFunction create() {
-				return getInstance();
-			}
-		};
-
-	private static UnionFunction singleton = null;
-
-	private UnionFunction() {
-
-	}
-
-	public static UnionFunction getInstance() {
-		if (singleton == null)
-			singleton = new UnionFunction();
-		return singleton;
-	}
-
-	*/
 
 	/**
 	 * Instantiates a new union function.
@@ -80,16 +59,16 @@ public class UnionFunction extends GraphSetToGraphFunction {
 	 * @see org.swows.producer.GraphSetToGraphFunction#exec(java.util.Iterator)
 	 */
 	@Override
-	public Graph exec(Iterator<Graph> input) {
+	public DynamicGraph exec(Iterator<DynamicGraph> input) {
 
-		Graph resultGraph = Graph.emptyGraph;
+		DynamicGraph resultGraph = new DynamicGraphFromGraph( Graph.emptyGraph );
 
 		if (input.hasNext()) {
 			resultGraph = input.next();
 		}
 
 		if (input.hasNext()) {
-			MultiUnion unionGraph = new MultiUnion(new Graph[] {resultGraph,input.next()} );
+			MultiUnion unionGraph = new MultiUnion(new DynamicGraph[] {resultGraph,input.next()} );
 			while (input.hasNext()) {
 				unionGraph.addGraph(input.next());
 			}

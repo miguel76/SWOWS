@@ -21,6 +21,7 @@ package org.swows.producer;
 
 import org.apache.log4j.Logger;
 import org.swows.graph.LoggingGraph;
+import org.swows.graph.events.DynamicGraph;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -108,7 +109,7 @@ public class LoggingProducer extends GraphFunction {
 //	}
 
 	@Override
-	public Graph exec(Graph input) {
+	public DynamicGraph exec(DynamicGraph input) {
 		return
 				(logger.isDebugEnabled())
 					? new LoggingGraph(input, logger, initialGraphDebug, graphUpdateDebug )

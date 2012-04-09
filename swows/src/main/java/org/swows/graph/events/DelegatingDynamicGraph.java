@@ -232,4 +232,9 @@ public abstract class DelegatingDynamicGraph implements DynamicGraph {
 		getLocalBaseGraph().add(triple);
 	}
 
+	@Override
+	public EventManager getEventManager2() {
+		return getLocalBaseGraph().getEventManager2();
+	}
+
 }

@@ -19,14 +19,13 @@
  */
 package org.swows.producer;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 import org.swows.vocabulary.SPINX;
 
-import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-
 /**
  * The Abstract Class DatasetFunction is the common ancestor
  * of producer classes that operate on an input dataset
@@ -34,29 +33,6 @@ import com.hp.hpl.jena.sparql.core.DatasetGraph;
  * Concrete classes must implement the {@code exec} method.
  */
 public abstract class DatasetFunction extends DatasetProducer {
-
-/*
-	public DatasetGraph exec(Graph conf, final Node confRoot, final DataflowProducer context) {
-		final Model confModel = ModelFactory.createModelForGraph(conf);
-		//RDFList rdfList = ((RDFList) confModel.getRDFNode(confRoot));
-		return exec(
-				new DelegatingDataset() {
-					@Override
-					protected DatasetGraph getBaseDataset() {
-						return
-							context
-								.getInnerDataset(
-										((Resource)
-												confModel
-													.getRDFNode(confRoot)
-										)
-											.getPropertyResourceValue(SPINX.input)
-											.asNode() );
-					}
-				} );
-
-	}
-*/
 
 	private DatasetProducer inputProd;
 
@@ -68,7 +44,7 @@ public abstract class DatasetFunction extends DatasetProducer {
 	 * @param map the map to access the other defined producers
 	 * @see Producer
 	 */
-	public DatasetFunction(Graph conf, Node confRoot, ProducerMap map) {
+	public DatasetFunction(DynamicGraph conf, Node confRoot, ProducerMap map) {
 		Model confModel = ModelFactory.createModelForGraph(conf);
 		inputProd =
 			(DatasetProducer) map.getProducer(
@@ -78,22 +54,6 @@ public abstract class DatasetFunction extends DatasetProducer {
 					.getPropertyResourceValue(SPINX.input)
 					.asNode());
 	}
-
-	/*
-	public DatasetGraph exec(Graph conf, final Node confRoot, ExecutionContext context) {
-		final Model confModel = ModelFactory.createModelForGraph(conf);
-		return
-			exec(
-				context
-					.getInnerDataset(
-						((Resource)
-							confModel
-								.getRDFNode(confRoot)
-						)
-							.getPropertyResourceValue(SPINX.input)
-							.asNode() ) );
-	}
-	*/
 
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
@@ -107,7 +67,7 @@ public abstract class DatasetFunction extends DatasetProducer {
 	 * @see org.swows.producer.DatasetProducer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public DatasetGraph createDataset(DatasetGraph inputDataset) {
+	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		return exec(inputProd.createDataset(inputDataset));
 	}
 
@@ -117,6 +77,6 @@ public abstract class DatasetFunction extends DatasetProducer {
 	 * @param input the input dataset
 	 * @return the output dataset
 	 */
-	public abstract DatasetGraph exec(DatasetGraph input);
+	public abstract DynamicDataset exec(DynamicDataset input);
 
 }

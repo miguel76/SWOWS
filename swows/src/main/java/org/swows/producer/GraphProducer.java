@@ -20,9 +20,8 @@
 package org.swows.producer;
 
 import org.swows.graph.SingleGraphDataset;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Abstract Class GraphProducer is the common
@@ -36,7 +35,7 @@ public abstract class GraphProducer implements Producer {
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public abstract Graph createGraph(DatasetGraph inputDataset);
+	public abstract DynamicGraph createGraph(DynamicDataset inputDataset);
 
 	/**
 	 * Return a dataset with as default graph the one
@@ -48,7 +47,7 @@ public abstract class GraphProducer implements Producer {
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public DatasetGraph createDataset(final DatasetGraph inputDataset) {
+	public DynamicDataset createDataset(final DynamicDataset inputDataset) {
 		return new SingleGraphDataset(createGraph(inputDataset));
 	}
 

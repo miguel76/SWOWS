@@ -21,6 +21,9 @@ package org.swows.producer;
 
 import java.util.Iterator;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
@@ -28,7 +31,7 @@ import org.swows.vocabulary.SPINX;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * The Class InlineGraphProducer generates a graph whose
@@ -36,7 +39,7 @@ import com.hp.hpl.jena.sparql.core.DatasetGraph;
  */
 public class InlineGraphProducer extends GraphProducer {
 
-	private Graph inlineGraph;
+	private DynamicGraph inlineGraph;
 
 	/**
 	 * Instantiates a new inline graph producer.
@@ -47,6 +50,7 @@ public class InlineGraphProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public InlineGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
+		inlineGraph = new DynamicGraphFromGraph(GraphFactory.createGraphMem());
 		Iterator<Node> tripleIter = GraphUtils.getPropertyValues(conf, confRoot, SPINX.triple.asNode());
 		while(tripleIter.hasNext()) {
 			Node tripleNode = tripleIter.next();
@@ -62,7 +66,7 @@ public class InlineGraphProducer extends GraphProducer {
 	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return inlineGraph;
 	}
 

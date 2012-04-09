@@ -7,7 +7,7 @@ import org.swows.runnable.LocalTimer;
 
 import com.hp.hpl.jena.util.FileManager;
 
-public class LoadGraph extends BuildingGraph {
+public class LoadGraph extends DynamicChangingGraph {
 	
 	private String filenameOrURI, baseURI, rdfSyntax;
 //	private long pollingPeriod;
@@ -17,7 +17,7 @@ public class LoadGraph extends BuildingGraph {
 		this.baseURI = baseURI;
 		this.rdfSyntax = rdfSyntax;
 //		this.pollingPeriod = pollingPeriod;
-		this.baseGraphCopy = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
+		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
 		if (pollingPeriod > 0) {
 //			Timer updateTimer = new Timer();
 			Timer updateTimer = LocalTimer.get();
@@ -31,7 +31,7 @@ public class LoadGraph extends BuildingGraph {
 	}
 	
 	private void update() {
-		setBaseGraph( FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph(), this );
+		setBaseGraph( FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph() );
 	}
 
 }

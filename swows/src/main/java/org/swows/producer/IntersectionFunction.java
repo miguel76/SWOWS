@@ -21,6 +21,8 @@ package org.swows.producer;
 
 import java.util.Iterator;
 
+import org.swows.graph.events.DynamicGraph;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.compose.Intersection;
@@ -69,9 +71,9 @@ public class IntersectionFunction extends GraphSetToGraphFunction {
 	 * @see org.swows.producer.GraphSetToGraphFunction#exec(java.util.Iterator)
 	 */
 	@Override
-	public Graph exec(Iterator<Graph> input) {
+	public DynamicGraph exec(Iterator<DynamicGraph> input) {
 
-		Graph resultGraph = null;
+		DynamicGraph resultGraph = null;
 
 		if (input.hasNext()) {
 			resultGraph = input.next();
@@ -79,9 +81,9 @@ public class IntersectionFunction extends GraphSetToGraphFunction {
 			throw new RuntimeException("Intersection of Empty Graph List is Not Allowed");
 		}
 
-		while (input.hasNext()) {
-			resultGraph = new Intersection(resultGraph, input.next());
-		}
+//		while (input.hasNext()) {
+//			resultGraph = new Intersection(resultGraph, input.next());
+//		}
 
 		return resultGraph;
 

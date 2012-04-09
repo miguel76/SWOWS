@@ -19,29 +19,24 @@
  */
 package org.swows.graph;
 
+import org.swows.graph.events.DynamicGraphFromGraph;
+import org.swows.graph.events.GraphUpdate;
+
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphEvents;
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.compose.Difference;
-import com.hp.hpl.jena.graph.impl.SimpleEventManager;
 
 /**
  * The Class BuildingGraph allows to change the base graph
  * producing the events involved in the change.
  * It's used in {@code org.swows.producer.BuildingGraphProducer}.
  */
-public class BuildingGraph extends DelegatingGraph {
-
-	/** The local event manager. */
-	protected GraphEventManager localEventManager =
-		new SimpleEventManager(this);
+public class DynamicChangingGraph extends DynamicGraphFromGraph {
 
 	/**
 	 * Instantiates a new building graph.
 	 */
-	protected BuildingGraph() {
-		super();
+	protected DynamicChangingGraph() {
+		super(Graph.emptyGraph);
 	}
 
 	/**
@@ -49,10 +44,8 @@ public class BuildingGraph extends DelegatingGraph {
 	 *
 	 * @param initialGraph the initial graph
 	 */
-	public BuildingGraph(Graph initialGraph) {
-		super();
-		baseGraphCopy = initialGraph;
-		baseGraphCopy.getEventManager().register(localEventManager);
+	public DynamicChangingGraph(Graph initialGraph) {
+		super(initialGraph);
 	}
 
 	/**
@@ -61,7 +54,7 @@ public class BuildingGraph extends DelegatingGraph {
 	 * @param newGraph the new graph
 	 * @param sourceGraph the source graph
 	 */
-	public synchronized void setBaseGraph(Graph newGraph, Graph sourceGraph) {
+	public synchronized void setBaseGraph(Graph newGraph) {
 
 //		System.out.println(this + ": *** OLD GRAPH *******");
 //		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out,"N3");
@@ -70,42 +63,23 @@ public class BuildingGraph extends DelegatingGraph {
 //		ModelFactory.createModelForGraph(newGraph).write(System.out,"N3");
 //		System.out.println();
 
-		Graph oldGraph = baseGraphCopy;
-		
-		baseGraphCopy.getEventManager().unregister(localEventManager);
-		baseGraphCopy = newGraph;
-		baseGraphCopy.getEventManager().register(localEventManager);
+		Graph oldGraph = baseGraph;
+		baseGraph = newGraph;
 
-		Graph srcGraph = (sourceGraph != null) ? sourceGraph : this;
-		Graph addedGraph = new Difference(newGraph, oldGraph);
-		Graph deletedGraph = new Difference(oldGraph, newGraph);
+		final Graph addedGraph = new Difference(newGraph, oldGraph);
+		final Graph deletedGraph = new Difference(oldGraph, newGraph);
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
-			localEventManager.notifyEvent(srcGraph, GraphEvents.startRead);
-			localEventManager.notifyAddIterator(
-					srcGraph,
-					addedGraph.find(Node.ANY, Node.ANY, Node.ANY));
-			localEventManager.notifyDeleteIterator(
-					srcGraph,
-					deletedGraph.find(Node.ANY, Node.ANY, Node.ANY));
-			localEventManager.notifyEvent(srcGraph, GraphEvents.finishRead);
+			eventManager.notifyUpdate(new GraphUpdate() {
+				@Override
+				public Graph getAddedGraph() {
+					return addedGraph;
+				}
+				@Override
+				public Graph getDeletedGraph() {
+					return deletedGraph;
+				}
+			});
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.swows.graph.DelegatingGraph#getBaseGraph()
-	 */
-	@Override
-	protected Graph getBaseGraph() {
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.swows.graph.DelegatingGraph#getEventManager()
-	 */
-	@Override
-	public GraphEventManager getEventManager() {
-		return localEventManager;
-	}
-
 
 }

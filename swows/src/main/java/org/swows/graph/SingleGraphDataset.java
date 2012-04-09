@@ -22,24 +22,24 @@ package org.swows.graph;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.hp.hpl.jena.graph.Graph;
+import org.swows.graph.events.DynamicGraph;
+
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraphCollection;
 
 /**
  * The Class SingleGraphDataset it's a dataset containing
  * only the default graph (not the named graphs).
  */
-public class SingleGraphDataset extends DatasetGraphCollection {
+public class SingleGraphDataset extends DynamicDatasetCollection {
 	
-	private Graph graph;
+	private DynamicGraph graph;
 
 	/**
 	 * Instantiates a new single graph dataset.
 	 *
 	 * @param graph the graph
 	 */
-	public SingleGraphDataset(Graph graph) {
+	public SingleGraphDataset(DynamicGraph graph) {
 		this.graph = graph;
 	}
 	
@@ -68,7 +68,7 @@ public class SingleGraphDataset extends DatasetGraphCollection {
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraphBase#getDefaultGraph()
 	 */
 	@Override
-	public Graph getDefaultGraph() {
+	public DynamicGraph getDefaultGraph() {
 		return graph;
 	}
 
@@ -76,8 +76,13 @@ public class SingleGraphDataset extends DatasetGraphCollection {
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraphBase#getGraph(com.hp.hpl.jena.graph.Node)
 	 */
 	@Override
-	public Graph getGraph(Node graphNode) {
+	public DynamicGraph getGraph(Node graphNode) {
 		return null;
+	}
+
+	@Override
+	public boolean containsGraph(Node graphNode) {
+		return false;
 	}
 
 }

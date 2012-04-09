@@ -15,6 +15,10 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
+import org.swows.graph.SingleGraphDataset;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
 import org.swows.xmlinrdf.DomDecoder;
@@ -22,8 +26,6 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
 
 public class TuioApp extends JFrame {
 
@@ -56,9 +58,9 @@ public class TuioApp extends JFrame {
 			final boolean fullscreen, int width, int height, boolean autoRefresh ) {
 		super(title, gc);
     	final TuioGateway tuioGateway = new TuioGateway(autoRefresh);
-		final DatasetGraph inputDatasetGraph = DatasetGraphFactory.create(tuioGateway.getGraph());
-		DataflowProducer applyOps =	new DataflowProducer(dataflowGraph, inputDatasetGraph);
-		Graph outputGraph = applyOps.createGraph(inputDatasetGraph);
+		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(tuioGateway.getGraph());
+		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
+		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
 
 		final JSVGCanvas svgCanvas = new JSVGCanvas();
         svgCanvas.setSize(width,height);

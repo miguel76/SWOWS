@@ -22,7 +22,9 @@ package org.swows.producer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.swows.graph.BuildingGraph;
+import org.swows.graph.DynamicChangingGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
@@ -41,14 +43,14 @@ public class BuildingGraphProducer extends GraphProducer {
 
 	private NotifyingProducer connectedProducer;
 	
-	private Map<DatasetGraph,BuildingGraph> localGraphs = new HashMap<DatasetGraph, BuildingGraph>();
+	private Map<DatasetGraph,DynamicChangingGraph> localGraphs = new HashMap<DatasetGraph, DynamicChangingGraph>();
 //	private BuildingGraph localGraph = new BuildingGraph(Graph.emptyGraph);
 
-	private BuildingGraph getLocalGraph(DatasetGraph inputDataset) {
+	private DynamicChangingGraph getLocalGraph(DatasetGraph inputDataset) {
 		if (localGraphs.containsKey(inputDataset))
 			return localGraphs.get(inputDataset);
 		else {
-			BuildingGraph newLocalGraph = new BuildingGraph(Graph.emptyGraph);
+			DynamicChangingGraph newLocalGraph = new DynamicChangingGraph(Graph.emptyGraph);
 			localGraphs.put(inputDataset, newLocalGraph);
 			return newLocalGraph;
 		}
@@ -64,8 +66,8 @@ public class BuildingGraphProducer extends GraphProducer {
 		prod.registerListener(
 				new GraphProducerListener() {
 					@Override
-					public void notifyGraphCreation(DatasetGraph inputDataset, Graph graph) {
-						getLocalGraph(inputDataset).setBaseGraph(graph,null);
+					public void notifyGraphCreation(DynamicDataset inputDataset, DynamicGraph graph) {
+						getLocalGraph(inputDataset).setBaseGraph(graph);
 					}
 				});
 	}
@@ -74,7 +76,7 @@ public class BuildingGraphProducer extends GraphProducer {
 	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
-	public Graph createGraph(DatasetGraph inputDataset) {
+	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return getLocalGraph(inputDataset);
 	}
 

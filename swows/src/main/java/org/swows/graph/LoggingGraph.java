@@ -22,12 +22,14 @@ package org.swows.graph;
 import java.io.StringWriter;
 
 import org.apache.log4j.Logger;
+import org.swows.graph.events.DelegatingDynamicGraph;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.EventManager;
+import org.swows.graph.events.GraphUpdate;
+import org.swows.graph.events.Listener;
+import org.swows.graph.events.SimpleEventManager;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphListener;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.SimpleEventManager;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
@@ -35,11 +37,11 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  * to which is connected and its updates.
  * It's used in {@code org.swows.producer.LoggingGraphProducer}.
  */
-public class LoggingGraph extends DelegatingGraph {
+public class LoggingGraph extends DelegatingDynamicGraph {
 
 	private Logger logger; 
-	private GraphListener graphListener;
-	private GraphEventManager eventManager = new SimpleEventManager(this);
+	private Listener graphListener;
+	private EventManager eventManager = new SimpleEventManager(this);
 
 	/**
 	 * Instantiates a new logging graph.
@@ -50,7 +52,7 @@ public class LoggingGraph extends DelegatingGraph {
 	 * @param graphUpdateDebug if true the graph updates will be debugged/traced  
 	 */
 	public LoggingGraph(
-			final Graph connectedGraph, final Logger logger,
+			final DynamicGraph connectedGraph, final Logger logger,
 			boolean initialGraphDebug, boolean graphUpdateDebug) {
 		super();
 		this.baseGraphCopy = connectedGraph;
@@ -60,25 +62,18 @@ public class LoggingGraph extends DelegatingGraph {
 			traceGraph("Initial Graph", connectedGraph);
 		}
 		graphListener =
-				new PushGraphListener(connectedGraph, eventManager) {
+				new Listener() {
 
-					protected void notifyEvents() {
+					@Override
+					public void notifyUpdate(Graph source, GraphUpdate update) {
 						logger.debug("Notifying events");
-						traceGraph("Add Events Graph", addEvents);
-						traceGraph("Delete Events Graph", deleteEvents);
-						super.notifyEvents();
-					}
-
-					protected void notifyAdd(Triple t) {
-						eventManager.notifyAddTriple(connectedGraph, t);
-					}
-
-					protected void notifyDelete(Triple t) {
-						eventManager.notifyDeleteTriple(connectedGraph, t);
+						traceGraph("Add Events Graph", update.getAddedGraph());
+						traceGraph("Delete Events Graph", update.getDeletedGraph());
+						eventManager.notifyUpdate(update);
 					}
 					
 				};
-		connectedGraph.getEventManager().register(graphListener);
+		connectedGraph.getEventManager2().register(graphListener);
 					
 	}
 
@@ -97,15 +92,12 @@ public class LoggingGraph extends DelegatingGraph {
 	 * @see org.swows.graph.DelegatingGraph#getBaseGraph()
 	 */
 	@Override
-	protected Graph getBaseGraph() {
+	protected DynamicGraph getBaseGraph() {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.graph.Graph#getEventManager()
-	 */
 	@Override
-	public GraphEventManager getEventManager() {
+	public EventManager getEventManager2() {
 		return eventManager;
 	}
 

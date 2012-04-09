@@ -20,9 +20,8 @@
 package org.swows.producer;
 
 import org.swows.graph.SingleGraphDataset;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
 
 /**
  * The Abstract Class DatasetProducerListener is the common
@@ -43,7 +42,7 @@ public abstract class DatasetProducerListener implements ProducerListener {
 	 * @see org.swows.producer.ProducerListener#notifyGraphCreation(com.hp.hpl.jena.sparql.core.DatasetGraph, com.hp.hpl.jena.graph.Graph)
 	 */
 	@Override
-	public void notifyGraphCreation(DatasetGraph inputDataset, final Graph graph) {
+	public void notifyGraphCreation(DynamicDataset inputDataset, final DynamicGraph graph) {
 		notifyDatasetCreation( inputDataset, new SingleGraphDataset(graph) );
 	}
 

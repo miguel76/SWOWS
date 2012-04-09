@@ -10,6 +10,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.swows.datatypes.SmartFileManager;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.Document;
 
@@ -49,7 +50,7 @@ public class LiteralParsingTest {
 		//SparqlJenaQuery.developInRDF(defaultGraph);
 		inputDataset.getDefaultModel().write(System.out,"N3");
 		Graph defaultGraph =  inputDataset.asDatasetGraph().getDefaultGraph();
-		Document xmlDoc = DomDecoder.decodeOne(defaultGraph);
+		Document xmlDoc = DomDecoder.decodeOne(new DynamicGraphFromGraph( defaultGraph ));
 
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();

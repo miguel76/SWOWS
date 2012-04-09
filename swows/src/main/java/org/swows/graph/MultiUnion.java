@@ -20,6 +20,13 @@
 package org.swows.graph;
 
 import java.util.Iterator;
+import java.util.List;
+
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
+import org.swows.graph.events.Listener;
+import org.swows.graph.events.SimpleGraphUpdate;
+import org.swows.graph.events.SimpleListener;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Triple;
@@ -28,45 +35,64 @@ import com.hp.hpl.jena.graph.Triple;
  * The Class MultiUnion adds to {@code com.hp.hpl.jena.graph.compose.MultiUnion}
  * events management functionality.
  */
-public class MultiUnion extends com.hp.hpl.jena.graph.compose.MultiUnion {
+public class MultiUnion extends DynamicGraphFromGraph {
 
-	private class GraphListener extends PushGraphListener {
+	private Listener localListener = new SimpleListener() {
+		
+		SimpleGraphUpdate graphUpdate;
 
-		public GraphListener(Graph sourceGraph) {
-			super(sourceGraph, getEventManager());
+		@Override
+		protected void notifyDelete(Graph source, Triple triple) {
+			for (Graph currGraph: getSubGraphs()) {
+				if (currGraph != source && currGraph.contains(triple))
+					return;
+			}
+			graphUpdate.putDeletedTriple(triple);
 		}
 
 		@Override
-		protected void notifyDelete(Triple t) {
-			for (Graph currGraph: m_subGraphs) {
-				if (currGraph != sourceGraph && currGraph.contains(t))
+		protected void notifyAdd(Graph source, Triple triple) {
+			for (Graph currGraph: getSubGraphs()) {
+				if (currGraph != source && currGraph.contains(triple))
 					return;
 			}
-			getEventManager().notifyDeleteTriple(sourceGraph, t);
+			graphUpdate.putAddedTriple(triple);
 		}
 
 		@Override
-		protected void notifyAdd(Triple t) {
-			for (Graph currGraph: m_subGraphs) {
-				if (currGraph != sourceGraph && currGraph.contains(t))
-					return;
-			}
-			getEventManager().notifyAddTriple(sourceGraph, t);
+		protected void beginNotify(Graph source) {
+			graphUpdate = new SimpleGraphUpdate();
+		}
+
+		@Override
+		protected void endNotify(Graph source) {
+			eventManager.notifyUpdate(graphUpdate);
+			graphUpdate = null;
 		}
 
 	};
 
-	private void registerListeners() {
-        for (Graph g: m_subGraphs) {
-        	g.getEventManager().register(new GraphListener(g));
+	private void registerListener() {
+        for (Graph g: getSubGraphs() ) {
+        	( (DynamicGraph) g ).getEventManager2().register(localListener);
         }
+	}
+	
+	private com.hp.hpl.jena.graph.compose.MultiUnion getBaseMultiUnion() {
+		return (com.hp.hpl.jena.graph.compose.MultiUnion) baseGraph;
+	}
+
+	private List<Graph> getSubGraphs() {
+		List<Graph> subGraphs = getBaseMultiUnion().getSubGraphs();
+		subGraphs.add(getBaseMultiUnion().getBaseGraph());
+		return subGraphs;
 	}
 
 	/**
 	 * Instantiates a new multi union with event management.
 	 */
 	public MultiUnion() {
-		super();
+		super( new com.hp.hpl.jena.graph.compose.MultiUnion() );
 	}
 
     /**
@@ -75,8 +101,8 @@ public class MultiUnion extends com.hp.hpl.jena.graph.compose.MultiUnion {
      * @param graphs the input graphs
      */
     public MultiUnion( Graph[] graphs) {
-        super( graphs );
-        registerListeners();
+        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+        registerListener();
     }
 
     /**
@@ -85,18 +111,17 @@ public class MultiUnion extends com.hp.hpl.jena.graph.compose.MultiUnion {
      * @param graphs the input graphs
      */
     public MultiUnion( Iterator<Graph> graphs ) {
-        super( graphs );
-        registerListeners();
+        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+        registerListener();
     }
 
     /* (non-Javadoc)
      * @see com.hp.hpl.jena.graph.compose.MultiUnion#addGraph(com.hp.hpl.jena.graph.Graph)
      */
-    @Override
-    public void addGraph( Graph graph ) {
-        if (!m_subGraphs.contains( graph )) {
-        	super.addGraph( graph );
-        	graph.getEventManager().register(new GraphListener(graph));
+    public void addGraph( DynamicGraph graph ) {
+        if (! getSubGraphs().contains( graph ) ) {
+        	getBaseMultiUnion().addGraph( graph );
+        	graph.getEventManager2().register(localListener);
         }
     }
 

@@ -21,13 +21,17 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.GraphUpdate;
+import org.swows.graph.events.Listener;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 /**
  * The Class SparqlConstructGraph it's the result of a
@@ -35,43 +39,28 @@ import com.hp.hpl.jena.sparql.core.DatasetGraph;
  * If the dataset changes the query is executed again and
  * the result updated.
  */
-public class SparqlConstructGraph extends BuildingGraph {
-
-	private class GraphListener extends PushGraphListener {
-
-		public GraphListener(Graph sourceGraph) {
-			super(sourceGraph, getEventManager());
-		}
-
-		@Override
-		protected boolean changed() {
-			// bloody programming style, "state checking" method changed() used for side effect
-			update(sourceGraph);
-			return false;
-		}
-
-/*
-		@Override
-		protected void notifyEvents() {
-			update(sourceGraph);
-		}
-*/
-
-	};
+public class SparqlConstructGraph extends DynamicChangingGraph {
 
 	private Query query;
-	private DatasetGraph queryDataset;
+	private DynamicDataset queryDataset;
+	
+	private Listener listener = new Listener() {
+		@Override
+		public void notifyUpdate(Graph source, GraphUpdate update) {
+			update();
+		}
+	};
 
-	private void registerListeners() {
+	private void registerListener() {
 		queryDataset.getDefaultGraph()
-			.getEventManager()
-			.register(new GraphListener(queryDataset.getDefaultGraph()));
+			.getEventManager2()
+			.register(listener);
 		Iterator<Node> graphNodes = queryDataset.listGraphNodes();
 		while (graphNodes.hasNext()) {
-			Graph currGraph = queryDataset.getGraph( graphNodes.next() );
+			DynamicGraph currGraph = queryDataset.getGraph( graphNodes.next() );
 			currGraph
-			.getEventManager()
-			.register(new GraphListener(currGraph));
+			.getEventManager2()
+			.register(listener);
 		}
 	}
 
@@ -81,35 +70,17 @@ public class SparqlConstructGraph extends BuildingGraph {
 	 * @param query the query
 	 * @param queryDataset the input dataset
 	 */
-	public SparqlConstructGraph(Query query, DatasetGraph queryDataset) {
+	public SparqlConstructGraph(Query query, DynamicDataset queryDataset) {
 		super();
 		this.query = query;
 		this.queryDataset = queryDataset;
-		baseGraphCopy = exec();
-		baseGraphCopy.getEventManager().register(localEventManager);
-		registerListeners();
+		baseGraph = exec();
+		registerListener();
 	}
 
-	private synchronized void update(Graph sourceGraph) {
+	private synchronized void update() {
 		Graph newGraph = exec();
-		/*
-		Graph addedGraph = new Difference(newGraph, baseGraphCopy);
-		Graph deletedGraph = new Difference(baseGraphCopy, newGraph);
-		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
-			GraphEventManager eventManager = getEventManager();
-			eventManager.notifyEvent(sourceGraph, GraphEvents.startRead);
-			eventManager.notifyAddIterator(
-					this,
-					addedGraph.find(Node.ANY, Node.ANY, Node.ANY));
-			eventManager.notifyDeleteIterator(
-					this,
-					deletedGraph.find(Node.ANY, Node.ANY, Node.ANY));
-			baseGraphCopy = newGraph;
-			eventManager.notifyEvent(sourceGraph, GraphEvents.finishRead);
-
-		}
-		*/
-		setBaseGraph(newGraph, sourceGraph);
+		setBaseGraph(newGraph);
 	}
 
 	private Graph exec() {

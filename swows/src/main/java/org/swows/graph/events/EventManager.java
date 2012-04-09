@@ -1,7 +1,5 @@
 package org.swows.graph.events;
 
-import com.hp.hpl.jena.graph.Graph;
-
 public interface EventManager extends Listener {
 
     /**
