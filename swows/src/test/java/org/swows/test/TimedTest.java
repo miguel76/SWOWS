@@ -33,8 +33,10 @@ public class TimedTest {
 
     public static void main(final String[] args) throws TransformerException {
     	
-    	BasicConfigurator.configure();
-        //PropertyConfigurator.configure("log4j.properties");
+		String baseUri = "/home/miguel/pampers/dataflow/";
+
+//		BasicConfigurator.configure();
+        PropertyConfigurator.configure("/home/miguel/pampers/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -49,7 +51,6 @@ public class TimedTest {
         device = ge.getDefaultScreenDevice();
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/pampers/dataflow/";
 //		String baseUri = "/pampers/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
