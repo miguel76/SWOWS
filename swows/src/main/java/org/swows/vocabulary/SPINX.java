@@ -83,7 +83,9 @@ public class SPINX {
     public final static Resource DataflowGraph = resource("DataflowGraph");
 
     public final static Resource IncludedGraph = resource("IncludedGraph");
-
+    public final static Resource TwitterGraph = resource("TwitterGraph");
+   
+    
     /** The Constant Dataset. */
     public final static Resource Dataset = resource("Dataset");
     public final static Resource InlineDataset = resource("InlineDataset");
@@ -160,6 +162,10 @@ public class SPINX {
     public final static Property resultVariable = property("resultVariable");
     
 
+     public final static Property twitterUsername = property("twitterUsername");
+    public final static Property tweetNumber = property("tweetNumber");
+   
+    
     //public final static Property reasonerFactory = property("reasonerFactory");
 
     //	public final static Property all = ResourceFactory.createProperty(NS + "all");

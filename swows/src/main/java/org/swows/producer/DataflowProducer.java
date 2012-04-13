@@ -167,6 +167,8 @@ public class DataflowProducer extends DatasetProducer {
 			return RangeProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.IntegerRangeFromGraph.asNode()))
 			return RangeFunction.class;
+                else if (conf.contains(graphId, RDF.type.asNode(), SPINX.TwitterGraph.asNode()))
+			return TwitterProducer.class;
 		throw new RuntimeException("Unrecognized Graph Producer for node " + graphId + " in graph " + conf);
 		//return null;
 	}

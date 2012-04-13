@@ -49,10 +49,10 @@ public class TuioTest {
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
 //		String baseUri = "/home/miguel/TUIO/crosses/";
-		String baseUri = "/home/miguel/TUIO/circles/";
+		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
-		String mainGraphUrl = baseUri + "main_orig.n3";
+		String mainGraphUrl = baseUri + "main.n3";
 
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
