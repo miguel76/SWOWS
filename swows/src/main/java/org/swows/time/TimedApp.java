@@ -145,12 +145,16 @@ public class TimedApp extends JFrame {
 	    GraphicsDevice device = ge.getDefaultScreenDevice();
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-        if (args.length != 1) {
+        if (args.length != 3) {
         	System.out.println("Wrong Number of Arguments!");
-        	System.out.println("usage: java -jar swows.jar <dataflow_uri>");
+        	System.out.println("usage: java -jar swows.jar <dataflow_uri> <window_title> F(ull screen)/W(indow)");
         	System.exit(0);
         }
 		String mainGraphUrl = args[0];
+		String windowTitle = args[1];
+		char windowMode = args[2].charAt(0);
+		
+		boolean fullScreen = windowMode == 'f' || windowMode == 'F';
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
 		//String mainGraphUrl = baseUri + "main.n3";
@@ -168,7 +172,7 @@ public class TimedApp extends JFrame {
 
 		//TuioApp tuioApp = 
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph);
-		new TimedApp("ESAPACK DEMO", conf, wfGraph, false, 1024, 768);
+		new TimedApp(windowTitle, conf, wfGraph, fullScreen);
 		
     }	
 }

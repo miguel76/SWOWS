@@ -69,7 +69,8 @@ public class TimedTest {
 
 		//TuioApp tuioApp = 
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph);
-		new TimedApp("ESAPACK DEMO", conf, wfGraph, false, 1024, 768);
+//		new TimedApp("ESAPACK DEMO", conf, wfGraph, false, 1024, 768);
+		new TimedApp("ESAPACK DEMO", conf, wfGraph, false );
 		
     }	
     
