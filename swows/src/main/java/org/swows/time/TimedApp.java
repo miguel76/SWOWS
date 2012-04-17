@@ -53,6 +53,8 @@ public class TimedApp extends JFrame {
 			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
 			final boolean fullscreen, int width, int height ) {
 		super(title, gc);
+		if (fullscreen)
+			setUndecorated(true);
     	final SystemTime systemTime = new SystemTime();
 		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(systemTime.getGraph());
 		DataflowProducer applyOps =
