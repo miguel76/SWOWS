@@ -383,7 +383,6 @@ public class DomEncoder {
 						if (objXmlNode == null)
 							return false;
 						if (p.equals(xml.hasChild.asNode())) {
-                                
 							org.w3c.dom.Node parentNode = objXmlNode.getParentNode();
                                                         return (parentNode != null && parentNode.equals(subjXmlNode));
                                                 }
