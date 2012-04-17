@@ -110,10 +110,10 @@ public class TwitterProducer extends GraphProducer {
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         }
-
+        
         twitter = doc.createElement("Twitter");
         doc.appendChild(twitter);
-
+       // twitter.setAttribute(twitterUsername, twitterUsername);
          Attr tweetNumberAttr = doc.createAttribute("tweetNumber");
             tweetNumberAttr.setValue(Integer.toString(tweetNumber));
             twitter.setAttributeNode(tweetNumberAttr);
@@ -240,14 +240,21 @@ public class TwitterProducer extends GraphProducer {
                 } else {
                     tweetsLength = statuses.size();
                 }
-
+                
+                doc.removeChild(twitter);
+                
+                twitter = doc.createElement("Twitter");
+               // twitter.setAttributeNode(tweetNumberAttr);
+                doc.appendChild(twitter);
+                
                 for (int i = 0; i < tweetsLength; i++) {
                     // for (Status tweets : statuses) {
-                    if (statuses.get(i).getCreatedAt().after(date)) {
+                    if (statuses.get(0).getCreatedAt().after(date)) {
 
                         //C'è stato un nuovo tweet
                         System.out.println("@" + statuses.get(i).getUser().getScreenName() + " - " + statuses.get(i).getText());
                         //                System.out.println("@" + tweetList.get(i) + " - " + tweetList.get(i + 1));
+                        
                         tweet = doc.createElement("tweet");
                         twitter.appendChild(tweet);
 
@@ -263,10 +270,9 @@ public class TwitterProducer extends GraphProducer {
                         tweetDate.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
                         tweet.appendChild(tweetDate);
 
-                        tweetText = doc.createElement("text");
+                        tweetText = doc.createElement("tweetText");
                         tweetText.appendChild(doc.createTextNode(statuses.get(i).getText()));
                         tweet.appendChild(tweetText);
-
 
                         transformerFactory = TransformerFactory.newInstance();
                         try {
@@ -299,8 +305,12 @@ public class TwitterProducer extends GraphProducer {
                         ModelFactory.createModelForGraph(graphUpdate).write(System.out);
 
                         //DynamicChangingGraph.setBaseGraph(graphUpdate, graph);
-                        dynamicChangingGraph.setBaseGraph(graphUpdate);
-
+                        dynamicChangingGraph.setBaseGraph(graphUpdate);                        
+                        
+                        
+                    //    dynamicChangingGraph = new DynamicChangingGraph (graphUpdate);
+                        
+                        
                     } else {
                         break;
                     }
