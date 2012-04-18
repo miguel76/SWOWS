@@ -382,9 +382,11 @@ public class DomEncoder {
 						org.w3c.dom.Node objXmlNode = mapGraphNode2XmlNode(o);
 						if (objXmlNode == null)
 							return false;
-						if (p.equals(xml.hasChild.asNode()))
-							return objXmlNode.getParentNode().equals(subjXmlNode);
-						if (p.equals(xml.firstChild.asNode()))
+						if (p.equals(xml.hasChild.asNode())) {
+							org.w3c.dom.Node parentNode = objXmlNode.getParentNode();
+                                                        return (parentNode != null && parentNode.equals(subjXmlNode));
+                                                }
+                                                        if (p.equals(xml.firstChild.asNode()))
 							return subjXmlNode.getFirstChild().equals(objXmlNode);
 						if (p.equals(xml.lastChild.asNode()))
 							return subjXmlNode.getLastChild().equals(objXmlNode);
