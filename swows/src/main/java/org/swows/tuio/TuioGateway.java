@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.runnable.LocalTimer;
+import org.swows.runnable.RunnableContext;
 import org.swows.vocabulary.TUIO;
 
 import TUIO.TuioCursor;
@@ -42,18 +43,25 @@ public class TuioGateway implements TuioListener {
     private boolean isReceiving = false;
     private Logger logger;
     
+    private RunnableContext runnableContext = null;
+    
+    private TimerTask localTimerTask = new TimerTask() {
+		@Override
+		public void run() {
+			tuioGraph.sendUpdateEvents();
+		}
+	};
+    
     private void startReceiving() {
     	isReceiving = true;
     }
     
     private void stopReceiving() {
     	if (isReceiving) {
-    		LocalTimer.get().schedule(new TimerTask() {
-				@Override
-				public void run() {
-					tuioGraph.sendUpdateEvents();
-				}
-			}, 0);
+    		if (runnableContext != null)
+    			runnableContext.run(localTimerTask);
+    		else
+    			LocalTimer.get().schedule(localTimerTask, 0);
     	}
     	isReceiving = false;
     }
@@ -82,6 +90,32 @@ public class TuioGateway implements TuioListener {
 		tuioClient = new TuioClient(port,autoRefesh);
 		setup();
 	}
+	
+	public TuioGateway(RunnableContext runnableContext) {
+		tuioClient = new TuioClient();
+		this.runnableContext = runnableContext;
+		setup();
+	}
+
+	public TuioGateway(int port, RunnableContext runnableContext) {
+		tuioClient = new TuioClient(port);
+		this.runnableContext = runnableContext;
+		setup();
+	}
+
+	public TuioGateway(boolean autoRefesh, RunnableContext runnableContext) {
+		tuioClient = new TuioClient(autoRefesh);
+		this.runnableContext = runnableContext;
+		setup();
+	}
+
+	public TuioGateway(int port, boolean autoRefesh, RunnableContext runnableContext) {
+		tuioClient = new TuioClient(port,autoRefesh);
+		this.runnableContext = runnableContext;
+		setup();
+	}
+	
+	
 
 	public DynamicGraph getGraph() {
 		if (tuioGraph == null) {
@@ -309,7 +343,7 @@ public class TuioGateway implements TuioListener {
 		logger.debug(
 				"TUIO Gateway: updating object " + object
 				        //+ " " + point2nodeMapping.get(cursor)
-						+ " ( x:" + object.getX() + ", y:" + object.getY() + ")");
+						+ " ( x:" + object.getX() + ", y:" + object.getY() + ", angle:" + object.getAngle() + ")");
 		Node objectNode = updateTuioPoint(object);
 		changeObjectDecimal(objectNode, TUIO.angle.asNode(), object.getAngle());
 		logger.debug(

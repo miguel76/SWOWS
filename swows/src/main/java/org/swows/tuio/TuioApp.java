@@ -57,7 +57,17 @@ public class TuioApp extends JFrame {
 			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
 			final boolean fullscreen, int width, int height, boolean autoRefresh ) {
 		super(title, gc);
-    	final TuioGateway tuioGateway = new TuioGateway(autoRefresh);
+    	final TuioGateway tuioGateway =
+    			new TuioGateway(autoRefresh, new RunnableContext() {
+    				@Override
+    				public void run(Runnable runnable) {
+    					try {
+    						batikRunnableQueue.invokeAndWait(runnable);
+    					} catch(InterruptedException e) {
+    						throw new RuntimeException(e);
+    					}
+    				}
+    			});
 		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(tuioGateway.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
@@ -115,7 +125,7 @@ public class TuioApp extends JFrame {
 		Document xmlDoc =
 				DomDecoder.decodeOne(
 						outputGraph,
-						domImpl,
+						domImpl /*,
 						new RunnableContext() {
 							@Override
 							public void run(Runnable runnable) {
@@ -125,7 +135,7 @@ public class TuioApp extends JFrame {
 									throw new RuntimeException(e);
 								}
 							}
-						});
+						} */);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 		svgCanvas.setDocument(xmlDoc);
