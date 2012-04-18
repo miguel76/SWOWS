@@ -1,7 +1,7 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this template, choose Tools | Templates
+* and open the template in the editor.
+*/
 package org.swows.producer;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -77,11 +77,11 @@ public class TwitterProducer extends GraphProducer {
         setup();
     }
 
-  //  public static void main(String[] args) { //PER FARE PROVE
+  // public static void main(String[] args) { //PER FARE PROVE
 
         // Thread thread = new Thread(new TwitterProducer());
         // thread.start();
-      //  new TwitterProducer("DarioLap", 5);
+      // new TwitterProducer("DarioLap", 5);
         //setup();
 //se grafo = null, chiama setup
    // }
@@ -149,7 +149,7 @@ public class TwitterProducer extends GraphProducer {
 
             //for (Status tweets : statuses) {
             System.out.println("@" + statuses.get(i).getUser().getScreenName() + " - " + statuses.get(i).getText());
-            //                System.out.println("@" + tweetList.get(i) + " - " + tweetList.get(i + 1));
+            // System.out.println("@" + tweetList.get(i) + " - " + tweetList.get(i + 1));
             tweet = doc.createElement("tweet");
             twitter.appendChild(tweet);
 
@@ -157,13 +157,13 @@ public class TwitterProducer extends GraphProducer {
             tweetId.setValue(Integer.toString(i));
             tweet.setAttributeNode(tweetId);
 
-            tweetUser = doc.createElement("username");
-            tweetUser.appendChild(doc.createTextNode(statuses.get(i).getUser().getScreenName()));
-            tweet.appendChild(tweetUser);
+          //  tweetUser = doc.createElement("username");
+          //  tweetUser.appendChild(doc.createTextNode(statuses.get(i).getUser().getScreenName()));
+          //  tweet.appendChild(tweetUser);
 
-            tweetDate = doc.createElement("date");
-            tweetDate.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
-            tweet.appendChild(tweetDate);
+          //  tweetDate = doc.createElement("date");
+          //  tweetDate.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
+          //  tweet.appendChild(tweetDate);
 
             tweetText = doc.createElement("text");
             tweetText.appendChild(doc.createTextNode(statuses.get(i).getText()));
@@ -171,17 +171,17 @@ public class TwitterProducer extends GraphProducer {
 
 
             /*
-             * Attr data = doc.createAttribute("Data");
-             * data.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
-             * tweet.setAttributeNode(data);
-             */
+* Attr data = doc.createAttribute("Data");
+* data.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
+* tweet.setAttributeNode(data);
+*/
 
             //tweet.appendChild(doc.createTextNode(statuses.get(i).getText()));
             //twitter.appendChild(doc.createElement("tweet"));
 
         }
 
-        //  Document docRet = null;
+        // Document docRet = null;
 
 
         try {
@@ -215,7 +215,7 @@ public class TwitterProducer extends GraphProducer {
 
         // ---------------------------------------------
         // -----------CONTROLLA AGGIORNAMENTI-----------
-        // ---------------------------------------------            
+        // ---------------------------------------------
 
         //LocalTimer localTimer = new LocalTimer();
 
@@ -253,7 +253,7 @@ public class TwitterProducer extends GraphProducer {
 
                         //C'è stato un nuovo tweet
                         System.out.println("@" + statuses.get(i).getUser().getScreenName() + " - " + statuses.get(i).getText());
-                        //                System.out.println("@" + tweetList.get(i) + " - " + tweetList.get(i + 1));
+                        // System.out.println("@" + tweetList.get(i) + " - " + tweetList.get(i + 1));
                         
                         tweet = doc.createElement("tweet");
                         twitter.appendChild(tweet);
@@ -262,13 +262,13 @@ public class TwitterProducer extends GraphProducer {
                         tweetId.setValue(Integer.toString(i));
                         tweet.setAttributeNode(tweetId);
 
-                        tweetUser = doc.createElement("username");
-                        tweetUser.appendChild(doc.createTextNode(statuses.get(i).getUser().getScreenName()));
-                        tweet.appendChild(tweetUser);
+                     //   tweetUser = doc.createElement("username");
+                     //   tweetUser.appendChild(doc.createTextNode(statuses.get(i).getUser().getScreenName()));
+                     //   tweet.appendChild(tweetUser);
 
-                        tweetDate = doc.createElement("date");
-                        tweetDate.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
-                        tweet.appendChild(tweetDate);
+                    //    tweetDate = doc.createElement("date");
+                     //   tweetDate.appendChild(doc.createTextNode(statuses.get(i).getCreatedAt().toString()));
+                    //    tweet.appendChild(tweetDate);
 
                         tweetText = doc.createElement("tweetText");
                         tweetText.appendChild(doc.createTextNode(statuses.get(i).getText()));
@@ -305,10 +305,10 @@ public class TwitterProducer extends GraphProducer {
                         ModelFactory.createModelForGraph(graphUpdate).write(System.out);
 
                         //DynamicChangingGraph.setBaseGraph(graphUpdate, graph);
-                        dynamicChangingGraph.setBaseGraph(graphUpdate);                        
+                        dynamicChangingGraph.setBaseGraph(graphUpdate);
                         
                         
-                    //    dynamicChangingGraph = new DynamicChangingGraph (graphUpdate);
+                    // dynamicChangingGraph = new DynamicChangingGraph (graphUpdate);
                         
                         
                     } else {
