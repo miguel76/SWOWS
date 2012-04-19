@@ -55,12 +55,13 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 		queryDataset.getDefaultGraph()
 			.getEventManager2()
 			.register(listener);
-		Iterator<Node> graphNodes = queryDataset.listGraphNodes();
-		while (graphNodes.hasNext()) {
-			DynamicGraph currGraph = queryDataset.getGraph( graphNodes.next() );
-			currGraph
-			.getEventManager2()
-			.register(listener);
+//		Iterator<Node> graphNodes = queryDataset.listGraphNodes();
+		for (String namedGraphURI : query.getNamedGraphURIs() ) {
+//		while (graphNodes.hasNext()) {
+//			DynamicGraph currGraph = queryDataset.getGraph( graphNodes.next() );
+			Node graphNode = Node.createURI(namedGraphURI);
+			DynamicGraph currGraph = queryDataset.getGraph( graphNode );
+			currGraph.getEventManager2().register(listener);
 		}
 	}
 

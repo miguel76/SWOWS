@@ -22,7 +22,9 @@ package org.swows.tuio;
 
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import java.util.Vector;
 
 import TUIO.TuioCursor;
@@ -261,9 +263,9 @@ public synchronized void acceptMessage(Date date, OSCMessage message) {
 			float raccel = ((Float)args[10]).floatValue();
 			
 			if (objectList.get(s_id) == null) {
-			
-				TuioObject addObject = new TuioObject(s_id,c_id,xpos,ypos,angle);
-				frameObjects.addElement(addObject);
+				
+					TuioObject addObject = new TuioObject(TuioTime.getSessionTime(), s_id,c_id,xpos,ypos,angle);
+					frameObjects.addElement(addObject);
 				
 			} else {
 			
