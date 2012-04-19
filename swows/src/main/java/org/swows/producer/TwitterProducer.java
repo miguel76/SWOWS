@@ -321,12 +321,12 @@ public class TwitterProducer extends GraphProducer {
                 }
 
                 try {
-                    Thread.sleep(25000);
+                    Thread.sleep(180000);
                 } catch (InterruptedException ie) {
                     ie.printStackTrace();
                 }
             }
-        }, 1000, 25000);
+        }, 1000, 180000);
 
     }
 }
