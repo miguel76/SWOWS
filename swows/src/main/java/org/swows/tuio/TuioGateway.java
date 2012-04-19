@@ -182,11 +182,15 @@ public class TuioGateway implements TuioListener {
 
 	@Override
 	public synchronized void addTuioObject(TuioObject object) {
-		logger.debug("Adding object " + object + " in TUIO gateway");
+		logger.debug(
+				"TUIO Gateway: adding object " + object
+						+ " ( id: " + object.getSymbolID() + " x:" + object.getX() + ", y:" + object.getY() + ", angle:" + object.getAngle() + ")");
 		Node objectNode = addTuioPoint(object);
 		tuioGraph.add( new Triple(objectNode, RDF.type.asNode(), TUIO.Object.asNode()));
 		Node angleNode = Node.createLiteral(Float.toString(object.getAngle()), (String) null, XSDDatatype.XSDdecimal);
 		tuioGraph.add( new Triple(objectNode, TUIO.angle.asNode(), angleNode));
+		Node symbolNode = Node.createLiteral(Integer.toString(object.getSymbolID()), (String) null, XSDDatatype.XSDinteger);
+		tuioGraph.add( new Triple(objectNode, TUIO.markerId.asNode(), symbolNode));
 		logger.debug("Added object " + object + " (" + objectNode + ") in TUIO gateway");
 		//debugSubtreeExceptSource(objectNode);
 	}

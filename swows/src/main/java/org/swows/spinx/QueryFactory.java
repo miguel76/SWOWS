@@ -78,11 +78,15 @@ public class QueryFactory {
 	*/
 	
 	private Graph graph;
+	private Node queryRootNode;
+	private Query query = null;
 //	private Map<String, Var> varMap = new HashMap<String, Var>();
 	private Map<Node, Var> varMap = new HashMap<Node, Var>();
 	
-	private QueryFactory(Graph graph) {
+	private QueryFactory(Graph graph, Node queryRootNode) {
 		this.graph = graph;
+		this.queryRootNode = queryRootNode;
+		toQuery();
 	}
 	
 	private ExtendedIterator<Node> getObjects(Node subjNode, Node predNode) {
@@ -732,6 +736,8 @@ public class QueryFactory {
 					subElementContext.getProducedVars());
 		} else if (elementType.equals(SP.NamedGraph.asNode())) {
 			Node graphNameNode = getObject(elementRootNode, SP.graphNameNode.asNode());
+			if (graphNameNode.isURI())
+				query.addNamedGraphURI(graphNameNode.getURI());
 			ElementContext subElementContext = toElementContext(subElementNode);
 			return
 					new ElementContext(
@@ -1058,8 +1064,68 @@ public class QueryFactory {
 		return query;
 	}
 
+	public void toQuery() {
+		query = new Query();
+		query.setSyntax(Syntax.syntaxSPARQL_11);
+		ExtendedIterator<Node> typeNodes = getObjects(queryRootNode, RDF.type.asNode());
+		while (typeNodes.hasNext()) {
+			Node typeNode = typeNodes.next();
+			if (typeNode.equals(SP.Ask.asNode()))
+				query.setQueryAskType();
+			else if (typeNode.equals(SP.Construct.asNode()))
+				query.setQueryConstructType();
+			else if (typeNode.equals(SP.Describe.asNode()))
+				query.setQueryDescribeType();
+			else if (typeNode.equals(SP.Select.asNode()))
+				query.setQuerySelectType();
+		}
+		Node templateNode =	getObject(queryRootNode, SP.templates.asNode());
+		if (templateNode != null) {
+			query.setConstructTemplate(toTemplate(templateNode));
+		}
+		Node elementNode =	getObject(queryRootNode, SP.where.asNode());
+		if (elementNode != null) {
+			query.setQueryPattern(toElement(elementNode));
+		}
+		Iterator<Node> resultVarNodes =	getObjects( queryRootNode, SPINX.resultVariable.asNode());
+		while (resultVarNodes.hasNext()) {
+			Node resultVarNode = resultVarNodes.next();
+			Node aliasNode = getObject(resultVarNode, SP.as.asNode());
+			Node exprNode = getObject(resultVarNode, SP.expression.asNode());
+			if ( exprNode != null ) {
+				if ( aliasNode != null )
+					query.addResultVar(toVar(aliasNode), toExpr(exprNode));
+				else
+					query.addResultVar(toExpr(exprNode));
+			} else {
+				if ( aliasNode != null )
+					query.addResultVar(toVar(aliasNode));
+			}
+		}
+		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
+		while (groupByNodes.hasNext()) {
+			Node groupByNode = groupByNodes.next();
+			Node aliasNode = getObject(groupByNode, SP.as.asNode());
+			Node exprNode = getObject(groupByNode, SP.expression.asNode());
+			if ( exprNode != null ) {
+				if ( aliasNode != null )
+					query.addGroupBy(toVar(aliasNode), toExpr(exprNode));
+				else
+					query.addGroupBy(toExpr(exprNode));
+			} else {
+				if ( aliasNode != null )
+					query.addGroupBy(toVar(aliasNode));
+			}
+		}
+	}
+
+	private Query getQuery() {
+		return query;
+	}
+	
 	public static Query toQuery(Graph graph, Node queryRootNode) {
-		return new QueryFactory(graph).toQuery(queryRootNode);
+//		return new QueryFactory(graph).toQuery(queryRootNode);
+		return new QueryFactory(graph, queryRootNode).getQuery();
 	}
 
 }
