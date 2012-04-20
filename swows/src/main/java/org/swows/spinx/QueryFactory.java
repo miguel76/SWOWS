@@ -527,6 +527,7 @@ public class QueryFactory {
 		private Element element = null;
 		private Set<Var> producedVars = null;
 		private Set<Var> consumedVars = null;
+		private TriplePath triplePath = null;
 		public ElementContext() {
 		}
 		public ElementContext(Element element) {
@@ -554,6 +555,28 @@ public class QueryFactory {
 			this.element = element;
 			this.consumedVars = consumedVars;
 			this.producedVars = producedVars;
+		}
+		public ElementContext(
+				Element element,
+				TriplePath triplePath,
+				Set<Var> consumedVars,
+				Set<Var> producedVars) {
+			this.element = element;
+			this.triplePath = triplePath;
+			this.consumedVars = consumedVars;
+			this.producedVars = producedVars;
+		}
+		public ElementContext(
+				Element element,
+				TriplePath triplePath,
+				Set<Var> consumedVars,
+				Set<Var> producedVars,
+				int priority) {
+			this.element = element;
+			this.triplePath = triplePath;
+			this.consumedVars = consumedVars;
+			this.producedVars = producedVars;
+			this.priority = priority;
 		}
 		public ElementContext(Element element, int priority) {
 			this.element = element;
@@ -605,6 +628,12 @@ public class QueryFactory {
 			int priorityDiff = this.priority - other.priority;
 			return (priorityDiff != 0) ? priorityDiff : this.id - other.id;
 		}
+		public TriplePath getTriplePath() {
+			return triplePath;
+		}
+		public boolean isTriplePath() {
+			return triplePath != null;
+		}
 	}
 
 	public Element toElement(Node elementRootNode) {
@@ -653,7 +682,7 @@ public class QueryFactory {
 			boolean allTriplePatterns = true;
 			boolean allTriplePaths = true;
 			ElementGroup elementGroup = new ElementGroup();
-			ElementTriplesBlock elementTriplesBlock = new ElementTriplesBlock();
+//			ElementTriplesBlock elementTriplesBlock = new ElementTriplesBlock();
 			ElementPathBlock elementPathBlock = new ElementPathBlock();
 			SortedSet<ElementContext> elementContexts = new TreeSet<QueryFactory.ElementContext>();
 			Set<Var> producedVarSet = new HashSet<Var>();
@@ -670,33 +699,35 @@ public class QueryFactory {
 				elementContexts.add(elementContext);
 				
 				if (elementTypeNode.equals(SP.TriplePattern.asNode())) {
-					Node tripleSubjNode = toNode(subSubjNode);
-					Node triplePredNode = toNode(subPredNode);
-					Node tripleObjNode = toNode(subObjNode);
-					elementTriplesBlock.addTriple(
-							new Triple(
-									tripleSubjNode, triplePredNode, tripleObjNode) );
-					elementPathBlock.addTriplePath(
-							new TriplePath(
-									tripleSubjNode,
-									new P_Link(triplePredNode),
-									tripleObjNode) );
+//					Node tripleSubjNode = toNode(subSubjNode);
+//					Node triplePredNode = toNode(subPredNode);
+//					Node tripleObjNode = toNode(subObjNode);
+//					elementTriplesBlock.addTriple(
+//							new Triple(
+//									tripleSubjNode, triplePredNode, tripleObjNode) );
+//					elementPathBlock.addTriplePath(
+//							new TriplePath(
+//									tripleSubjNode,
+//									new P_Link(triplePredNode),
+//									tripleObjNode) );
 				} else {
 					allTriplePatterns = false;
-					if (elementTypeNode.equals(SP.TriplePath.asNode()))
-						elementPathBlock.addTriplePath(
-								new TriplePath(
-										toNode(subSubjNode),
-										toPath(subPathNode),
-										toNode(subObjNode)));
-					else
+//					if (elementTypeNode.equals(SP.TriplePath.asNode()))
+//						elementPathBlock.addTriplePath(
+//								new TriplePath(
+//										toNode(subSubjNode),
+//										toPath(subPathNode),
+//										toNode(subObjNode)));
+//					else
+					if (!elementTypeNode.equals(SP.TriplePath.asNode()))
 						allTriplePaths = false;
 				}
 			}
 //			if ( allTriplePatterns )
 //				return new ElementContext(elementTriplesBlock, null, producedVarSet);
-			if ( allTriplePaths )				
-				return new ElementContext(elementPathBlock, null, producedVarSet);
+//			if ( allTriplePaths ) {				
+//				return new ElementContext(elementPathBlock, null, producedVarSet);
+//			}
 			Set<Var> valorizedVarSet = new HashSet<Var>();
 			Set<Var> extConsumedVarSet = new HashSet<Var>();
 			while ( !elementContexts.isEmpty() ) {
@@ -710,7 +741,10 @@ public class QueryFactory {
 							allValorized = false;
 					}
 					if (allValorized) {
-						elementGroup.addElement(elementContext.getElement());
+						if ( allTriplePaths )			
+							elementPathBlock.addTriplePath(elementContext.getTriplePath());
+						else
+							elementGroup.addElement(elementContext.getElement());
 //						System.out.println(
 //									"Insert of element (" + elementContext.getElement()
 //									+ ") consuming {" + elementContext.getConsumedVars()
@@ -725,7 +759,10 @@ public class QueryFactory {
 				}
 				elementContexts.removeAll(toBeDeletedContexts);
 			}
-			return new ElementContext(elementGroup, extConsumedVarSet, producedVarSet);
+			if ( allTriplePaths )			
+				return new ElementContext(elementPathBlock, null, producedVarSet);
+			else
+				return new ElementContext(elementGroup, extConsumedVarSet, producedVarSet);
 		} else if (elementType.equals(SPINX.EmptyElement.asNode())) {
 			return new ElementContext( new ElementGroup() );
 		} else if (elementType.equals(SP.Minus.asNode())) {
@@ -765,7 +802,7 @@ public class QueryFactory {
 				producedVars.add((Var) triplePredNode);
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementTriplesBlock, null, producedVars);
+			return new ElementContext(elementTriplesBlock, new TriplePath(triple), null, producedVars, -1);
 		} else if (elementType.equals(SP.TriplePath.asNode())) {
 			Node tripleSubjNode = toNode(subjNode);
 			Path triplePathNode = toPath(pathNode);
@@ -811,7 +848,7 @@ public class QueryFactory {
 			});
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementPathBlock, null, producedVars);
+			return new ElementContext(elementPathBlock, triplePath, null, producedVars, -1);
 		} else if (elementType.equals(SP.Service.asNode())) {
 			Node serviceNode = getObject(elementRootNode, SP.serviceURI.asNode());
 			ElementContext subElementContext = toElementContext(subElementNode);

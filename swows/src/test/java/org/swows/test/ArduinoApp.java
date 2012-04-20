@@ -37,6 +37,9 @@ public class ArduinoApp {
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
+		registry.put(Factory.getBaseURI() + "sin", Factory.getInstance());
+		registry.put(Factory.getBaseURI() + "cos", Factory.getInstance());
+		registry.put(Factory.getBaseURI() + "atan", Factory.getInstance());
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
