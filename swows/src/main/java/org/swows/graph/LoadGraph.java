@@ -3,7 +3,8 @@ package org.swows.graph;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.swows.runnable.LocalTimer;
+import org.swows.runnable.RunnableContext;
+import org.swows.runnable.RunnableContextFactory;
 
 import com.hp.hpl.jena.util.FileManager;
 
@@ -19,12 +20,18 @@ public class LoadGraph extends DynamicChangingGraph {
 //		this.pollingPeriod = pollingPeriod;
 		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
 		if (pollingPeriod > 0) {
-//			Timer updateTimer = new Timer();
-			Timer updateTimer = LocalTimer.get();
+			final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
+			Timer updateTimer = new Timer();
+//			Timer updateTimer = LocalTimer.get();
 			updateTimer.schedule( new TimerTask() {
 				@Override
 				public void run() {
-					update();
+					runnableCtxt.run(new Runnable() {
+						@Override
+						public void run() {
+							update();
+						}
+					});
 				}
 			}, 0, pollingPeriod);
 		}

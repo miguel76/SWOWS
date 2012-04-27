@@ -243,5 +243,10 @@
       <artifactId>twitter4j-async</artifactId>
       <version>2.2.5</version>
     </dependency>
+    <dependency>
+    	<groupId>org.apache.activemq</groupId>
+    	<artifactId>activemq-all</artifactId>
+    	<version>5.5.1</version>
+    </dependency>
   </dependencies>
 </project>

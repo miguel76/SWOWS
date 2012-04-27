@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.apache.log4j.Logger;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
@@ -674,7 +675,7 @@ public class QueryFactory {
 			Var var = toVar(varNode);
 			Expr expr = toExpr(exprNode);
 			return new ElementContext(
-					new ElementBind(var, expr), expr.getVarsMentioned(), var );
+					new ElementBind(var, expr), expr.getVarsMentioned(), var, -2);
 		} else if (elementType.equals(SP.Filter.asNode())) {
 			Expr expr = toExpr(exprNode);
 			return new ElementContext(new ElementFilter(expr), expr.getVarsMentioned());
@@ -733,11 +734,16 @@ public class QueryFactory {
 			while ( !elementContexts.isEmpty() ) {
 				List<ElementContext> toBeDeletedContexts = new Vector<ElementContext>();
 				for ( ElementContext elementContext : elementContexts) {
+//					Logger.getRootLogger().trace(
+//					"Checking element (" + elementContext.getElement()
+//					+ ") consuming {" + elementContext.getConsumedVars()
+//					+ "} producing {" + elementContext.getProducedVars()
+//					+ "}");
 					boolean allValorized = true;
 					for ( Var var : elementContext.getConsumedVars()) {
 						if ( !producedVarSet.contains(var) )
 							extConsumedVarSet.add(var);
-						else if ( !valorizedVarSet.contains(var) )
+						else if ( !valorizedVarSet.contains(var) && !elementContext.getProducedVars().contains(var))
 							allValorized = false;
 					}
 					if (allValorized) {
@@ -745,13 +751,14 @@ public class QueryFactory {
 							elementPathBlock.addTriplePath(elementContext.getTriplePath());
 						else
 							elementGroup.addElement(elementContext.getElement());
-//						System.out.println(
+//						Logger.getRootLogger().trace(
 //									"Insert of element (" + elementContext.getElement()
 //									+ ") consuming {" + elementContext.getConsumedVars()
 //									+ "} producing {" + elementContext.getProducedVars()
 //									+ "}");
 						toBeDeletedContexts.add(elementContext);
 						valorizedVarSet.addAll(elementContext.getProducedVars());
+						break;
 					}
 				}
 				if (toBeDeletedContexts.isEmpty()) {
@@ -802,7 +809,8 @@ public class QueryFactory {
 				producedVars.add((Var) triplePredNode);
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementTriplesBlock, new TriplePath(triple), null, producedVars, -1);
+			return new ElementContext(elementTriplesBlock, new TriplePath(triple), null, producedVars);
+//			return new ElementContext(elementTriplesBlock, new TriplePath(triple), producedVars, producedVars);
 		} else if (elementType.equals(SP.TriplePath.asNode())) {
 			Node tripleSubjNode = toNode(subjNode);
 			Path triplePathNode = toPath(pathNode);
@@ -848,7 +856,8 @@ public class QueryFactory {
 			});
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementPathBlock, triplePath, null, producedVars, -1);
+			return new ElementContext(elementPathBlock, triplePath, null, producedVars);
+//			return new ElementContext(elementPathBlock, triplePath, producedVars, producedVars, -1);
 		} else if (elementType.equals(SP.Service.asNode())) {
 			Node serviceNode = getObject(elementRootNode, SP.serviceURI.asNode());
 			ElementContext subElementContext = toElementContext(subElementNode);
@@ -859,7 +868,7 @@ public class QueryFactory {
 							subElementContext.getProducedVars() );
 		} else if (elementType.equals(SP.SubQuery.asNode())) {
 			Node queryNode = getObject(elementRootNode, SP.query.asNode());
-			// TODO: should consider also query wide var consuming/producing
+			// TODO: should consider also query wide var consuming/producing?
 			Query subQuery = toQuery(queryNode);
 			return 
 					new ElementContext(
