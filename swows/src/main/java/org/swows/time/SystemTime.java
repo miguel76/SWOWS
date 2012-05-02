@@ -35,6 +35,7 @@ public class SystemTime implements Runnable {
 		timeGraph.delete(currTriple);
 		timeGraph.add(newTriple);
 		timeGraph.sendUpdateEvents();
+		currTriple = newTriple;
 	}
 	
 //	private static Triple tripleFromTime(long time) {
