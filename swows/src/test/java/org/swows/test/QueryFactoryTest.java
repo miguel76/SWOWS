@@ -31,8 +31,10 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read("file:/home/miguel/TUIO/test3-1.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "svgBoxesLayersTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "positions2test.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
+//    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
+    	
     	
     	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
     	Node queryRootNode = Node.createURI("#defaultQuery");
@@ -52,13 +54,13 @@ public class QueryFactoryTest {
     	
     	outputQuery.serialize(System.out);
     	
-//    	System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Output Query in N3 ***");
-//    	System.out.println("**************************");
-//    	ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(System.out,"N3");
-//    	System.out.println("**************************");
-//    	System.out.println();
+    	System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Output Query in N3 ***");
+    	System.out.println("**************************");
+    	ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(System.out,"N3");
+    	System.out.println("**************************");
+    	System.out.println();
 //    	
 //    	System.out.println();
 //    	System.out.println("****************************");
@@ -82,14 +84,18 @@ public class QueryFactoryTest {
 //    	System.out.println("****************************");
 //    	System.out.println();
 //    	
-//    	//outputQuery.setPrefixMapping(inputQuery.getPrefixMapping());
-//    	//outputQuery.setQueryPattern(inputQuery.getQueryPattern());
+    	outputQuery.setPrefixMapping(inputQuery.getPrefixMapping());
+//    	outputQuery.setQueryPattern(inputQuery.getQueryPattern());
 // 
-//    	QueryCompare.PrintMessages = true;
-//    	if (QueryCompare.equals(inputQuery, outputQuery))
-//    		System.out.println("OK! :)");
-//    	else 
-//    		System.out.println("KO :(");
+
+    	inputQuery.setResultVars() ;
+    	outputQuery.setResultVars() ;
+
+    	QueryCompare.PrintMessages = true;
+    	if (QueryCompare.equals(inputQuery, outputQuery))
+    		System.out.println("OK! :)");
+    	else 
+    		System.out.println("KO :(");
 		
 //    	String defaultGraphUri = baseUri + "tuio_input_new.n3";
 //    	
@@ -106,10 +112,13 @@ public class QueryFactoryTest {
 //		namedGraphUris.add(baseUri + "tuio_input.n3");
 //		namedGraphUris.add(baseUri + "config.n3");
     	
-    	String defaultGraphUri = baseUri + "input.n3";
-    	
+//    	String defaultGraphUri = baseUri + "input.n3";
+//		List<String> namedGraphUris = new Vector<String>();
+//		namedGraphUris.add(baseUri + "range.n3");
+		
+    	String defaultGraphUri = baseUri + "quantityHistoryStart_T.n3";
 		List<String> namedGraphUris = new Vector<String>();
-		namedGraphUris.add(baseUri + "range.n3");
+		
 
     	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
 		

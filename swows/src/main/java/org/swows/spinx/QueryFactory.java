@@ -409,7 +409,8 @@ public class QueryFactory {
 				} 
 			} else if (exprType.equals(SP.Aggregation.asNode())) {
 				Aggregator aggregator = toAggregator(exprRootNode);
-				return new ExprAggregator(toVar(""), aggregator);
+				return query.allocAggregate(aggregator);
+//				return new ExprAggregator(toVar(""), aggregator);
 			}
 		}
 		Node nodeExpr = toNode(exprRootNode);
