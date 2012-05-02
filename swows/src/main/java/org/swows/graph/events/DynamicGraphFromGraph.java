@@ -32,7 +32,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	}
 	
 	public DynamicGraphFromGraph(Graph graph) {
-		this( graph, new SimpleEventManager(graph) );
+		baseGraph = graph;
+		this.eventManager = new SimpleEventManager(this);
 	}
 
 	public DynamicGraphFromGraph(Graph graph, EventManager eventManager) {
@@ -221,7 +222,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	}
 	
 	public synchronized void sendUpdateEvents() {
-		eventManager.notifyUpdate(currGraphUpdate);
+		eventManager.notifyUpdate(getCurrGraphUpdate());
 		currGraphUpdate = null;
 	}
 

@@ -63,7 +63,7 @@ public class SystemTime implements Runnable {
 		updateTimer.schedule( new TimerTask() {
 			@Override
 			public void run() {
-				runnableCtxt.run(this);
+				runnableCtxt.run(SystemTime.this);
 			}
 		}, 0, updatePeriod);
 //		}

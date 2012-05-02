@@ -61,7 +61,7 @@ public class TimedApp extends JFrame {
 			@Override
 			public void run(Runnable runnable) {
 				try {
-					while (batikRunnableQueue == null);
+					while (batikRunnableQueue == null) Thread.yield();
 					batikRunnableQueue.invokeAndWait(runnable);
 				} catch(InterruptedException e) {
 					throw new RuntimeException(e);

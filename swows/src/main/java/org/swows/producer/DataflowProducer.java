@@ -346,7 +346,8 @@ public class DataflowProducer extends DatasetProducer {
 		DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		//final Dataset inputDs = DatasetFactory.create(inputDataset);
 
-		return getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null).createDataset(inputDataset);
+		Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+		return outputProducer.createDataset(inputDataset);
 		
 //		QueryHandler configQueryHandler = configGraph.queryHandler();
 //		DatasetGraph resultDataset = DatasetGraphFactory.createMem();

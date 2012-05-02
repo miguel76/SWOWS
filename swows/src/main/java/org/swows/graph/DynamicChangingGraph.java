@@ -24,6 +24,7 @@ import org.swows.graph.events.GraphUpdate;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.compose.Difference;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * The Class BuildingGraph allows to change the base graph
@@ -66,8 +67,10 @@ public class DynamicChangingGraph extends DynamicGraphFromGraph {
 		Graph oldGraph = baseGraph;
 		baseGraph = newGraph;
 
-		final Graph addedGraph = new Difference(newGraph, oldGraph);
-		final Graph deletedGraph = new Difference(oldGraph, newGraph);
+		final Graph addedGraph = GraphFactory.createGraphMem();
+		addedGraph.getBulkUpdateHandler().add(new Difference(newGraph, oldGraph));
+		final Graph deletedGraph = GraphFactory.createGraphMem();
+		deletedGraph.getBulkUpdateHandler().add(new Difference(oldGraph, newGraph));
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
 			eventManager.notifyUpdate(new GraphUpdate() {
 				@Override
