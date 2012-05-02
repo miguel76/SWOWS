@@ -83,10 +83,12 @@ public class QueryFactory {
 	private Query query = null;
 //	private Map<String, Var> varMap = new HashMap<String, Var>();
 	private Map<Node, Var> varMap = new HashMap<Node, Var>();
+	private Map<Node, Var> parentVarMap = null;
 	
-	private QueryFactory(Graph graph, Node queryRootNode) {
+	private QueryFactory(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {
 		this.graph = graph;
 		this.queryRootNode = queryRootNode;
+		this.parentVarMap = parentVarMap;
 		toQuery();
 	}
 	
@@ -136,6 +138,19 @@ public class QueryFactory {
 		return var;
 	}
 	
+	public Var toParentVar(Node varNode) {
+		Var var = parentVarMap.get(varNode);
+//		System.out.print("var: " + varName);
+		if (var == null) {
+			String varName = getObject(varNode, SP.varName.asNode()).getLiteralLexicalForm();
+			var = Var.alloc(varName);
+			parentVarMap.put(varNode,var);
+//			System.out.print(" (newvar)");
+		}
+//		System.out.println(".");
+		return var;
+	}
+
 	static Map<String, String> functionToSymbolMap = new HashMap<String, String>();
 	
 	static {
@@ -869,7 +884,7 @@ public class QueryFactory {
 		} else if (elementType.equals(SP.SubQuery.asNode())) {
 			Node queryNode = getObject(elementRootNode, SP.query.asNode());
 			// TODO: should consider also query wide var consuming/producing?
-			Query subQuery = toQuery(queryNode);
+			Query subQuery = toQuery(graph, queryNode, varMap);
 			return 
 					new ElementContext(
 							new ElementSubQuery( subQuery ),
@@ -1084,12 +1099,12 @@ public class QueryFactory {
 			Node exprNode = getObject(resultVarNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode), toExpr(exprNode));
+					query.addResultVar(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addResultVar(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode));
+					query.addResultVar(toParentVar(aliasNode));
 			}
 		}
 		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
@@ -1099,12 +1114,12 @@ public class QueryFactory {
 			Node exprNode = getObject(groupByNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode), toExpr(exprNode));
+					query.addGroupBy(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addGroupBy(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode));
+					query.addGroupBy(toParentVar(aliasNode));
 			}
 		}
 		return query;
@@ -1140,12 +1155,12 @@ public class QueryFactory {
 			Node exprNode = getObject(resultVarNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode), toExpr(exprNode));
+					query.addResultVar(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addResultVar(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode));
+					query.addResultVar(toParentVar(aliasNode));
 			}
 		}
 		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
@@ -1155,12 +1170,12 @@ public class QueryFactory {
 			Node exprNode = getObject(groupByNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode), toExpr(exprNode));
+					query.addGroupBy(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addGroupBy(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode));
+					query.addGroupBy(toParentVar(aliasNode));
 			}
 		}
 	}
@@ -1171,7 +1186,13 @@ public class QueryFactory {
 	
 	public static Query toQuery(Graph graph, Node queryRootNode) {
 //		return new QueryFactory(graph).toQuery(queryRootNode);
-		return new QueryFactory(graph, queryRootNode).getQuery();
+		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).getQuery();
 	}
+	
+	public static Query toQuery(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {
+//		return new QueryFactory(graph).toQuery(queryRootNode);
+		return new QueryFactory(graph, queryRootNode, parentVarMap).getQuery();
+	}
+	
 
 }

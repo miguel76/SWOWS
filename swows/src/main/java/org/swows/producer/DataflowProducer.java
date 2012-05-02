@@ -311,7 +311,7 @@ public class DataflowProducer extends DatasetProducer {
 					buildingDatasetProducer.attacheTo(notifyingProducer);
 					newProducer = notifyingProducer;
 				}
-				//newProducer = new CachedProducer(recGraphProd);
+				newProducer = new CachedProducer(newProducer);
 				innerProds.put(node, newProducer);
 				return newProducer;
 			} catch (IllegalArgumentException e) {

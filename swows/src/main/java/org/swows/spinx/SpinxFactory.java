@@ -62,9 +62,10 @@ public class SpinxFactory {
 	private Graph graph;
 	private Query query;
 	
-	public SpinxFactory(Query query, Graph graph) {
+	public SpinxFactory(Query query, Graph graph, Map<Var,Node> parentVarMap) {
 		this.query = query;
 		this.graph = graph;
+		this.parentVarMap = parentVarMap;
 	}
 
 	private Node fromNode(Node node) {
@@ -74,6 +75,7 @@ public class SpinxFactory {
 	}
 
 	private Map<Var,Node> varMap = new HashMap<Var,Node>();
+	private Map<Var,Node> parentVarMap = null;
 
 	private Node fromVar(Var var) {
 		Node varNode = varMap.get(var);
@@ -83,6 +85,18 @@ public class SpinxFactory {
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			varMap.put(var, varNode);
+		}
+		return varNode;
+	}
+
+	private Node fromParentVar(Var var) {
+		Node varNode = parentVarMap.get(var);
+		if (varNode == null) {
+			varNode = Node.createAnon();
+			Node varNameNode = Node.createLiteral(var.getVarName());
+			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
+			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
+			parentVarMap.put(var, varNode);
 		}
 		return varNode;
 	}
@@ -324,7 +338,7 @@ public class SpinxFactory {
 			Query subQuery = ((ElementSubQuery) element).getQuery();
 			Node subQueryNode = Node.createAnon();
 			graph.add(new Triple( elementRootNode, SP.query.asNode(), subQueryNode ));
-			fromQuery( subQuery, graph, subQueryNode );
+			fromQuery( subQuery, graph, subQueryNode, varMap );
 		} else if (element instanceof ElementUnion) {
 			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Union.asNode()));
 			childList = ((ElementUnion) element).getElements();
@@ -394,7 +408,7 @@ public class SpinxFactory {
 		for ( Var projectedVar : projectedList.getVars() ) {
 			Node projectedNode = Node.createAnon();
 			graph.add(new Triple(queryRootNode, SPINX.resultVariable.asNode(), projectedNode));
-			graph.add(new Triple(projectedNode, SP.as.asNode(), fromVar(projectedVar)));
+			graph.add(new Triple(projectedNode, SP.as.asNode(), fromParentVar(projectedVar)));
 			Expr projectedExpr = projectedList.getExpr(projectedVar);
 			if (projectedExpr != null)
 				graph.add(new Triple(projectedNode, SP.expression.asNode(), fromExpr(projectedExpr)));
@@ -407,7 +421,7 @@ public class SpinxFactory {
 			for (Var groupByVar : groupByExprList.getVars() ) {
 				Node groupByNode = Node.createAnon();
 				graph.add(new Triple(queryRootNode, SP.groupBy.asNode(), groupByNode));
-				graph.add(new Triple(groupByNode, SP.as.asNode(), fromVar(groupByVar)));
+				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
 				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
 				if (groupByExpr != null)
 					graph.add(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
@@ -433,7 +447,12 @@ public class SpinxFactory {
 	}
 
 	public static void fromQuery(Query query, Graph graph, Node queryRootNode) {
-		SpinxFactory factory = new SpinxFactory(query, graph);
+		SpinxFactory factory = new SpinxFactory(query, graph, new HashMap<Var, Node>() );
+		factory.fromQuery(queryRootNode);
+	}
+
+	public static void fromQuery(Query query, Graph graph, Node queryRootNode, Map<Var,Node> parentVarMap) {
+		SpinxFactory factory = new SpinxFactory(query, graph, parentVarMap);
 		factory.fromQuery(queryRootNode);
 	}
 

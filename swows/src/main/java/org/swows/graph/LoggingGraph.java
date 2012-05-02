@@ -80,9 +80,11 @@ public class LoggingGraph extends DelegatingDynamicGraph {
 	private void traceGraph(String title, Graph graph) {
 		if (logger.isTraceEnabled()) {
 			StringWriter sw = new StringWriter();
-			sw.write(title);
+			sw.write("*** " + title + " ***");
 			sw.write(":\n");
 			ModelFactory.createModelForGraph(graph).write(sw,"N3");
+			sw.write(":\n");
+			sw.write("*** End of " + title + "***");
 			sw.flush();
 			logger.trace(sw.toString());
 		}
