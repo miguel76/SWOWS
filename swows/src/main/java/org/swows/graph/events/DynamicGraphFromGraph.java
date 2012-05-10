@@ -27,7 +27,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 			
 	private SimpleGraphUpdate getCurrGraphUpdate() {
 		if (currGraphUpdate == null)
-			currGraphUpdate = new SimpleGraphUpdate();
+			currGraphUpdate = new SimpleGraphUpdate(baseGraph);
 		return currGraphUpdate;
 	}
 	
@@ -222,7 +222,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	}
 	
 	public synchronized void sendUpdateEvents() {
-		eventManager.notifyUpdate(getCurrGraphUpdate());
+		if (currGraphUpdate != null && !currGraphUpdate.isEmpty())
+			eventManager.notifyUpdate(currGraphUpdate);
 		currGraphUpdate = null;
 	}
 
