@@ -150,6 +150,8 @@ public class DataflowProducer extends DatasetProducer {
 			return EmptyGraphProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableGraph.asNode()))
 			return UpdatableProducer.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableFromEventsGraph.asNode()))
+			return UpdatableFromEventsProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineGraph.asNode()))
 			return InlineGraphProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineDataset.asNode()))

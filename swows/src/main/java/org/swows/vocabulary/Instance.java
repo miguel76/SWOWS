@@ -24,8 +24,11 @@ public class Instance {
     public final static Resource GraphRoot = ResourceFactory.createResource(NS + "GraphRoot");
 
     public final static Resource InputDataset = ResourceFactory.createResource(NS + "InputDataset");
-
     public final static Resource OutputDataset = ResourceFactory.createResource(NS + "OutputDataset");
+
+    public final static Resource ThisGraph = ResourceFactory.createResource(NS + "ThisGraph");
+    public final static Resource AddedGraph = ResourceFactory.createResource(NS + "AddedGraph");
+    public final static Resource DeletedGraph = ResourceFactory.createResource(NS + "DeletedGraph");
 
     
 //    public static Property getArgProperty(int index) {
