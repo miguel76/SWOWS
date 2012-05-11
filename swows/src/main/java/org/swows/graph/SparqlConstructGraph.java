@@ -28,6 +28,7 @@ import org.swows.graph.events.Listener;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -97,6 +98,7 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //			dataset.getNamedModel(uri).write(System.out,"N3");
 //			System.out.println();
 //		}
+//		long queryStart = System.currentTimeMillis();
 		
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(query, DatasetFactory.create(queryDataset));
@@ -104,6 +106,10 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //        resGraph.getBulkUpdateHandler().add(queryExecution.execConstruct().getGraph());
         Graph resGraph = queryExecution.execConstruct().getGraph();
 		queryExecution.close();
+
+//		long queryEnd = System.currentTimeMillis();
+//		System.out.println("Query execution time: " + (queryEnd - queryStart) );
+
 		return resGraph;
 	}
 

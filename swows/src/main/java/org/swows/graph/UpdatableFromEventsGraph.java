@@ -46,16 +46,26 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 			eventGraph.getEventManager2().register(
 					new Listener() {
 						@Override
-						public void notifyUpdate(Graph source, final GraphUpdate update) {
+						public synchronized void notifyUpdate(Graph source, final GraphUpdate update) {
 							System.out.println("Start Add notifyUpdate");
 							System.out.println("This graph: " + baseGraphCopy);
 							System.out.println("Added graph: " +  update.getAddedGraph());
 							System.out.println("Deleted graph: " +  update.getDeletedGraph());
 							System.out.println("Default input graph: " + originalInputDataset.getDefaultGraph());
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
-							inputDataset.addGraph(Instance.ThisGraph.asNode(), baseGraphCopy);
-							inputDataset.addGraph(Instance.AddedGraph.asNode(), update.getAddedGraph());
-							inputDataset.addGraph(Instance.DeletedGraph.asNode(), update.getDeletedGraph());
+							
+							Graph thisGraph = GraphFactory.createGraphMem();
+							thisGraph.getBulkUpdateHandler().add(baseGraphCopy);
+							inputDataset.addGraph(Instance.ThisGraph.asNode(), thisGraph);
+							
+							Graph addedGraph = GraphFactory.createGraphMem();
+							addedGraph.getBulkUpdateHandler().add(update.getAddedGraph());
+							inputDataset.addGraph(Instance.AddedGraph.asNode(), addedGraph);
+							
+							Graph deletedGraph = GraphFactory.createGraphMem();
+							deletedGraph.getBulkUpdateHandler().add(update.getDeletedGraph());
+							inputDataset.addGraph(Instance.DeletedGraph.asNode(), deletedGraph);
+							
 							QueryExecution queryExecution =
 									QueryExecutionFactory.create(query, DatasetFactory.create(inputDataset));
 					        final Graph resGraph = queryExecution.execConstruct().getGraph();
@@ -88,11 +98,11 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 			eventGraph.getEventManager2().register(
 					new Listener() {
 						@Override
-						public void notifyUpdate(Graph source, final GraphUpdate update) {
-							System.out.println("Start Delete notifyUpdate");
-							System.out.println("This graph: " + baseGraphCopy);
-							System.out.println("Added graph: " +  update.getAddedGraph());
-							System.out.println("Deleted graph: " +  update.getDeletedGraph());
+						public synchronized void notifyUpdate(Graph source, final GraphUpdate update) {
+//							System.out.println("Start Delete notifyUpdate");
+//							System.out.println("This graph: " + baseGraphCopy);
+//							System.out.println("Added graph: " +  update.getAddedGraph());
+//							System.out.println("Deleted graph: " +  update.getDeletedGraph());
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
 							inputDataset.addGraph(Instance.ThisGraph.asNode(), baseGraphCopy);
 							inputDataset.addGraph(Instance.AddedGraph.asNode(), update.getAddedGraph());
@@ -100,7 +110,7 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 							QueryExecution queryExecution =
 									QueryExecutionFactory.create(query, DatasetFactory.create(inputDataset));
 					        final Graph resGraph = queryExecution.execConstruct().getGraph();
-							System.out.println("Query Result: " + resGraph);
+//							System.out.println("Query Result: " + resGraph);
 							queryExecution.close();
 							baseGraphCopy.getBulkUpdateHandler().delete(resGraph);
 							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
@@ -114,7 +124,7 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 //									return resGraph;
 //								}
 //							});
-							System.out.println("End of Delete notifyUpdate");
+//							System.out.println("End of Delete notifyUpdate");
 						}
 					} );
 		}

@@ -123,6 +123,7 @@ public class TuioGateway implements TuioListener {
 			tuioSourceNode = TUIO.defaultSource.asNode();
 			tuioGraph.add(new Triple(tuioSourceNode, RDF.type.asNode(), TUIO.Source.asNode()));
 			tuioGraph.add(new Triple(tuioSourceNode, TUIO.updateTime.asNode(), T0));
+			tuioGraph.sendUpdateEvents();
 		}
 		return tuioGraph;
 	}
@@ -240,7 +241,7 @@ public class TuioGateway implements TuioListener {
 	@Override
 	public synchronized void refresh(TuioTime time) {
 		//debugAllTracked();
-		logger.debug(this + ": begin of refresh");
+//		logger.debug(this + ": begin of refresh");
 		startReceiving();
 		changeObjectDecimal(tuioSourceNode, TUIO.updateTime.asNode(), tuioTime2float(time) );
 //		changeObject(
@@ -249,7 +250,7 @@ public class TuioGateway implements TuioListener {
 //				tuioTime2XSDdecimal(time) );
 //		debugAllTracked();
 		stopReceiving();
-		logger.debug(this + ": end of refresh");
+//		logger.debug(this + ": end of refresh");
 		//debugAllTracked();
 	}
 

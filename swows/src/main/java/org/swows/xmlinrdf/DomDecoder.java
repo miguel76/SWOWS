@@ -298,7 +298,7 @@ public class DomDecoder implements Listener, RunnableContext {
 	}
 
 	@Override
-	public void notifyUpdate(final Graph sourceGraph, final GraphUpdate update) {
+	public synchronized void notifyUpdate(final Graph sourceGraph, final GraphUpdate update) {
 		
 		if (!update.getAddedGraph().isEmpty() || !update.getDeletedGraph().isEmpty()) {
 			updatesContext.run(
@@ -312,6 +312,7 @@ public class DomDecoder implements Listener, RunnableContext {
 							newDom.dom2graphNodeMapping = (Map<org.w3c.dom.Node, Node>) ((HashMap<org.w3c.dom.Node, Node>) dom2graphNodeMapping).clone();
 							newDom.graph2domNodeMapping = (Map<Node, Set<org.w3c.dom.Node>>) ((HashMap<Node, Set<org.w3c.dom.Node>>) graph2domNodeMapping).clone();
 							newDom.document = document;
+//							newDom.document = (Document) document.cloneNode(true);
 							
 							while (addEventsIter.hasNext()) {
 								final Triple newTriple = addEventsIter.next();
@@ -474,6 +475,7 @@ public class DomDecoder implements Listener, RunnableContext {
 							
 							dom2graphNodeMapping = newDom.dom2graphNodeMapping;
 							graph2domNodeMapping = newDom.graph2domNodeMapping;
+//							document = newDom.document;
 						}
 					});
 		}

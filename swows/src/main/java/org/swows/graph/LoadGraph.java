@@ -3,6 +3,7 @@ package org.swows.graph;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 
@@ -13,7 +14,7 @@ public class LoadGraph extends DynamicChangingGraph {
 	private String filenameOrURI, baseURI, rdfSyntax;
 //	private long pollingPeriod;
 
-	public LoadGraph(String filenameOrURI, String baseURI, String rdfSyntax, long pollingPeriod) {
+	public LoadGraph(String filenameOrURI, String baseURI, String rdfSyntax, final long pollingPeriod) {
 		this.filenameOrURI = filenameOrURI;
 		this.baseURI = baseURI;
 		this.rdfSyntax = rdfSyntax;
@@ -21,8 +22,27 @@ public class LoadGraph extends DynamicChangingGraph {
 		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
 		if (pollingPeriod > 0) {
 			final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
-			Timer updateTimer = new Timer();
-//			Timer updateTimer = LocalTimer.get();
+//			Timer updateTimer = new Timer();
+			Timer updateTimer = LocalTimer.get();
+//			(new Thread() {
+//				@Override
+//				public void run() {
+//					try {
+//						while(true) {
+//							sleep(pollingPeriod);
+//							runnableCtxt.run(new Runnable() {
+//								@Override
+//								public void run() {
+//									update();
+//								}
+//							});
+//							Thread.yield();
+//						}
+//					} catch(InterruptedException e) {
+//						throw new RuntimeException(e);
+//					}
+//				}
+//			}).run();
 			updateTimer.schedule( new TimerTask() {
 				@Override
 				public void run() {
@@ -33,7 +53,7 @@ public class LoadGraph extends DynamicChangingGraph {
 						}
 					});
 				}
-			}, 0, pollingPeriod);
+			}, pollingPeriod, pollingPeriod);
 		}
 	}
 	

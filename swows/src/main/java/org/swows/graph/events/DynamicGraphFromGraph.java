@@ -161,8 +161,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 	@Override
 	public void delete(Triple t) throws DeleteDeniedException {
-		baseGraph.delete(t);
 		getCurrGraphUpdate().putDeletedTriple(t);
+		baseGraph.delete(t);
 	}
 
 	@Override
@@ -212,8 +212,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 	@Override
 	public void add(Triple t) throws AddDeniedException {
-		baseGraph.add(t);
 		getCurrGraphUpdate().putAddedTriple(t);
+		baseGraph.add(t);
 	}
 
 	@Override
