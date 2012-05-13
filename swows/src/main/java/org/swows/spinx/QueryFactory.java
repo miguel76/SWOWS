@@ -13,7 +13,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.apache.log4j.Logger;
+import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
@@ -27,13 +27,15 @@ import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.expr.E_Function;
 import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprAggregator;
 import com.hp.hpl.jena.sparql.expr.ExprFunction;
 import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
 import com.hp.hpl.jena.sparql.expr.ExprList;
 import com.hp.hpl.jena.sparql.expr.ExprVar;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
+import com.hp.hpl.jena.sparql.modify.request.QuadAcc;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteInsert;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteWhere;
 import com.hp.hpl.jena.sparql.path.P_Alt;
 import com.hp.hpl.jena.sparql.path.P_FixedLength;
 import com.hp.hpl.jena.sparql.path.P_Inverse;
@@ -63,10 +65,13 @@ import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
 import com.hp.hpl.jena.sparql.syntax.Template;
+import com.hp.hpl.jena.update.Update;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class QueryFactory {
 	
@@ -81,6 +86,8 @@ public class QueryFactory {
 	private Graph graph;
 	private Node queryRootNode;
 	private Query query = null;
+	private UpdateDeleteInsert updateDeleteInsert = null;
+	
 //	private Map<String, Var> varMap = new HashMap<String, Var>();
 	private Map<Node, Var> varMap = new HashMap<Node, Var>();
 	private Map<Node, Var> parentVarMap = null;
@@ -89,7 +96,6 @@ public class QueryFactory {
 		this.graph = graph;
 		this.queryRootNode = queryRootNode;
 		this.parentVarMap = parentVarMap;
-		toQuery();
 	}
 	
 	private ExtendedIterator<Node> getObjects(Node subjNode, Node predNode) {
@@ -796,8 +802,12 @@ public class QueryFactory {
 					subElementContext.getProducedVars());
 		} else if (elementType.equals(SP.NamedGraph.asNode())) {
 			Node graphNameNode = getObject(elementRootNode, SP.graphNameNode.asNode());
-			if (graphNameNode.isURI())
-				query.addNamedGraphURI(graphNameNode.getURI());
+			if (graphNameNode.isURI()) {
+				if (query != null)
+					query.addNamedGraphURI(graphNameNode.getURI());
+				else if (updateDeleteInsert != null)
+					updateDeleteInsert.addUsingNamed(graphNameNode);
+			}
 			ElementContext subElementContext = toElementContext(subElementNode);
 			return
 					new ElementContext(
@@ -1126,7 +1136,7 @@ public class QueryFactory {
 		return query;
 	}
 
-	public void toQuery() {
+	public Query toQuery() {
 		query = new Query();
 		query.setSyntax(Syntax.syntaxSPARQL_11);
 		ExtendedIterator<Node> typeNodes = getObjects(queryRootNode, RDF.type.asNode());
@@ -1179,20 +1189,78 @@ public class QueryFactory {
 					query.addGroupBy(toParentVar(aliasNode));
 			}
 		}
-	}
-
-	private Query getQuery() {
 		return query;
 	}
+
+	public void toQuads(Node quadsRootNode, QuadAcc quadAcc) {
+		Iterator<Node> tripleNodes = GraphUtils.getPropertyValues(graph, quadsRootNode, SPINX.triple.asNode());
+		while(tripleNodes.hasNext()) {
+			Node tripleNode = tripleNodes.next();
+			quadAcc.addTriple(toTemplateTriple(tripleNode));
+		}
+		Iterator<Node> namedGraphNodes = GraphUtils.getPropertyValues(graph, quadsRootNode, SP.named.asNode());
+		while(namedGraphNodes.hasNext()) {
+			Node namedGraphNode = namedGraphNodes.next();
+			quadAcc.setGraph(namedGraphNode);
+			toQuads(namedGraphNode, quadAcc);
+		}
+	}
+
+	public Update toModify() {
+		updateDeleteInsert = new UpdateDeleteInsert();
+		Node deletePatternNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.deletePattern.asNode() );
+		if (deletePatternNode != null) {
+			toQuads(deletePatternNode, updateDeleteInsert.getDeleteAcc());
+		}
+		Node insertPatternNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.insertPattern.asNode() );
+		if (insertPatternNode != null) {
+			toQuads(insertPatternNode, updateDeleteInsert.getInsertAcc());
+		}
+		Node elementNode =	getObject(queryRootNode, SP.where.asNode());
+		if (elementNode != null) {
+			updateDeleteInsert.setElement(toElement(elementNode));
+		}
+		return updateDeleteInsert;
+	}
 	
+	public Update toUpdate() {
+		Update update = null;
+		Node typeNode = GraphUtils.getSingleValueProperty(graph, queryRootNode, RDF.type.asNode() );
+		if (typeNode.equals(SP.Modify.asNode()))
+			update = toModify();
+		return update;
+	}
+	
+//	private Query getQuery() {
+//		return query;
+//	}
+	
+//	private Update getUpdate() {
+//		return update;
+//	}
+//	
 	public static Query toQuery(Graph graph, Node queryRootNode) {
 //		return new QueryFactory(graph).toQuery(queryRootNode);
-		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).getQuery();
+		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).toQuery();
 	}
 	
 	public static Query toQuery(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {
 //		return new QueryFactory(graph).toQuery(queryRootNode);
-		return new QueryFactory(graph, queryRootNode, parentVarMap).getQuery();
+		return new QueryFactory(graph, queryRootNode, parentVarMap).toQuery();
+	}
+	
+	public static Update toUpdate(Graph graph, Node queryRootNode) {
+//		return new QueryFactory(graph).toQuery(queryRootNode);
+		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).toUpdate();
+	}
+	
+	public static UpdateRequest toUpdateRequest(Graph graph, Node queryRootNode) {
+		UpdateRequest updateRequest = new UpdateRequest();
+		Iterator<Node> updateNodes = GraphUtils.getPropertyValues(graph, queryRootNode, RDFS.member.asNode());
+		while (updateNodes.hasNext()) {
+			updateRequest.add( toUpdate(graph, updateNodes.next()) );
+		}
+		return updateRequest;
 	}
 	
 

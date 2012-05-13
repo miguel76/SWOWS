@@ -3,6 +3,7 @@ package org.swows.graph;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.swows.reader.ReaderFactory;
 import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
@@ -10,6 +11,10 @@ import org.swows.runnable.RunnableContextFactory;
 import com.hp.hpl.jena.util.FileManager;
 
 public class LoadGraph extends DynamicChangingGraph {
+	
+	static {
+		ReaderFactory.initialize();
+	}
 	
 	private String filenameOrURI, baseURI, rdfSyntax;
 //	private long pollingPeriod;

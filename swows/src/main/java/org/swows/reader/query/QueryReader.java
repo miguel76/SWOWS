@@ -35,7 +35,7 @@ public class QueryReader extends JenaReaderBase {
 			String queryId = syntaxNamesIter.next();
 			Syntax querySyntax = Syntax.querySyntaxNames.lookup(queryId);
 			String queryUri = querySyntax.getSymbol();
-			//System.out.println("New query syntax: " + querySyntaxStr);
+//			System.out.println("New query syntax: " + queryUri);
 			RDFReaderFImpl.setBaseReaderClassName(
 					queryUri,
 					PACKAGE_NAME + "." + queryId.toUpperCase() + CLASS_NAME_SUFF);

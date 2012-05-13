@@ -221,10 +221,15 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		return eventManager;
 	}
 	
+	@Override
+	public String toString() {
+		return baseGraph.toString();
+	}
+	
 	public synchronized void sendUpdateEvents() {
 		if (currGraphUpdate != null && !currGraphUpdate.isEmpty())
 			eventManager.notifyUpdate(currGraphUpdate);
 		currGraphUpdate = null;
 	}
-
+	
 }
