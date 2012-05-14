@@ -433,7 +433,9 @@ public class DomDecoder implements Listener, RunnableContext {
 											domSubj.setNodeValue("");
 										}
 									} else if ( oldTriple.getPredicate().equals(xml.hasAttribute.asNode()) ) {
-										Set<org.w3c.dom.Node> domObjs = graph2domNodeMapping.get(oldTriple.getObject());
+//										Set<org.w3c.dom.Node> domObjs = graph2domNodeMapping.get(oldTriple.getObject());
+										Set<org.w3c.dom.Node> domObjs = new HashSet<org.w3c.dom.Node>();
+										domObjs.addAll(graph2domNodeMapping.get(oldTriple.getObject()));
 										if (domObjs != null) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
@@ -441,7 +443,10 @@ public class DomDecoder implements Listener, RunnableContext {
 												while (domObjsIter.hasNext()) {
 													try {
 														Attr oldAttr = (Attr) domObjsIter.next();
-														element.removeAttributeNode(oldAttr);
+														if ( oldAttr.getNamespaceURI() == null
+																? element.hasAttribute(oldAttr.getName())
+																: element.hasAttributeNS(oldAttr.getNamespaceURI(), oldAttr.getLocalName()))
+															element.removeAttributeNode(oldAttr);
 														newDom.removeSubtreeMapping(oldAttr);
 													} catch(DOMException e) {
 														if (!e.equals(DOMException.NOT_FOUND_ERR))
