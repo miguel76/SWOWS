@@ -150,6 +150,10 @@ public class DataflowProducer extends DatasetProducer {
 			return EmptyGraphProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableGraph.asNode()))
 			return UpdatableProducer.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableFromEventsGraph.asNode()))
+			return UpdatableFromEventsProducer.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableFromEventsGraph2.asNode()))
+			return UpdatableFromEventsProducer2.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineGraph.asNode()))
 			return InlineGraphProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineDataset.asNode()))
@@ -311,7 +315,7 @@ public class DataflowProducer extends DatasetProducer {
 					buildingDatasetProducer.attacheTo(notifyingProducer);
 					newProducer = notifyingProducer;
 				}
-				//newProducer = new CachedProducer(recGraphProd);
+				newProducer = new CachedProducer(newProducer);
 				innerProds.put(node, newProducer);
 				return newProducer;
 			} catch (IllegalArgumentException e) {
@@ -346,7 +350,8 @@ public class DataflowProducer extends DatasetProducer {
 		DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		//final Dataset inputDs = DatasetFactory.create(inputDataset);
 
-		return getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null).createDataset(inputDataset);
+		Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+		return outputProducer.createDataset(inputDataset);
 		
 //		QueryHandler configQueryHandler = configGraph.queryHandler();
 //		DatasetGraph resultDataset = DatasetGraphFactory.createMem();

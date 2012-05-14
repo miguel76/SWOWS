@@ -33,10 +33,10 @@ public class TimedTest {
 
     public static void main(final String[] args) throws TransformerException {
     	
-		String baseUri = "/home/miguel/pampers/dataflow/";
+		String baseUri = "/home/miguel/pampers3/dataflow/";
 
 //		BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/pampers/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/pampers3/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());

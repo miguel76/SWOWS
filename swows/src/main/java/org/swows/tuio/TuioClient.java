@@ -25,7 +25,11 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
+
+import org.swows.runnable.LocalTimer;
 
 import TUIO.TuioCursor;
 import TUIO.TuioListener;
@@ -123,23 +127,37 @@ public void connect() {
 	currentTime.reset();
 
 	if (autoRefresh) {
-		Thread refresherThread =
-				(new Thread() {
-					@Override
-					public void run() {
-						while(true) {
-							Thread.yield();
-							synchronized(TuioClient.this) {
-								for (int i=0;i<listenerList.size();i++) {
-									TuioListener listener = (TuioListener)listenerList.elementAt(i);
-									if (listener!=null) listener.refresh(TuioTime.getSessionTime());
-								}
-							}
-						}
+//		Timer updateTimer = new Timer();
+		Timer updateTimer = LocalTimer.get();
+		updateTimer.schedule( new TimerTask() {
+			@Override
+			public void run() {
+				synchronized(TuioClient.this) {
+					for (int i=0;i<listenerList.size();i++) {
+						TuioListener listener = (TuioListener)listenerList.elementAt(i);
+						if (listener!=null)
+							listener.refresh(TuioTime.getSessionTime());
 					}
-				});
-		refresherThread.setPriority(Thread.MIN_PRIORITY);
-		refresherThread.start();
+				}
+			}
+		}, 25, 25);
+//		Thread refresherThread =
+//				(new Thread() {
+//					@Override
+//					public void run() {
+//						while(true) {
+//							Thread.yield();
+//							synchronized(TuioClient.this) {
+//								for (int i=0;i<listenerList.size();i++) {
+//									TuioListener listener = (TuioListener)listenerList.elementAt(i);
+//									if (listener!=null) listener.refresh(TuioTime.getSessionTime());
+//								}
+//							}
+//						}
+//					}
+//				});
+//		refresherThread.setPriority(Thread.MIN_PRIORITY);
+//		refresherThread.start();
 	}
 	
 	try {

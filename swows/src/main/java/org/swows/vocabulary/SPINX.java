@@ -73,6 +73,8 @@ public class SPINX {
     public final static Resource InferenceGraph = resource("InferenceGraph");
     public final static Resource EmptyGraph = resource("EmptyGraph");
     public final static Resource UpdatableGraph = resource("UpdatableGraph");
+    public final static Resource UpdatableFromEventsGraph = resource("UpdatableFromEventsGraph");
+    public final static Resource UpdatableFromEventsGraph2 = resource("UpdatableFromEventsGraph2");
     public final static Resource LoggedGraph = resource("LoggedGraph");
     public final static Resource NamedGraph = resource("NamedGraph");
     public final static Resource IntegerRange = resource("IntegerRange");
@@ -129,6 +131,10 @@ public class SPINX {
     public final static Property baseGraph = property("baseGraph");
     public final static Property addGraph = property("addGraph");
     public final static Property deleteGraph = property("deleteGraph");
+
+    public final static Property addConstruct = property("addConstruct");
+    public final static Property deleteConstruct = property("deleteConstruct");
+    public final static Property eventsFrom = property("eventsFrom");
 
     public final static Property url = property("url");
     public final static Property syntax = property("syntax");

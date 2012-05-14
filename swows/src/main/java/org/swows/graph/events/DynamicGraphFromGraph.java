@@ -27,12 +27,13 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 			
 	private SimpleGraphUpdate getCurrGraphUpdate() {
 		if (currGraphUpdate == null)
-			currGraphUpdate = new SimpleGraphUpdate();
+			currGraphUpdate = new SimpleGraphUpdate(baseGraph);
 		return currGraphUpdate;
 	}
 	
 	public DynamicGraphFromGraph(Graph graph) {
-		this( graph, new SimpleEventManager(graph) );
+		baseGraph = graph;
+		this.eventManager = new SimpleEventManager(this);
 	}
 
 	public DynamicGraphFromGraph(Graph graph, EventManager eventManager) {
@@ -160,8 +161,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 	@Override
 	public void delete(Triple t) throws DeleteDeniedException {
-		baseGraph.delete(t);
 		getCurrGraphUpdate().putDeletedTriple(t);
+		baseGraph.delete(t);
 	}
 
 	@Override
@@ -211,8 +212,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 	@Override
 	public void add(Triple t) throws AddDeniedException {
-		baseGraph.add(t);
 		getCurrGraphUpdate().putAddedTriple(t);
+		baseGraph.add(t);
 	}
 
 	@Override
@@ -220,9 +221,15 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		return eventManager;
 	}
 	
+	@Override
+	public String toString() {
+		return baseGraph.toString();
+	}
+	
 	public synchronized void sendUpdateEvents() {
-		eventManager.notifyUpdate(currGraphUpdate);
+		if (currGraphUpdate != null && !currGraphUpdate.isEmpty())
+			eventManager.notifyUpdate(currGraphUpdate);
 		currGraphUpdate = null;
 	}
-
+	
 }

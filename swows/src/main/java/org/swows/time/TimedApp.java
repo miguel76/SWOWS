@@ -25,6 +25,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
+import org.swows.runnable.RunnableContextFactory;
 import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -55,6 +56,18 @@ public class TimedApp extends JFrame {
 		super(title, gc);
 		if (fullscreen)
 			setUndecorated(true);
+		
+		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
+			@Override
+			public void run(Runnable runnable) {
+				try {
+					while (batikRunnableQueue == null) Thread.yield();
+					batikRunnableQueue.invokeAndWait(runnable);
+				} catch(InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
     	final SystemTime systemTime = new SystemTime();
 		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(systemTime.getGraph());
 		DataflowProducer applyOps =
@@ -113,17 +126,18 @@ public class TimedApp extends JFrame {
 		Document xmlDoc =
 				DomDecoder.decodeOne(
 						outputGraph,
-						domImpl,
-						new RunnableContext() {
-							@Override
-							public void run(Runnable runnable) {
-								try {
-									batikRunnableQueue.invokeAndWait(runnable);
-								} catch(InterruptedException e) {
-									throw new RuntimeException(e);
-								}
-							}
-						});
+						domImpl
+//						new RunnableContext() {
+//							@Override
+//							public void run(Runnable runnable) {
+//								try {
+//									batikRunnableQueue.invokeAndWait(runnable);
+//								} catch(InterruptedException e) {
+//									throw new RuntimeException(e);
+//								}
+//							}
+//						}
+						);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 		svgCanvas.setDocument(xmlDoc);

@@ -6,6 +6,7 @@ import java.util.Vector;
 import javax.xml.transform.TransformerException;
 
 import org.swows.spinx.SpinxFactory;
+import org.swows.vocabulary.Instance;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -17,13 +18,23 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
+import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
+import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.Update;
+import com.hp.hpl.jena.update.UpdateExecutionFactory;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateProcessor;
+import com.hp.hpl.jena.update.UpdateRequest;
 
-public class QueryFactoryTest {
+public class UpdateFactoryTest {
 
     public static void main(final String[] args) throws TransformerException {
     	
 //    	String baseUri = "/home/miguel/TUIO/circles/";
-    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
+//    	String baseUri = "/home/miguel/pampers4/dataflow/";
+    	String baseUri = "/home/miguel/pampers4/dataflow/test_update/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -34,11 +45,10 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "svgPacchi.sparql");
+    	UpdateRequest inputUpdate = UpdateFactory.read(baseUri + "flyingBoxesNew.sparql");
     	
     	
-    	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
-    	Node queryRootNode = Node.createURI("#defaultQuery");
+    	Graph queryGraph = SpinxFactory.fromUpdateRequest(inputUpdate);
     	
     	
     	System.out.println();
@@ -51,15 +61,15 @@ public class QueryFactoryTest {
     	
     	//Node queryRootNode = queryGraph.find(Node.ANY, RDF.type.asNode(), SP.Query.asNode()).next().getSubject();
     	
-    	Query outputQuery = org.swows.spinx.QueryFactory.toQuery(queryGraph, queryRootNode);
+    	UpdateRequest outputUpdate = org.swows.spinx.QueryFactory.toUpdateRequest(queryGraph, Instance.GraphRoot.asNode());
     	
-    	outputQuery.serialize(System.out);
+    	System.out.println(outputUpdate.toString());
     	
     	System.out.println();
     	System.out.println("**************************");
     	System.out.println("*** Output Query in N3 ***");
     	System.out.println("**************************");
-    	ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(System.out,"N3");
+    	ModelFactory.createModelForGraph(SpinxFactory.fromUpdateRequest(outputUpdate)).write(System.out,"N3");
     	System.out.println("**************************");
     	System.out.println();
 //    	
@@ -85,18 +95,18 @@ public class QueryFactoryTest {
 //    	System.out.println("****************************");
 //    	System.out.println();
 //    	
-    	outputQuery.setPrefixMapping(inputQuery.getPrefixMapping());
+    	outputUpdate.setPrefixMapping(inputUpdate.getPrefixMapping());
 //    	outputQuery.setQueryPattern(inputQuery.getQueryPattern());
 // 
 
-    	inputQuery.setResultVars() ;
-    	outputQuery.setResultVars() ;
+//    	inputQuery.setResultVars() ;
+//    	outputUpdate.setResultVars() ;
 
-    	QueryCompare.PrintMessages = true;
-    	if (QueryCompare.equals(inputQuery, outputQuery))
-    		System.out.println("OK! :)");
-    	else 
-    		System.out.println("KO :(");
+//    	QueryCompare.PrintMessages = true;
+//    	if (QueryCompare.equals(inputQuery, outputQuery))
+//    		System.out.println("OK! :)");
+//    	else 
+//    		System.out.println("KO :(");
 		
 //    	String defaultGraphUri = baseUri + "tuio_input_new.n3";
 //    	
@@ -123,30 +133,39 @@ public class QueryFactoryTest {
     	String defaultGraphUri = baseUri + "input.n3";
 		List<String> namedGraphUris = new Vector<String>();
 		namedGraphUris.add(baseUri + "config.n3");
-		namedGraphUris.add(baseUri + "selectedPage.n3");
+		namedGraphUris.add(baseUri + "boxesStartingData.n3");
+		namedGraphUris.add(baseUri + "AddedGraph.n3");
+		namedGraphUris.add(baseUri + "DeletedGraph.n3");
 
     	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
+		GraphStore graphStore = new GraphStoreBasic(inputDataset);
+		graphStore.addGraph(Instance.ThisGraph.asNode(), GraphFactory.createGraphMem());
+		for (Update update : inputUpdate.getOperations()) {
+			if (update instanceof UpdateWithUsing)
+				((UpdateWithUsing) update).setWithIRI(Instance.ThisGraph.asNode());
+		}
 		
 		long queryStart = System.currentTimeMillis();
-		QueryExecution queryExecution =
-				QueryExecutionFactory.create(inputQuery, inputDataset);
-		Model inputQueryResult = queryExecution.execConstruct();
+		UpdateProcessor updateProcessor = UpdateExecutionFactory.create(inputUpdate, graphStore);
+		updateProcessor.execute();
+		Model inputQueryResult =
+				ModelFactory.createModelForGraph( graphStore.getGraph(Instance.ThisGraph.asNode()) );
 		long queryEnd = System.currentTimeMillis();
 		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
 
 		
-//    	System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Input Query Result ***");
-//    	System.out.println("**************************");
-//    	inputQueryResult.write(System.out,"N3");
-//    	System.out.println("****************************");
-//    	System.out.println();
+    	System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Input Query Result ***");
+    	System.out.println("**************************");
+    	inputQueryResult.write(System.out,"N3");
+    	System.out.println("****************************");
+    	System.out.println();
     	
 		queryStart = System.currentTimeMillis();
-		QueryExecution outQueryExecution =
-				QueryExecutionFactory.create(outputQuery, inputDataset);
-		Model outputQueryResult = outQueryExecution.execConstruct();
+//		QueryExecution outQueryExecution =
+//				QueryExecutionFactory.create(outputQuery, inputDataset);
+//		Model outputQueryResult = outQueryExecution.execConstruct();
 		queryEnd = System.currentTimeMillis();
 		System.out.println("Output Query execution time: " + (queryEnd - queryStart) );
 		

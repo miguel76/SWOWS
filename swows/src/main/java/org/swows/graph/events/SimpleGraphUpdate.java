@@ -10,10 +10,21 @@ import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class SimpleGraphUpdate implements GraphUpdate {
 	
+	private Graph baseGraph;
 	private Graph addedGraph = GraphFactory.createGraphMem();
 	private Graph deletedGraph = GraphFactory.createGraphMem();
+	
+	public SimpleGraphUpdate() {
+		this(null);
+	}
+
+	public SimpleGraphUpdate(Graph baseGraph) {
+		this.baseGraph = baseGraph;
+	}
 
 	public void putAddedTriple(Triple triple) {
+		if (baseGraph != null && baseGraph.contains(triple))
+			return;
 		if (deletedGraph.contains(triple))
 			deletedGraph.delete(triple);
 		else
@@ -21,6 +32,8 @@ public class SimpleGraphUpdate implements GraphUpdate {
 	}
 	
 	public void putDeletedTriple(Triple triple) {
+		if (baseGraph != null && !baseGraph.contains(triple))
+			return;
 		if (addedGraph.contains(triple))
 			addedGraph.delete(triple);
 		else

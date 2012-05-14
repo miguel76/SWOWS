@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.xml;
 import org.swows.vocabulary.xmlInstance;
 import org.w3c.dom.Attr;
@@ -94,6 +95,8 @@ public class DomEncoder {
 		private Document document;
 		private Node rootNode = null;
 		
+		private long nodeIdCount = 0;
+		
 		private boolean closed = false;
 /*
 		private Map<AnonId, Element> mapBlankId2Element = new ConcurrentHashMap<AnonId, Element>();
@@ -114,6 +117,10 @@ public class DomEncoder {
 			rootNode = Node.createURI(rootUri);
 		}
 
+		private synchronized Node createNode() {
+			return Node.createURI(xmlInstance.getURI() + "node_" + Long.toString(nodeIdCount++));
+		}
+		
 /*
 		private Node mapElement2Node(Element element) {
 			Attr idAttr = element.getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "id");
@@ -160,7 +167,7 @@ public class DomEncoder {
 				
 			}
 			if (graphNode == null)
-				graphNode = Node.createAnon();
+				graphNode = createNode();
 			mapXmlNode2BlankId.put(node, graphNode);
 			mapBlankId2XmlNode.put(graphNode, node);
 			return graphNode;

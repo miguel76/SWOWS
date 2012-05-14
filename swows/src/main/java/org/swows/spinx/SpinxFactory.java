@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
+import org.swows.util.GraphUtils;
+import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
@@ -13,6 +16,7 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.sparql.core.Quad;
 import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.core.VarExprList;
@@ -25,6 +29,18 @@ import com.hp.hpl.jena.sparql.expr.FunctionLabel;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.sparql.modify.request.UpdateAdd;
+import com.hp.hpl.jena.sparql.modify.request.UpdateClear;
+import com.hp.hpl.jena.sparql.modify.request.UpdateCopy;
+import com.hp.hpl.jena.sparql.modify.request.UpdateCreate;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDataDelete;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteWhere;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
+import com.hp.hpl.jena.sparql.modify.request.UpdateLoad;
+import com.hp.hpl.jena.sparql.modify.request.UpdateModify;
+import com.hp.hpl.jena.sparql.modify.request.UpdateMove;
+import com.hp.hpl.jena.sparql.modify.request.UpdateVisitor;
 import com.hp.hpl.jena.sparql.path.P_Alt;
 import com.hp.hpl.jena.sparql.path.P_FixedLength;
 import com.hp.hpl.jena.sparql.path.P_Inverse;
@@ -55,16 +71,37 @@ import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
 import com.hp.hpl.jena.sparql.syntax.Template;
+import com.hp.hpl.jena.update.Update;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class SpinxFactory {
 	
 	private Graph graph;
-	private Query query;
 	
-	public SpinxFactory(Query query, Graph graph) {
+	private Query query;
+//	private Update update;
+	
+	private Map<Var,Node> varMap = new HashMap<Var,Node>();
+	private Map<Var,Node> parentVarMap = null;
+
+	public SpinxFactory(Query query, Graph graph, Map<Var,Node> parentVarMap) {
 		this.query = query;
 		this.graph = graph;
+		this.parentVarMap = parentVarMap;
+	}
+
+//	public SpinxFactory(Update update, Graph graph, Map<Var,Node> parentVarMap) {
+//		this.update = update;
+//		this.graph = graph;
+//		this.parentVarMap = parentVarMap;
+//	}
+
+	public SpinxFactory(Graph graph, Map<Var,Node> parentVarMap) {
+		this.graph = graph;
+		this.parentVarMap = parentVarMap;
 	}
 
 	private Node fromNode(Node node) {
@@ -72,8 +109,6 @@ public class SpinxFactory {
 			return fromVar(((Var) node));
 		return node;
 	}
-
-	private Map<Var,Node> varMap = new HashMap<Var,Node>();
 
 	private Node fromVar(Var var) {
 		Node varNode = varMap.get(var);
@@ -83,6 +118,18 @@ public class SpinxFactory {
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			varMap.put(var, varNode);
+		}
+		return varNode;
+	}
+
+	private Node fromParentVar(Var var) {
+		Node varNode = parentVarMap.get(var);
+		if (varNode == null) {
+			varNode = Node.createAnon();
+			Node varNameNode = Node.createLiteral(var.getVarName());
+			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
+			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
+			parentVarMap.put(var, varNode);
 		}
 		return varNode;
 	}
@@ -324,7 +371,7 @@ public class SpinxFactory {
 			Query subQuery = ((ElementSubQuery) element).getQuery();
 			Node subQueryNode = Node.createAnon();
 			graph.add(new Triple( elementRootNode, SP.query.asNode(), subQueryNode ));
-			fromQuery( subQuery, graph, subQueryNode );
+			fromQuery( subQuery, graph, subQueryNode, varMap );
 		} else if (element instanceof ElementUnion) {
 			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Union.asNode()));
 			childList = ((ElementUnion) element).getElements();
@@ -362,6 +409,38 @@ public class SpinxFactory {
 		return templateRootNode;
 	}	
 
+	private Node fromTriples(List<Triple> triples) {
+		Node triplesRootNode = Node.createAnon();
+		for (Triple triple : triples)
+			graph.add(new Triple(triplesRootNode, SPINX.triple.asNode(), fromTemplateTriple(triple)));
+		return triplesRootNode;
+	}	
+
+	private Node fromQuads(List<Quad> quads) {
+		List<Triple> defaultGraphTriples = new Vector<Triple>();
+		Map<Node,List<Triple>> namedGraphTriples = new HashMap<Node, List<Triple>>();
+		for (Quad quad: quads) {
+			if (quad.isDefaultGraph())
+				defaultGraphTriples.add(quad.asTriple());
+			else {
+				Node currGraphName = quad.getGraph();
+				List<Triple> currGraphTriples = namedGraphTriples.get(currGraphName);
+				if (currGraphTriples == null) {
+					currGraphTriples = new Vector<Triple>();
+					namedGraphTriples.put(currGraphName, currGraphTriples);
+				}
+				currGraphTriples.add(quad.asTriple());
+			}
+		}
+		Node quadsRootNode = fromTriples(defaultGraphTriples);
+		for (Node graphName : namedGraphTriples.keySet()) {
+			Node namedGraphNode = fromTriples(namedGraphTriples.get(graphName));
+			graph.add(new Triple(namedGraphNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
+			graph.add(new Triple(quadsRootNode, SP.named.asNode(), namedGraphNode));
+		}
+		return quadsRootNode;
+	}	
+
 	private void fromAsk(Node queryRootNode) {
 		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Ask.asNode()));
 	}
@@ -394,7 +473,7 @@ public class SpinxFactory {
 		for ( Var projectedVar : projectedList.getVars() ) {
 			Node projectedNode = Node.createAnon();
 			graph.add(new Triple(queryRootNode, SPINX.resultVariable.asNode(), projectedNode));
-			graph.add(new Triple(projectedNode, SP.as.asNode(), fromVar(projectedVar)));
+			graph.add(new Triple(projectedNode, SP.as.asNode(), fromParentVar(projectedVar)));
 			Expr projectedExpr = projectedList.getExpr(projectedVar);
 			if (projectedExpr != null)
 				graph.add(new Triple(projectedNode, SP.expression.asNode(), fromExpr(projectedExpr)));
@@ -407,13 +486,59 @@ public class SpinxFactory {
 			for (Var groupByVar : groupByExprList.getVars() ) {
 				Node groupByNode = Node.createAnon();
 				graph.add(new Triple(queryRootNode, SP.groupBy.asNode(), groupByNode));
-				graph.add(new Triple(groupByNode, SP.as.asNode(), fromVar(groupByVar)));
+				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
 				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
 				if (groupByExpr != null)
 					graph.add(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
 			}
 		}
 	}
+	
+	private void fromDeleteInsert(UpdateModify update, Node queryRootNode) {
+		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Modify.asNode()));
+		graph.add( new Triple(
+				queryRootNode,
+				SP.where.asNode(),
+				fromElement(update.getWherePattern() ) ) );
+//		Node deleteNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.deletePattern.asNode());
+		List<Quad> deleteQuads = update.getDeleteQuads();
+		if (deleteQuads != null && !deleteQuads.isEmpty()) {
+			graph.add( new Triple(
+					queryRootNode,
+					SP.deletePattern.asNode(),
+					fromQuads(deleteQuads) ) );
+		}
+		List<Quad> insertQuads = update.getInsertQuads();
+		if (insertQuads != null && !insertQuads.isEmpty()) {
+			graph.add( new Triple(
+					queryRootNode,
+					SP.insertPattern.asNode(),
+					fromQuads(insertQuads) ) );
+		}
+	}
+
+//	private void fromDeleteWhere(UpdateDeleteWhere update, Node queryRootNode) {
+//		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.DeleteWhere.asNode()));
+//		graph.add( new Triple(
+//				queryRootNode,
+//				SP.where.asNode(),
+//				fromElement(update. ) ) );
+////		Node deleteNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.deletePattern.asNode());
+//		List<Quad> deleteQuads = update.getDeleteQuads();
+//		if (deleteQuads != null && !deleteQuads.isEmpty()) {
+//			graph.add( new Triple(
+//					queryRootNode,
+//					SP.deletePattern.asNode(),
+//					fromQuads(deleteQuads) ) );
+//		}
+//		List<Quad> insertQuads = update.getInsertQuads();
+//		if (insertQuads != null && !insertQuads.isEmpty()) {
+//			graph.add( new Triple(
+//					queryRootNode,
+//					SP.insertPattern.asNode(),
+//					fromQuads(insertQuads) ) );
+//		}
+//	}
 
 	public void fromQuery(Node queryRootNode) {
 		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Query.asNode()));
@@ -432,15 +557,130 @@ public class SpinxFactory {
 		// if unknown?
 	}
 
-	public static void fromQuery(Query query, Graph graph, Node queryRootNode) {
-		SpinxFactory factory = new SpinxFactory(query, graph);
+	public void fromUpdate(Update update, final Node queryRootNode) {
+//		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Query.asNode()));
+//		graph.add( new Triple(
+//				queryRootNode,
+//				SP.where.asNode(),
+//				fromElement(query.getQueryPattern()) ) );
+		update.visit(new UpdateVisitor() {
+			
+			@Override
+			public void visit(UpdateModify update) {
+				fromDeleteInsert(update, queryRootNode);
+			}
+			
+			@Override
+			public void visit(UpdateDeleteWhere update) {
+//				fromDeleteWhere(update, queryRootNode);
+			}
+			
+			@Override
+			public void visit(UpdateDataDelete update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateDataInsert update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateMove update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateCopy update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateAdd update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateLoad update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateCreate update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateClear update) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void visit(UpdateDrop update) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+
+	public static void fromUpdate(Update update, Graph graph, Node updateRootNode) {
+		SpinxFactory factory = new SpinxFactory(graph, new HashMap<Var, Node>() );
+		factory.fromUpdate(update, updateRootNode);
+	}
+	
+	public static void fromUpdate(Update update, Graph graph) {
+		fromUpdate(update, graph, Instance.GraphRoot.asNode());
+	}
+	
+	public static void fromUpdateRequest(UpdateRequest updateRequest, Graph graph, Node requestRootNode) {
+		List<Update> updates = updateRequest.getOperations();
+        for (Update update : updates) {
+        	Node updateRootNode = Node.createAnon();
+        	graph.add(new Triple(requestRootNode, RDFS.member.asNode(), updateRootNode));
+        	fromUpdate(update, graph, updateRootNode);
+        }
+	}
+
+	public static void fromUpdateRequest(UpdateRequest updateRequest, Graph graph) {
+		fromUpdateRequest(updateRequest, graph, Instance.GraphRoot.asNode());
+	}
+
+	public static void fromQuery(Query query, Graph graph, Node queryRootNode, Map<Var,Node> parentVarMap) {
+		SpinxFactory factory = new SpinxFactory(query, graph, parentVarMap);
 		factory.fromQuery(queryRootNode);
+	}
+
+	public static void fromQuery(Query query, Graph graph, Node queryRootNode) {
+		fromQuery(query, graph, queryRootNode, new HashMap<Var, Node>() );
+	}
+
+	public static void fromQuery(Query query, Graph graph) {
+		fromQuery(query, graph, Instance.GraphRoot.asNode());
 	}
 
 	public static Graph fromQuery(Query query) {
 		Graph graph = GraphFactory.createGraphMem();
-		Node queryRootNode = Node.createURI("#defaultQuery");
-		fromQuery(query, graph, queryRootNode);
+		fromQuery(query, graph);
+		return graph;
+	}
+
+	public static Graph fromUpdate(Update update) {
+		Graph graph = GraphFactory.createGraphMem();
+		fromUpdate(update, graph);
+		return graph;
+	}
+
+	public static Graph fromUpdateRequest(UpdateRequest updateRequest) {
+		Graph graph = GraphFactory.createGraphMem();
+		fromUpdateRequest(updateRequest, graph);
 		return graph;
 	}
 

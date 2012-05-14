@@ -19,7 +19,7 @@ import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
-public class ArduinoApp {
+public class PampersTuioTest {
 
     static JFrame frame;
     static GraphicsDevice device = null;
@@ -28,18 +28,15 @@ public class ArduinoApp {
 	static RunnableQueue batikRunnableQueue;
 	static JSVGCanvas svgCanvas = new JSVGCanvas();
 	static final String SCREEN = ":0.1";
-//	static final String SCREEN = ":0.0";
+	//static final String SCREEN = ":0.0";
 
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/dario/NetBeansProjects/provaTavolo/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/pampers4/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
-		registry.put(Factory.getBaseURI() + "sin", Factory.getInstance());
-		registry.put(Factory.getBaseURI() + "cos", Factory.getInstance());
-		registry.put(Factory.getBaseURI() + "atan", Factory.getInstance());
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
@@ -48,10 +45,10 @@ public class ArduinoApp {
         	if (currDevice.getIDstring().equals(SCREEN))
         		device = currDevice;
         }
-        //device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
+        device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-	String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersnuovo/";
+		String baseUri = "/home/miguel/pampers4/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
@@ -70,7 +67,7 @@ public class ArduinoApp {
 
 		//TuioApp tuioApp = 
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph);
-		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768);
+		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
 		
     }	
     

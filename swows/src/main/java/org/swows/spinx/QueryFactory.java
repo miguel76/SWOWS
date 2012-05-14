@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
@@ -26,13 +27,15 @@ import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.expr.E_Function;
 import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprAggregator;
 import com.hp.hpl.jena.sparql.expr.ExprFunction;
 import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
 import com.hp.hpl.jena.sparql.expr.ExprList;
 import com.hp.hpl.jena.sparql.expr.ExprVar;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
+import com.hp.hpl.jena.sparql.modify.request.QuadAcc;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteInsert;
+import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteWhere;
 import com.hp.hpl.jena.sparql.path.P_Alt;
 import com.hp.hpl.jena.sparql.path.P_FixedLength;
 import com.hp.hpl.jena.sparql.path.P_Inverse;
@@ -62,10 +65,13 @@ import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
 import com.hp.hpl.jena.sparql.syntax.Template;
+import com.hp.hpl.jena.update.Update;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class QueryFactory {
 	
@@ -80,13 +86,16 @@ public class QueryFactory {
 	private Graph graph;
 	private Node queryRootNode;
 	private Query query = null;
+	private UpdateDeleteInsert updateDeleteInsert = null;
+	
 //	private Map<String, Var> varMap = new HashMap<String, Var>();
 	private Map<Node, Var> varMap = new HashMap<Node, Var>();
+	private Map<Node, Var> parentVarMap = null;
 	
-	private QueryFactory(Graph graph, Node queryRootNode) {
+	private QueryFactory(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {
 		this.graph = graph;
 		this.queryRootNode = queryRootNode;
-		toQuery();
+		this.parentVarMap = parentVarMap;
 	}
 	
 	private ExtendedIterator<Node> getObjects(Node subjNode, Node predNode) {
@@ -135,6 +144,19 @@ public class QueryFactory {
 		return var;
 	}
 	
+	public Var toParentVar(Node varNode) {
+		Var var = parentVarMap.get(varNode);
+//		System.out.print("var: " + varName);
+		if (var == null) {
+			String varName = getObject(varNode, SP.varName.asNode()).getLiteralLexicalForm();
+			var = Var.alloc(varName);
+			parentVarMap.put(varNode,var);
+//			System.out.print(" (newvar)");
+		}
+//		System.out.println(".");
+		return var;
+	}
+
 	static Map<String, String> functionToSymbolMap = new HashMap<String, String>();
 	
 	static {
@@ -393,7 +415,8 @@ public class QueryFactory {
 				} 
 			} else if (exprType.equals(SP.Aggregation.asNode())) {
 				Aggregator aggregator = toAggregator(exprRootNode);
-				return new ExprAggregator(toVar(""), aggregator);
+				return query.allocAggregate(aggregator);
+//				return new ExprAggregator(toVar(""), aggregator);
 			}
 		}
 		Node nodeExpr = toNode(exprRootNode);
@@ -527,6 +550,7 @@ public class QueryFactory {
 		private Element element = null;
 		private Set<Var> producedVars = null;
 		private Set<Var> consumedVars = null;
+		private TriplePath triplePath = null;
 		public ElementContext() {
 		}
 		public ElementContext(Element element) {
@@ -554,6 +578,28 @@ public class QueryFactory {
 			this.element = element;
 			this.consumedVars = consumedVars;
 			this.producedVars = producedVars;
+		}
+		public ElementContext(
+				Element element,
+				TriplePath triplePath,
+				Set<Var> consumedVars,
+				Set<Var> producedVars) {
+			this.element = element;
+			this.triplePath = triplePath;
+			this.consumedVars = consumedVars;
+			this.producedVars = producedVars;
+		}
+		public ElementContext(
+				Element element,
+				TriplePath triplePath,
+				Set<Var> consumedVars,
+				Set<Var> producedVars,
+				int priority) {
+			this.element = element;
+			this.triplePath = triplePath;
+			this.consumedVars = consumedVars;
+			this.producedVars = producedVars;
+			this.priority = priority;
 		}
 		public ElementContext(Element element, int priority) {
 			this.element = element;
@@ -605,6 +651,12 @@ public class QueryFactory {
 			int priorityDiff = this.priority - other.priority;
 			return (priorityDiff != 0) ? priorityDiff : this.id - other.id;
 		}
+		public TriplePath getTriplePath() {
+			return triplePath;
+		}
+		public boolean isTriplePath() {
+			return triplePath != null;
+		}
 	}
 
 	public Element toElement(Node elementRootNode) {
@@ -645,7 +697,7 @@ public class QueryFactory {
 			Var var = toVar(varNode);
 			Expr expr = toExpr(exprNode);
 			return new ElementContext(
-					new ElementBind(var, expr), expr.getVarsMentioned(), var );
+					new ElementBind(var, expr), expr.getVarsMentioned(), var, -2);
 		} else if (elementType.equals(SP.Filter.asNode())) {
 			Expr expr = toExpr(exprNode);
 			return new ElementContext(new ElementFilter(expr), expr.getVarsMentioned());
@@ -653,7 +705,7 @@ public class QueryFactory {
 			boolean allTriplePatterns = true;
 			boolean allTriplePaths = true;
 			ElementGroup elementGroup = new ElementGroup();
-			ElementTriplesBlock elementTriplesBlock = new ElementTriplesBlock();
+//			ElementTriplesBlock elementTriplesBlock = new ElementTriplesBlock();
 			ElementPathBlock elementPathBlock = new ElementPathBlock();
 			SortedSet<ElementContext> elementContexts = new TreeSet<QueryFactory.ElementContext>();
 			Set<Var> producedVarSet = new HashSet<Var>();
@@ -670,54 +722,65 @@ public class QueryFactory {
 				elementContexts.add(elementContext);
 				
 				if (elementTypeNode.equals(SP.TriplePattern.asNode())) {
-					Node tripleSubjNode = toNode(subSubjNode);
-					Node triplePredNode = toNode(subPredNode);
-					Node tripleObjNode = toNode(subObjNode);
-					elementTriplesBlock.addTriple(
-							new Triple(
-									tripleSubjNode, triplePredNode, tripleObjNode) );
-					elementPathBlock.addTriplePath(
-							new TriplePath(
-									tripleSubjNode,
-									new P_Link(triplePredNode),
-									tripleObjNode) );
+//					Node tripleSubjNode = toNode(subSubjNode);
+//					Node triplePredNode = toNode(subPredNode);
+//					Node tripleObjNode = toNode(subObjNode);
+//					elementTriplesBlock.addTriple(
+//							new Triple(
+//									tripleSubjNode, triplePredNode, tripleObjNode) );
+//					elementPathBlock.addTriplePath(
+//							new TriplePath(
+//									tripleSubjNode,
+//									new P_Link(triplePredNode),
+//									tripleObjNode) );
 				} else {
 					allTriplePatterns = false;
-					if (elementTypeNode.equals(SP.TriplePath.asNode()))
-						elementPathBlock.addTriplePath(
-								new TriplePath(
-										toNode(subSubjNode),
-										toPath(subPathNode),
-										toNode(subObjNode)));
-					else
+//					if (elementTypeNode.equals(SP.TriplePath.asNode()))
+//						elementPathBlock.addTriplePath(
+//								new TriplePath(
+//										toNode(subSubjNode),
+//										toPath(subPathNode),
+//										toNode(subObjNode)));
+//					else
+					if (!elementTypeNode.equals(SP.TriplePath.asNode()))
 						allTriplePaths = false;
 				}
 			}
 //			if ( allTriplePatterns )
 //				return new ElementContext(elementTriplesBlock, null, producedVarSet);
-			if ( allTriplePaths )				
-				return new ElementContext(elementPathBlock, null, producedVarSet);
+//			if ( allTriplePaths ) {				
+//				return new ElementContext(elementPathBlock, null, producedVarSet);
+//			}
 			Set<Var> valorizedVarSet = new HashSet<Var>();
 			Set<Var> extConsumedVarSet = new HashSet<Var>();
 			while ( !elementContexts.isEmpty() ) {
 				List<ElementContext> toBeDeletedContexts = new Vector<ElementContext>();
 				for ( ElementContext elementContext : elementContexts) {
+//					Logger.getRootLogger().trace(
+//					"Checking element (" + elementContext.getElement()
+//					+ ") consuming {" + elementContext.getConsumedVars()
+//					+ "} producing {" + elementContext.getProducedVars()
+//					+ "}");
 					boolean allValorized = true;
 					for ( Var var : elementContext.getConsumedVars()) {
 						if ( !producedVarSet.contains(var) )
 							extConsumedVarSet.add(var);
-						else if ( !valorizedVarSet.contains(var) )
+						else if ( !valorizedVarSet.contains(var) && !elementContext.getProducedVars().contains(var))
 							allValorized = false;
 					}
 					if (allValorized) {
-						elementGroup.addElement(elementContext.getElement());
-//						System.out.println(
+						if ( allTriplePaths )			
+							elementPathBlock.addTriplePath(elementContext.getTriplePath());
+						else
+							elementGroup.addElement(elementContext.getElement());
+//						Logger.getRootLogger().trace(
 //									"Insert of element (" + elementContext.getElement()
 //									+ ") consuming {" + elementContext.getConsumedVars()
 //									+ "} producing {" + elementContext.getProducedVars()
 //									+ "}");
 						toBeDeletedContexts.add(elementContext);
 						valorizedVarSet.addAll(elementContext.getProducedVars());
+						break;
 					}
 				}
 				if (toBeDeletedContexts.isEmpty()) {
@@ -725,7 +788,10 @@ public class QueryFactory {
 				}
 				elementContexts.removeAll(toBeDeletedContexts);
 			}
-			return new ElementContext(elementGroup, extConsumedVarSet, producedVarSet);
+			if ( allTriplePaths )			
+				return new ElementContext(elementPathBlock, null, producedVarSet);
+			else
+				return new ElementContext(elementGroup, extConsumedVarSet, producedVarSet);
 		} else if (elementType.equals(SPINX.EmptyElement.asNode())) {
 			return new ElementContext( new ElementGroup() );
 		} else if (elementType.equals(SP.Minus.asNode())) {
@@ -736,8 +802,12 @@ public class QueryFactory {
 					subElementContext.getProducedVars());
 		} else if (elementType.equals(SP.NamedGraph.asNode())) {
 			Node graphNameNode = getObject(elementRootNode, SP.graphNameNode.asNode());
-			if (graphNameNode.isURI())
-				query.addNamedGraphURI(graphNameNode.getURI());
+			if (graphNameNode.isURI()) {
+				if (query != null)
+					query.addNamedGraphURI(graphNameNode.getURI());
+				else if (updateDeleteInsert != null)
+					updateDeleteInsert.addUsingNamed(graphNameNode);
+			}
 			ElementContext subElementContext = toElementContext(subElementNode);
 			return
 					new ElementContext(
@@ -765,7 +835,8 @@ public class QueryFactory {
 				producedVars.add((Var) triplePredNode);
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementTriplesBlock, null, producedVars);
+			return new ElementContext(elementTriplesBlock, new TriplePath(triple), null, producedVars);
+//			return new ElementContext(elementTriplesBlock, new TriplePath(triple), producedVars, producedVars);
 		} else if (elementType.equals(SP.TriplePath.asNode())) {
 			Node tripleSubjNode = toNode(subjNode);
 			Path triplePathNode = toPath(pathNode);
@@ -811,7 +882,8 @@ public class QueryFactory {
 			});
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);
-			return new ElementContext(elementPathBlock, null, producedVars);
+			return new ElementContext(elementPathBlock, triplePath, null, producedVars);
+//			return new ElementContext(elementPathBlock, triplePath, producedVars, producedVars, -1);
 		} else if (elementType.equals(SP.Service.asNode())) {
 			Node serviceNode = getObject(elementRootNode, SP.serviceURI.asNode());
 			ElementContext subElementContext = toElementContext(subElementNode);
@@ -822,8 +894,8 @@ public class QueryFactory {
 							subElementContext.getProducedVars() );
 		} else if (elementType.equals(SP.SubQuery.asNode())) {
 			Node queryNode = getObject(elementRootNode, SP.query.asNode());
-			// TODO: should consider also query wide var consuming/producing
-			Query subQuery = toQuery(queryNode);
+			// TODO: should consider also query wide var consuming/producing?
+			Query subQuery = toQuery(graph, queryNode, varMap);
 			return 
 					new ElementContext(
 							new ElementSubQuery( subQuery ),
@@ -1038,12 +1110,12 @@ public class QueryFactory {
 			Node exprNode = getObject(resultVarNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode), toExpr(exprNode));
+					query.addResultVar(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addResultVar(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode));
+					query.addResultVar(toParentVar(aliasNode));
 			}
 		}
 		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
@@ -1053,18 +1125,18 @@ public class QueryFactory {
 			Node exprNode = getObject(groupByNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode), toExpr(exprNode));
+					query.addGroupBy(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addGroupBy(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode));
+					query.addGroupBy(toParentVar(aliasNode));
 			}
 		}
 		return query;
 	}
 
-	public void toQuery() {
+	public Query toQuery() {
 		query = new Query();
 		query.setSyntax(Syntax.syntaxSPARQL_11);
 		ExtendedIterator<Node> typeNodes = getObjects(queryRootNode, RDF.type.asNode());
@@ -1094,12 +1166,12 @@ public class QueryFactory {
 			Node exprNode = getObject(resultVarNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode), toExpr(exprNode));
+					query.addResultVar(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addResultVar(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addResultVar(toVar(aliasNode));
+					query.addResultVar(toParentVar(aliasNode));
 			}
 		}
 		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
@@ -1109,23 +1181,87 @@ public class QueryFactory {
 			Node exprNode = getObject(groupByNode, SP.expression.asNode());
 			if ( exprNode != null ) {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode), toExpr(exprNode));
+					query.addGroupBy(toParentVar(aliasNode), toExpr(exprNode));
 				else
 					query.addGroupBy(toExpr(exprNode));
 			} else {
 				if ( aliasNode != null )
-					query.addGroupBy(toVar(aliasNode));
+					query.addGroupBy(toParentVar(aliasNode));
 			}
+		}
+		return query;
+	}
+
+	public void toQuads(Node quadsRootNode, QuadAcc quadAcc) {
+		Iterator<Node> tripleNodes = GraphUtils.getPropertyValues(graph, quadsRootNode, SPINX.triple.asNode());
+		while(tripleNodes.hasNext()) {
+			Node tripleNode = tripleNodes.next();
+			quadAcc.addTriple(toTemplateTriple(tripleNode));
+		}
+		Iterator<Node> namedGraphNodes = GraphUtils.getPropertyValues(graph, quadsRootNode, SP.named.asNode());
+		while(namedGraphNodes.hasNext()) {
+			Node namedGraphNode = namedGraphNodes.next();
+			quadAcc.setGraph(namedGraphNode);
+			toQuads(namedGraphNode, quadAcc);
 		}
 	}
 
-	private Query getQuery() {
-		return query;
+	public Update toModify() {
+		updateDeleteInsert = new UpdateDeleteInsert();
+		Node deletePatternNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.deletePattern.asNode() );
+		if (deletePatternNode != null) {
+			toQuads(deletePatternNode, updateDeleteInsert.getDeleteAcc());
+		}
+		Node insertPatternNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.insertPattern.asNode() );
+		if (insertPatternNode != null) {
+			toQuads(insertPatternNode, updateDeleteInsert.getInsertAcc());
+		}
+		Node elementNode =	getObject(queryRootNode, SP.where.asNode());
+		if (elementNode != null) {
+			updateDeleteInsert.setElement(toElement(elementNode));
+		}
+		return updateDeleteInsert;
 	}
 	
+	public Update toUpdate() {
+		Update update = null;
+		Node typeNode = GraphUtils.getSingleValueProperty(graph, queryRootNode, RDF.type.asNode() );
+		if (typeNode.equals(SP.Modify.asNode()))
+			update = toModify();
+		return update;
+	}
+	
+//	private Query getQuery() {
+//		return query;
+//	}
+	
+//	private Update getUpdate() {
+//		return update;
+//	}
+//	
 	public static Query toQuery(Graph graph, Node queryRootNode) {
 //		return new QueryFactory(graph).toQuery(queryRootNode);
-		return new QueryFactory(graph, queryRootNode).getQuery();
+		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).toQuery();
 	}
+	
+	public static Query toQuery(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {
+//		return new QueryFactory(graph).toQuery(queryRootNode);
+		return new QueryFactory(graph, queryRootNode, parentVarMap).toQuery();
+	}
+	
+	public static Update toUpdate(Graph graph, Node queryRootNode) {
+//		return new QueryFactory(graph).toQuery(queryRootNode);
+		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).toUpdate();
+	}
+	
+	public static UpdateRequest toUpdateRequest(Graph graph, Node queryRootNode) {
+		UpdateRequest updateRequest = new UpdateRequest();
+		Iterator<Node> updateNodes = GraphUtils.getPropertyValues(graph, queryRootNode, RDFS.member.asNode());
+		while (updateNodes.hasNext()) {
+			updateRequest.add( toUpdate(graph, updateNodes.next()) );
+		}
+		return updateRequest;
+	}
+	
 
 }

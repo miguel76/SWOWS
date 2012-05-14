@@ -236,5 +236,10 @@ public abstract class DelegatingDynamicGraph implements DynamicGraph {
 	public EventManager getEventManager2() {
 		return getLocalBaseGraph().getEventManager2();
 	}
+	
+	@Override
+	public String toString() {
+		return getLocalBaseGraph().toString();
+	}
 
 }

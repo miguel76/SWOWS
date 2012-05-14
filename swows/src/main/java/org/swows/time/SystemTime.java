@@ -1,10 +1,12 @@
 package org.swows.time;
 
+import java.util.Timer;
 import java.util.TimerTask;
 
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
-import org.swows.runnable.LocalTimer;
+import org.swows.runnable.RunnableContext;
+import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.Instance;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -12,7 +14,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
-public class SystemTime extends TimerTask {
+public class SystemTime implements Runnable {
 	
 	private static final int DEFAULT_PERIOD = 5;
 	
@@ -33,6 +35,7 @@ public class SystemTime extends TimerTask {
 		timeGraph.delete(currTriple);
 		timeGraph.add(newTriple);
 		timeGraph.sendUpdateEvents();
+		currTriple = newTriple;
 	}
 	
 //	private static Triple tripleFromTime(long time) {
@@ -53,9 +56,18 @@ public class SystemTime extends TimerTask {
 		timeGraph = new DynamicGraphFromGraph( GraphFactory.createGraphMem() );
 		currTriple = tripleFromTime();
 		timeGraph.add(currTriple);
-		if (timeGraph == null) {
-			LocalTimer.get().schedule(this, 0, updatePeriod);
-		}
+//		if (timeGraph == null) {
+//		LocalTimer.get().schedule(this, 0, updatePeriod);
+		final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
+		Timer updateTimer = new Timer();
+//		Timer updateTimer = LocalTimer.get();
+		updateTimer.schedule( new TimerTask() {
+			@Override
+			public void run() {
+				runnableCtxt.run(SystemTime.this);
+			}
+		}, 0, updatePeriod);
+//		}
 		return timeGraph;
 	}
 
