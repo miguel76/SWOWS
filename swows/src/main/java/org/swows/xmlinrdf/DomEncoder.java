@@ -390,8 +390,10 @@ public class DomEncoder {
 							return subjXmlNode.getFirstChild().equals(objXmlNode);
 						if (p.equals(xml.lastChild.asNode()))
 							return subjXmlNode.getLastChild().equals(objXmlNode);
-						if (p.equals(xml.previousSibling.asNode()))
-							return subjXmlNode.getPreviousSibling().equals(objXmlNode);
+						if (p.equals(xml.previousSibling.asNode())) {
+                                                    org.w3c.dom.Node previousSiblingNode = objXmlNode.getParentNode();
+                                                        return (previousSiblingNode != null && previousSiblingNode.equals(subjXmlNode));
+                                                }
 						if (p.equals(xml.nextSibling.asNode()))
 							return subjXmlNode.getNextSibling().equals(objXmlNode);
 						if (p.equals(xml.parentNode.asNode()))
