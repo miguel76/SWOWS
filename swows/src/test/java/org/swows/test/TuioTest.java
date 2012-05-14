@@ -48,8 +48,9 @@ public class TuioTest {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-//		String baseUri = "/home/miguel/TUIO/crosses/";
-		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
+        //String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/p/";
+		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersnuovo/";
+                //String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
 		String mainGraphUrl = baseUri + "main.n3";

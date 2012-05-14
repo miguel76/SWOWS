@@ -33,7 +33,7 @@ public class ArduinoMiguelTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/ArduinoDay/log4j.properties");
+        PropertyConfigurator.configure("/home/dario/NetBeansProjects/provaTavolo/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -48,7 +48,7 @@ public class ArduinoMiguelTest {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/ArduinoDay/dataflow/";
+		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/crosses5/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";

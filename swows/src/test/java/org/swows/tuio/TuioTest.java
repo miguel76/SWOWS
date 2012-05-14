@@ -33,7 +33,7 @@ public class TuioTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("log4j.properties");
+        PropertyConfigurator.configure("/home/NetBeansProjects/provaTavolo/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -49,10 +49,10 @@ public class TuioTest {
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
 //		String baseUri = "/home/miguel/TUIO/crosses/";
-		String baseUri = "/home/miguel/TUIO/circles/";
+		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/crosses2/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
-		String mainGraphUrl = baseUri + "main_orig.n3";
+		String mainGraphUrl = baseUri + "main.n3";
 
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
