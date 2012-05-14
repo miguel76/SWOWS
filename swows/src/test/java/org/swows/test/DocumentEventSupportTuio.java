@@ -22,7 +22,7 @@ public class DocumentEventSupportTuio extends DocumentEventSupport {
         eventFactories.put(TUIO_EVENT.toLowerCase(), new TuioEventFactory ());
         System.out.println("documentEventSupportTuio " + (EventFactory)eventFactories.get(TUIO_EVENT.toLowerCase()));
     }
-    
+    //
     public static class TuioEventFactory implements EventFactory {
         public Event createEvent() {
              return new TuioEventTest();

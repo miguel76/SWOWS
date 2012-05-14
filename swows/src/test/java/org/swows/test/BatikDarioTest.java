@@ -60,8 +60,7 @@ public class BatikDarioTest extends JFrame {
             docSupport.registerEventFactory(eventType, new DocumentEventSupportTuio.TuioEventFactory());
             docSupport.createEvent(eventType);
             evt.initTuioClickEvent(defaultView, 86, 126);
-            EventTarget t = (EventTarget) element;
-
+            EventTarget t = (EventTarget) element;//
             //VEDERE SERVERE APERTO SU FIREFOX   final ItsNatDocument itsNatDoc = getItsNatDocument();
 
             t.addEventListener("tuioclick", new EventListener() {
