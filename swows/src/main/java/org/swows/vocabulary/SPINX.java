@@ -164,7 +164,9 @@ public class SPINX {
 
      public final static Property twitterUsername = property("twitterUsername");
     public final static Property tweetNumber = property("tweetNumber");
-   
+    public final static Property eventType = property("eventType");
+    public final static Property xCoord = property("xCoord");
+    public final static Property yCoord = property("yCoord");
     
     //public final static Property reasonerFactory = property("reasonerFactory");
 
