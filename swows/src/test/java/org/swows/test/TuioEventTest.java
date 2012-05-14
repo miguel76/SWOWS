@@ -12,7 +12,7 @@ import org.apache.batik.dom.xbl.*;
 import org.apache.batik.dom.events.DOMUIEvent;
 
 public class TuioEventTest extends DOMMouseEvent  {
-   //
+   
    
          public void initTuioClickEvent (AbstractView defaultView, int x, int y) {
         this.initMouseEvent("tuioclick",true,false,defaultView,0,0,0,x,y,false,false,false,false,(short)0/*left button*/,null);
