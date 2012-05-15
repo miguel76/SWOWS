@@ -26,7 +26,7 @@ public class LoadGraph extends DynamicChangingGraph {
 //		this.pollingPeriod = pollingPeriod;
 		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
 		if (pollingPeriod > 0) {
-			final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
+//			final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
 //			Timer updateTimer = new Timer();
 			Timer updateTimer = LocalTimer.get();
 //			(new Thread() {
@@ -51,7 +51,7 @@ public class LoadGraph extends DynamicChangingGraph {
 			updateTimer.schedule( new TimerTask() {
 				@Override
 				public void run() {
-					runnableCtxt.run(new Runnable() {
+					RunnableContextFactory.getDefaultRunnableContext().run(new Runnable() {
 						@Override
 						public void run() {
 							update();

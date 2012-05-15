@@ -35,18 +35,18 @@ public class JmsInputGraphProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public JmsInputGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
-		Node urlNode = GraphUtils.getSingleValueProperty( conf, confRoot, SPINX.url.asNode() );
+		Node urlNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.url.asNode() );
 		if (urlNode != null)
 			url = urlNode.getURI();
-		Node userNode = GraphUtils.getSingleValueProperty( conf, confRoot, SPINX.user.asNode() );
+		Node userNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.user.asNode() );
 		if (userNode != null)
-			user = userNode.getURI();
-		Node pwdNode = GraphUtils.getSingleValueProperty( conf, confRoot, SPINX.password.asNode() );
+			user = userNode.getLiteralLexicalForm();
+		Node pwdNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.password.asNode() );
 		if (pwdNode != null)
-			password = pwdNode.getURI();
-		Node subjNode = GraphUtils.getSingleValueProperty( conf, confRoot, SPINX.subject.asNode() );
+			password = pwdNode.getLiteralLexicalForm();
+		Node subjNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.subject.asNode() );
 		if (subjNode != null)
-			subject = subjNode.getURI();
+			subject = subjNode.getLiteralLexicalForm();
 		Node baseURINode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.baseUri.asNode() );
 		if (baseURINode != null)
 			baseURI = baseURINode.getURI();

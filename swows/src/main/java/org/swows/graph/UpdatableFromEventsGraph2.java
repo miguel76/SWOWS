@@ -54,18 +54,17 @@ public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 					new Listener() {
 						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
-							System.out.println("Start Add notifyUpdate");
-							System.out.println("This graph: " + baseGraphCopy);
-							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
-							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
-							System.out.println("Default input graph: " + originalInputDataset.getDefaultGraph());
-							Iterator<Node> graphNodes = originalInputDataset.listGraphNodes();
-							while (graphNodes.hasNext()) {
-								Node graphNode = graphNodes.next();
-//								System.out.println("Named input graph (" + graphNode.getURI() + "): " + originalInputDataset.getGraph(graphNode));
-								System.out.println("Named input graph (" + graphNode.getURI() + "):");
-								ModelFactory.createModelForGraph(originalInputDataset.getGraph(graphNode)).write(System.out, "N3");
-							}
+//							System.out.println("Start Add notifyUpdate");
+//							System.out.println("This graph: " + baseGraphCopy);
+//							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
+//							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
+//							System.out.println("Default input graph: " + originalInputDataset.getDefaultGraph());
+//							Iterator<Node> graphNodes = originalInputDataset.listGraphNodes();
+//							while (graphNodes.hasNext()) {
+//								Node graphNode = graphNodes.next();
+//								System.out.println("Named input graph (" + graphNode.getURI() + "):");
+//								ModelFactory.createModelForGraph(originalInputDataset.getGraph(graphNode)).write(System.out, "N3");
+//							}
 
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
 							GraphStore graphStore = new GraphStoreBasic(inputDataset);
@@ -91,7 +90,7 @@ public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 							updateProcessor.execute();
 							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 
-							System.out.println("End of Add notifyUpdate");
+//							System.out.println("End of Add notifyUpdate");
 						}
 					} );
 		}
