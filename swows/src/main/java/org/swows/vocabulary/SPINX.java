@@ -141,6 +141,10 @@ public class SPINX {
     public final static Property baseUri = property("baseUri");
     public final static Property pollingPeriod = property("pollingPeriod");
 
+    public final static Property user = property("user");
+    public final static Property password = property("password");
+    public final static Property subject = property("subject");
+
     /** Constants for inner sparql elements. */
     public final static Resource Exists = resource("Exists");
     public final static Resource NotExists = resource("NotExists");
