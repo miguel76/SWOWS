@@ -32,7 +32,7 @@ import org.apache.batik.dom.events.DOMMouseEvent;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import org.swows.producer.EventsProducer;
+//import org.swows.producer.EventsProducer;
 import org.w3c.dom.events.Event;
 
 public class TuioApp extends JFrame {
@@ -42,7 +42,7 @@ public class TuioApp extends JFrame {
      */
     private static final long serialVersionUID = 1L;
     private RunnableQueue batikRunnableQueue;
-    private EventsProducer eventsProducer = null;
+   // private EventsProducer eventsProducer = null;
 
     public TuioApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
         this(title, gc, dataflowGraph, true);
@@ -154,7 +154,7 @@ public class TuioApp extends JFrame {
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
-        EventTarget t = (EventTarget) xmlDoc;
+     /*   EventTarget t = (EventTarget) xmlDoc;
 
         if (EventsProducer.getEventsProducer() == null) {
             try {
@@ -174,7 +174,7 @@ public class TuioApp extends JFrame {
             }
         }, false);
 
-
+*/
         svgCanvas.setDocument(xmlDoc);
 
 //        TransformerFactory transformerFactory = TransformerFactory.newInstance();
