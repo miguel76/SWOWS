@@ -23,8 +23,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.swows.graph.RecursionDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.GraphUpdate;
+import org.swows.graph.events.Listener;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.SPINX;
@@ -346,31 +349,21 @@ public class DataflowProducer extends DatasetProducer {
 	 */
 	@Override
 	public DynamicDataset createDataset(DynamicDataset parentInputDataset) {
-		final Graph configGraph = confProducer.createGraph(parentInputDataset);
-		DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
-		//final Dataset inputDs = DatasetFactory.create(inputDataset);
-
-		Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
-		return outputProducer.createDataset(inputDataset);
+		final DynamicGraph configGraph = confProducer.createGraph(parentInputDataset);
+		final DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		
-//		QueryHandler configQueryHandler = configGraph.queryHandler();
-//		DatasetGraph resultDataset = DatasetGraphFactory.createMem();
-//		ExtendedIterator<Node> outputGraphNodes =
-//			configQueryHandler.subjectsFor(RDF.type.asNode(), SPINX.OutputGraph.asNode());
-//		while (outputGraphNodes.hasNext()) {
-//			final Node outGraphNode = outputGraphNodes.next();
-//			Node outInputNode = configQueryHandler.objectsFor(outGraphNode, SPINX.input.asNode()).next();
-//			Producer outputGraphProd =
-//				getInnerProducer(configGraph, outInputNode,	null);
-//			Graph outputGraph = outputGraphProd.createGraph(inputDataset);
-//			Iterator<Node> outNameNodes = configQueryHandler.objectsFor(outGraphNode, SPINX.id.asNode());
-//			if (outNameNodes.hasNext()) {
-//				resultDataset.addGraph(outNameNodes.next(), outputGraph);
-//			} else {
-//				resultDataset.setDefaultGraph(outputGraph);
-//			}
-//		}
-//		return resultDataset;
+		Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+		final RecursionDataset outputDataset = new RecursionDataset(outputProducer.createDataset(inputDataset));
+		
+		configGraph.getEventManager2().register(new Listener() {
+			@Override
+			public void notifyUpdate(Graph source, GraphUpdate update) {
+				Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+				outputDataset.setBaseDataset(outputProducer.createDataset(inputDataset));
+			}
+		});
+		
+		return outputDataset;
 	}
 
 	/* (non-Javadoc)
