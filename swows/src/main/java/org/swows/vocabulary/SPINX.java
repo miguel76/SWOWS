@@ -86,7 +86,7 @@ public class SPINX {
 
     public final static Resource IncludedGraph = resource("IncludedGraph");
     public final static Resource TwitterGraph = resource("TwitterGraph");
-   
+    public final static Resource JmsInputGraph = resource("JmsInputGraph");
     
     /** The Constant Dataset. */
     public final static Resource Dataset = resource("Dataset");

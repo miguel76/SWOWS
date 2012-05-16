@@ -36,7 +36,10 @@ public class JmsInputGraph extends DynamicChangingGraph {
 //    private Destination destination;
 //    private String subject = "rfid_queue";
 
-    private Logger logger = Logger.getRootLogger();
+//    private Logger logger = new Logger() {
+//    	
+//    };
+		private Logger logger = Logger.getLogger(getClass());
 
 //    private String user = ActiveMQConnection.DEFAULT_USER;
 //    private String password = ActiveMQConnection.DEFAULT_PASSWORD;
@@ -53,19 +56,24 @@ public class JmsInputGraph extends DynamicChangingGraph {
 
 	public JmsInputGraph(String url, String user, String password, String subject, final String baseURI, final String syntax) {
 
+		logger.debug("Preparing connection...");
+		
         ActiveMQConnectionFactory connectionFactory =
         		new ActiveMQConnectionFactory(
         				user == null ? ActiveMQConnection.DEFAULT_USER : user,
         				password == null ? ActiveMQConnection.DEFAULT_PASSWORD : password,
         				url == null ? ActiveMQConnection.DEFAULT_BROKER_URL : url );
-		final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
+//		final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
 
         try {
 
         	Connection connection = connectionFactory.createConnection();
+    		logger.debug("Connection created!");
         	connection.setExceptionListener(exceptionListener);
         	connection.start();
+    		logger.debug("Connection started!");
         	Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+    		logger.debug("Session created!");
         	Destination destination = session.createQueue(subject);
         	MessageConsumer consumer = session.createConsumer(destination);
         	consumer.setMessageListener(new MessageListener() {
@@ -79,7 +87,7 @@ public class JmsInputGraph extends DynamicChangingGraph {
         	                Model model = ModelFactory.createDefaultModel();
         	                model.read(new StringReader(msg), baseURI == null ? Instance.getURI() : baseURI, syntax);
         	                final Graph newGraph = model.getGraph();
-        	                runnableCtxt.run(new Runnable() {
+        	                RunnableContextFactory.getDefaultRunnableContext().run(new Runnable() {
         						@Override
         						public void run() {
         							setBaseGraph(newGraph);
@@ -91,6 +99,7 @@ public class JmsInputGraph extends DynamicChangingGraph {
         	        } 
         		}
         	});
+    		logger.debug("Listener connected!");
         
         } catch(JMSException e) {
         	exceptionListener.onException(e);
