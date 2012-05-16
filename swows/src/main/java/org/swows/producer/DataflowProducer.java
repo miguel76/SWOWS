@@ -360,8 +360,11 @@ public class DataflowProducer extends DatasetProducer {
 		configGraph.getEventManager2().register(new Listener() {
 			@Override
 			public void notifyUpdate(Graph source, GraphUpdate update) {
+//				System.out.println("Start of notifyUpdate()");
+				innerProds = new ConcurrentHashMap<Node, Producer>();
 				Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
 				outputDataset.setBaseDataset(outputProducer.createDataset(inputDataset));
+//				System.out.println("End of notifyUpdate()");
 			}
 		});
 		

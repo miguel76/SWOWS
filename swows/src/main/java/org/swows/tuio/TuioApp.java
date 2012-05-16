@@ -1,10 +1,13 @@
 package org.swows.tuio;
 
 import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+import javax.xml.transform.TransformerException;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.swing.JSVGCanvas;
@@ -15,6 +18,7 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
+import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.SingleGraphDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -22,11 +26,14 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
+import org.swows.time.TimedApp;
 import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetFactory;
 
 public class TuioApp extends JFrame {
 
@@ -167,4 +174,27 @@ public class TuioApp extends JFrame {
 
 	}
 	
+    public static void main(final String[] args) throws TransformerException {
+    	
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    GraphicsDevice device = ge.getDefaultScreenDevice();
+        GraphicsConfiguration conf = device.getDefaultConfiguration();
+        
+        if (args.length != 3) {
+        	System.out.println("Wrong Number of Arguments!");
+        	System.out.println("usage: java -jar swows-tuio.jar <dataflow_uri> <window_title> F(ull screen)/W(indow)");
+        	System.exit(0);
+        }
+		String mainGraphUrl = args[0];
+		String windowTitle = args[1];
+		char windowMode = args[2].charAt(0);
+		
+		boolean fullScreen = windowMode == 'f' || windowMode == 'F';
+
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
+
+		new TuioApp(windowTitle, conf, wfGraph, fullScreen, true);
+		
+    }	
 }

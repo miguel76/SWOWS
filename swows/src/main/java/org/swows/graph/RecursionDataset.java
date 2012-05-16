@@ -1,7 +1,6 @@
 package org.swows.graph;
 
 import java.util.Iterator;
-import java.util.Set;
 
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -10,14 +9,14 @@ import com.hp.hpl.jena.graph.Node;
 
 public class RecursionDataset extends DynamicDatasetCollection {
 
-	private Set<Node> graphNameSet;
-	protected DynamicDataset ds = new DynamicDatasetMap(new RecursionGraph(DynamicGraph.emptyGraph));
+	protected DynamicDataset ds;
 
 	public RecursionDataset() {
-//		ds = new DynamicDatasetMap(new RecursionGraph(DynamicGraph.emptyGraph));
+		ds = new DynamicDatasetMap(new RecursionGraph(DynamicGraph.emptyGraph));
 	}
 
 	public RecursionDataset(DynamicDataset dataset) {
+		ds = new DynamicDatasetMap(new RecursionGraph(dataset.getDefaultGraph()));
 		Iterator<Node> graphNames = dataset.listGraphNodes();
 		while (graphNames.hasNext()) {
 			Node graphName = graphNames.next();
@@ -42,12 +41,11 @@ public class RecursionDataset extends DynamicDatasetCollection {
 
 	@Override
 	public Iterator<Node> listGraphNodes() {
-		if (graphNameSet == null)
-			throw new RuntimeException("The graph names are still undefined");
-		return graphNameSet.iterator();
+		return ds.listGraphNodes();
 	}
 
 	public void setBaseDataset(DynamicDataset dataset) {
+//		System.out.println("New graph: " + dataset.getDefaultGraph());
 		((RecursionGraph) ds.getDefaultGraph()).setBaseGraph(dataset.getDefaultGraph());
 		Iterator<Node> graphNames = dataset.listGraphNodes();
 		while (graphNames.hasNext()) {
