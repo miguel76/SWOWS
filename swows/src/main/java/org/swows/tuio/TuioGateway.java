@@ -59,11 +59,11 @@ public class TuioGateway implements TuioListener {
     
     private void stopReceiving() {
     	if (isReceiving) {
-//    		RunnableContextFactory.getDefaultRunnableContext().run(localTimerTask);
-    		if (runnableContext != null)
-    			runnableContext.run(localTimerTask);
-    		else
-    			LocalTimer.get().schedule(localTimerTask, 0);
+    		RunnableContextFactory.getDefaultRunnableContext().run(localTimerTask);
+//    		if (runnableContext != null)
+//    			runnableContext.run(localTimerTask);
+//    		else
+//    			LocalTimer.get().schedule(localTimerTask, 0);
     	}
     	isReceiving = false;
     }
