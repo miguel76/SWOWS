@@ -18,7 +18,10 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
+import org.apache.log4j.Logger;
 import org.swows.datatypes.SmartFileManager;
+import org.swows.graph.EventCachingGraph;
+import org.swows.graph.LoggingGraph;
 import org.swows.graph.SingleGraphDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -27,6 +30,7 @@ import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.TimedApp;
+import org.swows.xmlinrdf.DocumentReceiver;
 import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -41,7 +45,11 @@ public class TuioApp extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private RunnableQueue batikRunnableQueue;
+	private RunnableQueue batikRunnableQueue = null;
+	private EventCachingGraph cachingGraph = null;
+	private boolean graphicsInitialized = false;
+	private Document newDocument = null;
+	private JSVGCanvas svgCanvas = null;
 
 	public TuioApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
 		this(title, gc, dataflowGraph, true);
@@ -67,10 +75,22 @@ public class TuioApp extends JFrame {
 		super(title, gc);
 		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
 			@Override
-			public void run(Runnable runnable) {
+			public synchronized void run(final Runnable runnable) {
 				try {
-					while (batikRunnableQueue == null) Thread.yield();
-					batikRunnableQueue.invokeAndWait(runnable);
+					while (batikRunnableQueue == null || cachingGraph == null) Thread.yield();
+//					while (batikRunnableQueue == null) Thread.yield();
+					batikRunnableQueue.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							runnable.run();
+							cachingGraph.sendEvents();
+						}
+					});
+					if (newDocument != null && svgCanvas != null) {
+						svgCanvas.setDocument(newDocument);
+						newDocument = null;
+						batikRunnableQueue = null;
+					}
 				} catch(InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -88,12 +108,14 @@ public class TuioApp extends JFrame {
 //    				}
 //    			});
     	final TuioGateway tuioGateway =
-		new TuioGateway(autoRefresh, RunnableContextFactory.getDefaultRunnableContext());
+    			new TuioGateway(autoRefresh, RunnableContextFactory.getDefaultRunnableContext());
 		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(tuioGateway.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
+		cachingGraph = new EventCachingGraph(outputGraph);
+//		cachingGraph = new EventCachingGraph( new LoggingGraph(outputGraph, Logger.getRootLogger(), true, true) );
 
-		final JSVGCanvas svgCanvas = new JSVGCanvas();
+		svgCanvas = new JSVGCanvas();
         svgCanvas.setSize(width,height);
         
         // Set the JSVGCanvas listeners.
@@ -121,13 +143,16 @@ public class TuioApp extends JFrame {
                 //label.setText("Rendering Started...");
             }
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-                // Display the frame.
-            	batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
-            	if (fullscreen)
-            		gc.getDevice().setFullScreenWindow(TuioApp.this);
-                pack();
-                setVisible(true);
-            	tuioGateway.connect();
+        		batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
+            	if (!graphicsInitialized) {
+            		// Display the frame.
+            		if (fullscreen)
+            			gc.getDevice().setFullScreenWindow(TuioApp.this);
+            		pack();
+            		setVisible(true);
+            		tuioGateway.connect();
+            		graphicsInitialized = true;
+            	}
             }
         });
 		
@@ -145,7 +170,9 @@ public class TuioApp extends JFrame {
 		DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation();
 		Document xmlDoc =
 				DomDecoder.decodeOne(
-						outputGraph,
+						cachingGraph,
+//						outputGraph,
+//						new LoggingGraph(cachingGraph, Logger.getRootLogger(), true, true),
 						domImpl /*,
 						new RunnableContext() {
 							@Override
@@ -156,7 +183,31 @@ public class TuioApp extends JFrame {
 									throw new RuntimeException(e);
 								}
 							}
-						} */);
+						} */,
+						new DocumentReceiver() {
+//							{
+//								(new Thread() {
+//									public void run() {
+//										while (true) {
+//											while (newDocument == null) yield();
+//											RunnableQueue runnableQueue = batikRunnableQueue;
+//											runnableQueue.suspendExecution(true);
+//											batikRunnableQueue = null;
+////											batikRunnableQueue.getThread().halt();
+////											batikRunnableQueue = null;
+//											svgCanvas.setDocument(newDocument);
+//											newDocument = null;
+//											batikRunnableQueue.resumeExecution();
+//										}
+//									}
+//								}).start();
+//							}
+//							private Document newDocument = null;
+							@Override
+							public void sendDocument(Document doc) {
+								newDocument = doc;
+							}
+						});
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 		svgCanvas.setDocument(xmlDoc);

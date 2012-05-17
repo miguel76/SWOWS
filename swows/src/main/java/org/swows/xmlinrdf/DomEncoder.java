@@ -98,7 +98,7 @@ public class DomEncoder {
 		private Node rootNode = null;
 		
 		private long nodeIdCount = 0;
-		private long docId = rnd.nextLong();
+		private long docId = Math.abs( rnd.nextLong() );
 		
 		private boolean closed = false;
 /*
@@ -117,7 +117,10 @@ public class DomEncoder {
 
 		public EncodedDocument(Document document, String rootUri) {
 			this.document = document;
+//			rootNode = Node.createURI(rootUri + "_" + docId);
 			rootNode = Node.createURI(rootUri);
+			mapXmlNode2BlankId.put(document, rootNode);
+			mapBlankId2XmlNode.put(rootNode, document);
 		}
 
 		private synchronized Node createNode() {

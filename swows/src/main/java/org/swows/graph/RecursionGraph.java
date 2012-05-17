@@ -9,6 +9,7 @@ import org.swows.graph.events.SimpleEventManager;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.compose.Difference;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class RecursionGraph extends DelegatingDynamicGraph {
 	
@@ -54,8 +55,16 @@ public class RecursionGraph extends DelegatingDynamicGraph {
 		baseGraphCopy = newGraph;
 		baseGraphCopy.getEventManager2().register(localEventManager);
 
-		final Graph addedGraph = new Difference(newGraph, oldGraph);
-		final Graph deletedGraph = new Difference(oldGraph, newGraph);
+		final Graph addedGraph = GraphFactory.createGraphMem();
+//		addedGraph.getBulkUpdateHandler().add(newGraph);
+//		addedGraph.getBulkUpdateHandler().delete(oldGraph);
+		addedGraph.getBulkUpdateHandler().add(new Difference(newGraph, oldGraph));
+		final Graph deletedGraph = GraphFactory.createGraphMem();
+//		addedGraph.getBulkUpdateHandler().add(oldGraph);
+//		addedGraph.getBulkUpdateHandler().delete(newGraph);
+		deletedGraph.getBulkUpdateHandler().add(new Difference(oldGraph, newGraph));
+//		final Graph addedGraph = new Difference(newGraph, oldGraph);
+//		final Graph deletedGraph = new Difference(oldGraph, newGraph);
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
 			localEventManager.notifyUpdate(new GraphUpdate() {
 				@Override

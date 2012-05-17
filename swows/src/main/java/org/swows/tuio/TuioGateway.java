@@ -12,6 +12,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContext;
+import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.TUIO;
 
 import TUIO.TuioCursor;
@@ -58,6 +59,7 @@ public class TuioGateway implements TuioListener {
     
     private void stopReceiving() {
     	if (isReceiving) {
+//    		RunnableContextFactory.getDefaultRunnableContext().run(localTimerTask);
     		if (runnableContext != null)
     			runnableContext.run(localTimerTask);
     		else

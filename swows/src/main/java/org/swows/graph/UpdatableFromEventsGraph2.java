@@ -40,10 +40,14 @@ import com.hp.hpl.jena.update.UpdateRequest;
 public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 	
 	public UpdatableFromEventsGraph2(
+			final DynamicGraph baseGraph,
 			final List<DynamicGraph> eventGraphList,
 			final List<UpdateRequest> updateList,
 			final List<DynamicDataset> updateInputDatasetList ) {
-		baseGraphCopy = new DynamicGraphFromGraph( GraphFactory.createGraphMem() );
+		Graph innerGraph = GraphFactory.createGraphMem();
+		if (baseGraph != null)
+			innerGraph.getBulkUpdateHandler().add(baseGraph);
+		baseGraphCopy = new DynamicGraphFromGraph( innerGraph );
 
 		Iterator<UpdateRequest> updateIter = updateList.iterator();
 		Iterator<DynamicDataset> inputDatasetIter = updateInputDatasetList.iterator();

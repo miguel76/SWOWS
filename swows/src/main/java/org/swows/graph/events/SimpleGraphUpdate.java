@@ -23,20 +23,16 @@ public class SimpleGraphUpdate implements GraphUpdate {
 	}
 
 	public void putAddedTriple(Triple triple) {
-		if (baseGraph != null && baseGraph.contains(triple))
-			return;
 		if (deletedGraph.contains(triple))
 			deletedGraph.delete(triple);
-		else
+		else if (baseGraph == null || !baseGraph.contains(triple))
 			addedGraph.add(triple);
 	}
 	
 	public void putDeletedTriple(Triple triple) {
-		if (baseGraph != null && !baseGraph.contains(triple))
-			return;
 		if (addedGraph.contains(triple))
 			addedGraph.delete(triple);
-		else
+		else if (baseGraph == null || baseGraph.contains(triple))
 			deletedGraph.add(triple);
 	}
 	
