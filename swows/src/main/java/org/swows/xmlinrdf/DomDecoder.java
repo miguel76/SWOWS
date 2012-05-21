@@ -59,8 +59,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			if (domEventListenersForType == null) {
 				domEventListenersForType = new HashSet<DomEventListener>();
 				domEventListeners.put(eventType, domEventListenersForType);
-//				if (document == null)
-//					(() document)
 			}
 			domEventListenersForType.add(l);
 		}
@@ -201,11 +199,11 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				}
 			}
 		}
-		Node isActiveNode = GraphUtils.getSingleValueOptProperty(graph, elementNode, xml.isActive.asNode());
-		if (isActiveNode != null
-				&& isActiveNode.equals(Node.createLiteral("true", XSDDatatype.XSDboolean))) {
-			// TODO: eventType?
-			((EventTarget) element).addEventListener("", this, false);
+		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, xml.listenedEventType.asNode());
+		while (eventTypeNodes.hasNext()) {
+			Node eventTypeNode = eventTypeNodes.next();
+			if (eventTypeNode.isLiteral())
+				((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), this, false);
 		}
 	}
 

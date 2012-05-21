@@ -105,8 +105,8 @@ public class TuioApp extends JFrame {
 				}
 			}
 		});
-//    	final TuioGateway tuioGateway =
-//    			new TuioGateway(autoRefresh, new RunnableContext() {
+//    	final MouseInput tuioGateway =
+//    			new MouseInput(autoRefresh, new RunnableContext() {
 //    				@Override
 //    				public void run(Runnable runnable) {
 //    					try {
