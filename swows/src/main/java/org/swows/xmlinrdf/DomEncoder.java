@@ -86,16 +86,19 @@ public class DomEncoder {
 		public abstract org.w3c.dom.Node getNode();
 	}
 */
+	
 
 	static class EncodedDocument implements Graph {
 		
 		private static final NullIterator<Triple> emptyTripleIterator = new NullIterator<Triple>();
 		private static final NullIterator<org.w3c.dom.Node> emptyNodeIterator = new NullIterator<org.w3c.dom.Node>();
+		private static Random rnd = new Random();
 
 		private Document document;
 		private Node rootNode = null;
 		
 		private long nodeIdCount = 0;
+		private long docId = Math.abs( rnd.nextLong() );
 		
 		private boolean closed = false;
 /*
@@ -114,11 +117,19 @@ public class DomEncoder {
 
 		public EncodedDocument(Document document, String rootUri) {
 			this.document = document;
+//			rootNode = Node.createURI(rootUri + "_" + docId);
 			rootNode = Node.createURI(rootUri);
+			mapXmlNode2BlankId.put(document, rootNode);
+			mapBlankId2XmlNode.put(rootNode, document);
 		}
 
 		private synchronized Node createNode() {
-			return Node.createURI(xmlInstance.getURI() + "node_" + Long.toString(nodeIdCount++));
+			return Node.createURI(
+					xmlInstance.getURI()
+					+ "node_"
+					+ Long.toString(docId)		
+                    + "_"
+					+ Long.toString(nodeIdCount++));
 		}
 		
 /*

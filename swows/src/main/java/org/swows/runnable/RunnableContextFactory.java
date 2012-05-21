@@ -5,10 +5,12 @@ public class RunnableContextFactory {
 	private static RunnableContext defaultRunnableContext = new RunnableContext() {
 		@Override
 		public void run(Runnable runnable) {
-			runnable.run();
+//			runnable.run();
 		}
 	};
 	
+//	private static RunnableContext defaultRunnableContext = null;
+
 	public static RunnableContext getDefaultRunnableContext() {
 		return defaultRunnableContext;
 	}

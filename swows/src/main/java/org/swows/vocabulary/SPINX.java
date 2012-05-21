@@ -86,7 +86,7 @@ public class SPINX {
 
     public final static Resource IncludedGraph = resource("IncludedGraph");
     public final static Resource TwitterGraph = resource("TwitterGraph");
-   
+    public final static Resource JmsInputGraph = resource("JmsInputGraph");
     
     /** The Constant Dataset. */
     public final static Resource Dataset = resource("Dataset");
@@ -140,6 +140,10 @@ public class SPINX {
     public final static Property syntax = property("syntax");
     public final static Property baseUri = property("baseUri");
     public final static Property pollingPeriod = property("pollingPeriod");
+
+    public final static Property user = property("user");
+    public final static Property password = property("password");
+    public final static Property subject = property("subject");
 
     /** Constants for inner sparql elements. */
     public final static Resource Exists = resource("Exists");

@@ -37,7 +37,12 @@ public class RangeFunction extends GraphToSetFunction {
 			} else
 				throw new ProducerException("Parameter intervalStart has wrong type. expected literal with " + XSDDatatype.XSDinteger.getURI() + " type");
 		} else
-			throw new ProducerException("Parameter intervalStart not found");
+			return new Iterator<Node>() {
+				public boolean hasNext() { return false; }
+				public Node next() { return null;	}
+				public void remove() { }
+			};
+//			throw new ProducerException("Parameter intervalStart not found");
 		Iterator<Triple> endIter =
 				inputGraph.find(Instance.GraphRoot.asNode(), SPINX.intervalEnd.asNode(), Node.ANY);
 		if (endIter.hasNext()) {
@@ -47,7 +52,12 @@ public class RangeFunction extends GraphToSetFunction {
 			} else
 				throw new ProducerException("Parameter intervalEnd has wrong type. expected literal with " + XSDDatatype.XSDinteger.getURI() + " type");
 		} else
-			throw new ProducerException("Parameter intervalEnd not found");
+			return new Iterator<Node>() {
+			public boolean hasNext() { return false; }
+			public Node next() { return null;	}
+			public void remove() { }
+		};
+//			throw new ProducerException("Parameter intervalEnd not found");
 //		final BigInteger start, end;
 		return new Iterator<Node>() {
 			private BigInteger index = start;

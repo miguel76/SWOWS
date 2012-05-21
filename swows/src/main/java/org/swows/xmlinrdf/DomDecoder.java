@@ -33,6 +33,10 @@ import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class DomDecoder implements Listener, RunnableContext {
+	
+	private DocumentReceiver docReceiver;
+	private DOMImplementation domImplementation;
+	private DynamicGraph graph;
 
 	public static Document decode(DynamicGraph graph, Node docRootNode) {
 		try {
@@ -179,54 +183,112 @@ public class DomDecoder implements Listener, RunnableContext {
 		}
 	}
 
-	private void decodeWorker(DynamicGraph graph, Node docRootNode, DOMImplementation domImpl) {
-		Node elementNode = graph.find(docRootNode, xml.hasChild.asNode(), Node.ANY).next().getObject();
-		document =
-				domImpl.createDocument(
-						namespace(graph, elementNode),
-						qName(graph, elementNode),
-						null);
-		Element docElement = document.getDocumentElement();
-		addNodeMapping(docRootNode, document);
-		addNodeMapping(elementNode, docElement);
-		decodeElementAttrsAndChildren( docElement, graph, elementNode );
+	private void decodeDocument(Node docRootNode) {
+		Iterator<Node> possibleDocs =
+				GraphUtils.getPropertyValues(graph, docRootNode, xml.hasChild.asNode());
+		while (possibleDocs.hasNext()) {
+			try {
+				Node elementNode = possibleDocs.next();
+				document =
+					domImplementation.createDocument(
+					namespace(graph, elementNode),
+					qName(graph, elementNode),
+					null);
+				Element docElement = document.getDocumentElement();
+				addNodeMapping(docRootNode, document);
+				addNodeMapping(elementNode, docElement);
+				decodeElementAttrsAndChildren( docElement, graph, elementNode );
+			} catch(RuntimeException e) { }
+		}
+	}
+	
+	private void redecodeDocument(Node docRootNode) {
+		graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
+		dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
+		decodeDocument(docRootNode);
+		if (docReceiver != null)
+			docReceiver.sendDocument(document);
+	}
+	
+
+	private void decodeWorker(DynamicGraph graph, Node docRootNode) {
+		decodeDocument(docRootNode);
 		graph.getEventManager2().register(this);
 	}
 
-	public static Document decode(DynamicGraph graph, Node docRootNode, DOMImplementation domImpl) {
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl) {
 		return (new DomDecoder(graph, docRootNode, domImpl)).getDocument();
 	}
 
-	public static Document decode(DynamicGraph graph, Node docRootNode, DOMImplementation domImpl, RunnableContext updatesContext) {
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext) {
 		return (new DomDecoder(graph, docRootNode, domImpl, updatesContext)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, DocumentReceiver docReceiver) {
+		return (new DomDecoder(graph, docRootNode, domImpl, docReceiver)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			DocumentReceiver docReceiver) {
+		return (new DomDecoder(graph, docRootNode, domImpl, updatesContext, docReceiver)).getDocument();
 	}
 
 	public static Document decodeOne(DynamicGraph graph, DOMImplementation domImpl) {
 		return decodeAll(graph, domImpl).next();
 	}
 
-	public static Document decodeOne(DynamicGraph graph, DOMImplementation domImpl, RunnableContext updatesContext) {
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext) {
 		return decodeAll(graph, domImpl, updatesContext).next();
 	}
 
-	public static ExtendedIterator<Document> decodeAll(final DynamicGraph graph, final DOMImplementation domImpl) {
-		return graph
-				.find(Node.ANY, RDF.type.asNode(), xml.Document.asNode())
-				.mapWith(new Map1<Triple, Document>() {
-					@Override
-					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject(), domImpl);
-					}
-				});
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			DocumentReceiver docReceiver) {
+		return decodeAll(graph, domImpl, docReceiver).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext, DocumentReceiver docReceiver) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver).next();
+	}
+
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl) {
+		return decodeAll(graph, domImpl, (RunnableContext) null);
 	}
 	
-	public static ExtendedIterator<Document> decodeAll(final DynamicGraph graph, final DOMImplementation domImpl, final RunnableContext updatesContext) {
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final DocumentReceiver docReceiver) {
+		return decodeAll(graph, domImpl, null, docReceiver);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl, 
+			final RunnableContext updatesContext) {
+		return decodeAll(graph, domImpl, updatesContext, null);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final RunnableContext updatesContext, final DocumentReceiver docReceiver) {
 		return graph
 				.find(Node.ANY, RDF.type.asNode(), xml.Document.asNode())
 				.mapWith(new Map1<Triple, Document>() {
 					@Override
 					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject(), domImpl, updatesContext);
+						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver);
 					}
 				});
 	}
@@ -276,17 +338,40 @@ public class DomDecoder implements Listener, RunnableContext {
 	}
 	
 	private DomDecoder(Graph graph) {
+		//this.graph = graph;
 		this.updatesContext = this;
 	}
 
-	private DomDecoder(DynamicGraph graph, Node docRootNode, DOMImplementation domImpl) {
-		decodeWorker(graph, docRootNode, domImpl);
-		this.updatesContext = this;
+	private DomDecoder(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl) {
+		this(graph, docRootNode, domImpl, (DocumentReceiver) null);
 	}
 	
-	private DomDecoder(DynamicGraph graph, Node docRootNode, DOMImplementation domImpl, RunnableContext updatesContext) {
-		decodeWorker(graph, docRootNode, domImpl);
-		this.updatesContext = updatesContext;
+	private DomDecoder(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			DocumentReceiver docReceiver) {
+		this(graph, docRootNode, domImpl, null, docReceiver);
+	}
+	
+	private DomDecoder(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			RunnableContext updatesContext) {
+		this(graph, docRootNode, domImpl, updatesContext, null);
+	}
+	
+	private DomDecoder(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			DocumentReceiver docReceiver) {
+		this.graph = graph;
+		this.domImplementation = domImpl;
+		this.updatesContext = ( updatesContext == null ? this : updatesContext );
+		this.docReceiver = docReceiver;
+		decodeWorker(graph, docRootNode);
 	}
 	
 	public void run(Runnable runnable) {
@@ -323,9 +408,11 @@ public class DomDecoder implements Listener, RunnableContext {
 //									System.out.println(this + ": managing add event " + newTriple + ", domSubjs is null");
 								if (domSubjs != null) {
 									//System.out.println("Managing add event " + newTriple + " for domSubjs " + domSubjs);
-									Iterator<org.w3c.dom.Node> domSubjIter = domSubjs.iterator();
-									if ( 	( 	newTriple.getPredicate().equals(xml.nodeName)
-												|| newTriple.getPredicate().equals(xml.namespace) )
+									Set<org.w3c.dom.Node> domSubjsTemp = new HashSet<org.w3c.dom.Node>();
+									domSubjsTemp.addAll(domSubjs);
+									Iterator<org.w3c.dom.Node> domSubjIter = domSubjsTemp.iterator();
+									if ( 	( 	newTriple.getPredicate().equals(xml.nodeName.asNode())
+												|| newTriple.getPredicate().equals(xml.namespace.asNode()) )
 											&& !update.getDeletedGraph().contains(newTriple.getSubject(), xml.nodeType.asNode(), Node.ANY) ) {
 										//org.w3c.dom.Node parentNode = null;
 										Node nodeType =
@@ -357,6 +444,10 @@ public class DomDecoder implements Listener, RunnableContext {
 													newDom.addNodeMapping(newTriple.getSubject(), newNode);
 												}
 											}
+										} else  {
+											newTriple.getSubject();
+											redecodeDocument(newTriple.getSubject());
+											return;
 										}
 									} else if ( newTriple.getPredicate().equals(xml.nodeValue.asNode()) ) {
 										while (domSubjIter.hasNext()) {
@@ -385,6 +476,10 @@ public class DomDecoder implements Listener, RunnableContext {
 												newDom.addNodeMapping(newTriple.getObject(), newChild);
 												element.appendChild(newChild);
 											}
+										} else if (nodeType.equals(xml.Document.asNode())) {
+											newTriple.getSubject();
+											redecodeDocument(newTriple.getSubject());
+											return;
 										}
 									}
 								}			
@@ -433,10 +528,10 @@ public class DomDecoder implements Listener, RunnableContext {
 											domSubj.setNodeValue("");
 										}
 									} else if ( oldTriple.getPredicate().equals(xml.hasAttribute.asNode()) ) {
-//										Set<org.w3c.dom.Node> domObjs = graph2domNodeMapping.get(oldTriple.getObject());
-										Set<org.w3c.dom.Node> domObjs = new HashSet<org.w3c.dom.Node>();
-										domObjs.addAll(graph2domNodeMapping.get(oldTriple.getObject()));
-										if (domObjs != null) {
+										Set<org.w3c.dom.Node> domObjsOrig = graph2domNodeMapping.get(oldTriple.getObject());
+										if (domObjsOrig != null) {
+											Set<org.w3c.dom.Node> domObjs = new HashSet<org.w3c.dom.Node>();
+											domObjs.addAll(domObjsOrig);
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 												Iterator<org.w3c.dom.Node> domObjsIter = domObjs.iterator();
@@ -464,7 +559,11 @@ public class DomDecoder implements Listener, RunnableContext {
 												while (domObjsIter.hasNext()) {
 													try {
 														org.w3c.dom.Node domObj = domObjsIter.next();
-														element.removeChild(domObj);
+														try {
+															element.removeChild(domObj);
+														} catch(DOMException e) {
+															
+														}
 														newDom.removeSubtreeMapping(domObj);
 													} catch(DOMException e) {
 														if (!e.equals(DOMException.NOT_FOUND_ERR))

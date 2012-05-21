@@ -14,10 +14,13 @@ import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdatableFromEventsProducer2 extends GraphProducer {
 	
+	private Producer baseGraphProducer = EmptyGraphProducer.getInstance();
+
 	private List<Producer>
 			eventProducerList = new Vector<Producer>(),
 			updateProducerList = new Vector<Producer>(),
@@ -32,6 +35,9 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableFromEventsProducer2(Graph conf, Node confRoot, ProducerMap map) {
+		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, SPINX.baseGraph.asNode());
+		if (baseGraphNode != null)
+			baseGraphProducer = map.getProducer(baseGraphNode);
 		Iterator<Node> inputIter = GraphUtils.getPropertyValues(conf, confRoot, SPINX.input.asNode());
 		while( inputIter.hasNext() ) {
 			Node base = inputIter.next();
@@ -44,6 +50,8 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 
 	@Override
 	public boolean dependsFrom(Producer producer) {
+		if (baseGraphProducer.equals(producer) || baseGraphProducer.dependsFrom(producer))
+			return true;
 		for (Producer inputProducer : eventProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
@@ -58,6 +66,7 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
+		DynamicGraph baseGraph = (baseGraphProducer == null) ? null : baseGraphProducer.createGraph(inputDataset); 
 		List<DynamicGraph> eventGraphList = new Vector<DynamicGraph>();
 		List<UpdateRequest> updateList = new Vector<UpdateRequest>();
 		List<DynamicDataset> updateInputList = new Vector<DynamicDataset>();
@@ -71,6 +80,7 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 			updateInputList.add(updateInputProducer.createDataset(inputDataset));
 		}
 		return new UpdatableFromEventsGraph2(
+				baseGraph,
 				eventGraphList,
 				updateList,
 				updateInputList );
