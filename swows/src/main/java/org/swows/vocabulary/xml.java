@@ -148,6 +148,8 @@ public class xml {
     
     public static final Property text = property( "text" );
 
+    public static final Property isActive = property( "isActive" );
+
     public static final List<Property> allProperties = new Vector<Property>();
     
     static {

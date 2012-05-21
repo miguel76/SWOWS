@@ -24,7 +24,11 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -32,11 +36,57 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class DomDecoder implements Listener, RunnableContext {
+public class DomDecoder implements Listener, RunnableContext, EventListener {
 	
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
 	private DynamicGraph graph;
+//	private Set<DomEventListener> domEventListeners;
+	private Map<String, Set<DomEventListener>> domEventListeners;
+	
+	private Document document;
+	private RunnableContext updatesContext;
+	private Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
+	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
+	
+	public void addDomEventListener(String eventType, DomEventListener l) {
+		synchronized(this) {
+			if (domEventListeners == null)
+				domEventListeners = new HashMap<String, Set<DomEventListener>>();
+		}
+		synchronized(domEventListeners) {
+			Set<DomEventListener> domEventListenersForType = domEventListeners.get(eventType);
+			if (domEventListenersForType == null) {
+				domEventListenersForType = new HashSet<DomEventListener>();
+				domEventListeners.put(eventType, domEventListenersForType);
+//				if (document == null)
+//					(() document)
+			}
+			domEventListenersForType.add(l);
+		}
+	}
+	
+	public void removeDomEventListener(String eventType, DomEventListener l) {
+		if (domEventListeners != null) {
+			synchronized(domEventListeners) {
+				domEventListeners.remove(l);
+			}
+		}
+	}
+
+	@Override
+	public void handleEvent(Event evt) {
+		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
+		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
+		if (domEventListeners != null) {
+			synchronized (domEventListeners) {
+				Set<DomEventListener> domEventListenersForType = domEventListeners.get(evt.getType());
+				for (DomEventListener l : domEventListenersForType) {
+					l.handleEvent(evt, eventTargetGraphNode);
+				}
+			}
+		}
+	}
 
 	public static Document decode(DynamicGraph graph, Node docRootNode) {
 		try {
@@ -151,7 +201,12 @@ public class DomDecoder implements Listener, RunnableContext {
 				}
 			}
 		}
-		//return element;
+		Node isActiveNode = GraphUtils.getSingleValueOptProperty(graph, elementNode, xml.isActive.asNode());
+		if (isActiveNode != null
+				&& isActiveNode.equals(Node.createLiteral("true", XSDDatatype.XSDboolean))) {
+			// TODO: eventType?
+			((EventTarget) element).addEventListener("", this, false);
+		}
 	}
 
 	private Element decodeElement(final Graph graph, final Node elementNode) {
@@ -292,11 +347,6 @@ public class DomDecoder implements Listener, RunnableContext {
 					}
 				});
 	}
-	
-	Document document;
-	RunnableContext updatesContext;
-	Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
-	Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
 	
 	private void addNodeMapping(Node graphNode, org.w3c.dom.Node domNode) {
 //		System.out.println(this + ": adding mapping ( " + graphNode + " -> " + domNode + " )");
@@ -585,6 +635,5 @@ public class DomDecoder implements Listener, RunnableContext {
 		}
 
 	}
-
 
 }
