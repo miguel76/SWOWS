@@ -1,4 +1,4 @@
-package org.swows.test;
+package org.swows.tuio;
 
 import java.util.HashSet;
 import org.apache.batik.dom.events.DOMMouseEvent;
@@ -11,7 +11,7 @@ import org.w3c.dom.events.*;
 import org.apache.batik.dom.xbl.*;
 import org.apache.batik.dom.events.DOMUIEvent;
 
-public class TuioEventTest extends DOMMouseEvent  {
+public class TuioEvent extends DOMMouseEvent  {
    
    
          public void initTuioClickEvent (AbstractView defaultView, int x, int y) {
@@ -21,10 +21,6 @@ public class TuioEventTest extends DOMMouseEvent  {
     
 }
 
-    
-    /*  public TuioEventTest () {
-        super();
-    } */
 
  
     

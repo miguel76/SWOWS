@@ -48,6 +48,16 @@ import org.w3c.dom.events.Event;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 
+import TUIO.TuioCursor;
+import TUIO.TuioListener;
+import TUIO.TuioObject;
+import TUIO.TuioPoint;
+import TUIO.TuioTime;
+import org.apache.batik.dom.events.DocumentEventSupport;
+import org.w3c.dom.views.AbstractView;
+import org.w3c.dom.views.DocumentView;
+
+
 public class TuioApp extends JFrame {
 
 	/**
@@ -261,6 +271,68 @@ public class TuioApp extends JFrame {
 //		}
 
 	}
+        
+        
+        class TuioDomGateway implements TuioListener {
+
+            public void addTuioObject(TuioObject object) {
+                addTuioPoint(object);
+            }
+
+            public void updateTuioObject(TuioObject object) {
+                updateTuioPoint(object);
+            }
+
+            public void removeTuioObject(TuioObject object) {
+            }
+
+            public void addTuioCursor(TuioCursor cursor) {
+                addTuioPoint(cursor);
+            }
+
+            public void updateTuioCursor(TuioCursor cursor) {
+                updateTuioPoint(cursor);
+            }
+
+            public void removeTuioCursor(TuioCursor cursor) {
+            
+            }
+
+            public void refresh(TuioTime tt) {
+            
+            }
+            
+            public void addTuioPoint (TuioPoint point) {
+                if (newDocument != null) {
+                
+                AbstractView defaultView = ((DocumentView) svgCanvas).getDefaultView();
+                String eventType = "tuioEvent";
+                TuioEvent evt = new TuioEvent();
+                DocumentEventSupport docSupport = new DocumentEventSupport();
+                docSupport.registerEventFactory(eventType, new DocumentEventSupportTuio.TuioEventFactory());
+                docSupport.createEvent(eventType);
+                
+                //DA CONTROLLARE:
+              /*  int x = point.getScreenX(svgCanvas.getWidth());
+                int y = point.getScreenY(svgCanvas.getHeight());
+                evt.initTuioClickEvent(defaultView, x, y);
+                */
+                EventTarget t = (EventTarget) svgCanvas;
+                
+                t.dispatchEvent(evt);
+                
+                //t.addEventListener("tuioclick", new EventListener() {
+                
+                }
+            }
+            
+            public void updateTuioPoint (TuioPoint point) {
+                addTuioPoint (point);
+            }
+            
+        }
+
+        
 	
     public static void main(final String[] args) throws TransformerException {
     	
