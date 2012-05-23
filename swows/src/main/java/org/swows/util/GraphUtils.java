@@ -2,6 +2,9 @@ package org.swows.util;
 
 import java.util.Iterator;
 
+import org.swows.vocabulary.DOMEvents;
+
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -39,4 +42,28 @@ public class GraphUtils {
 		});
 	}
 
+	public static void addBooleanProperty(Graph graph, Node subject, Node predicate, boolean value) {
+		Node litNode =
+				Node.createLiteral(
+						"" + value,
+						(String) null, XSDDatatype.XSDboolean);
+		graph.add( new Triple(subject, predicate, litNode));
+	}
+	
+	public static void addIntegerProperty(Graph graph, Node subject, Node predicate, long value) {
+		Node litNode =
+				Node.createLiteral(
+						"" + value,
+						(String) null, XSDDatatype.XSDinteger);
+		graph.add( new Triple(subject, predicate, litNode));
+	}
+	
+	public static void addDecimalProperty(Graph graph, Node subject, Node predicate, double value) {
+		Node litNode =
+				Node.createLiteral(
+						"" + value,
+						(String) null, XSDDatatype.XSDdecimal);
+		graph.add( new Triple(subject, predicate, litNode));
+	}
+	
 }

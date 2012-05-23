@@ -12,7 +12,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
-import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.TUIO;
@@ -26,7 +25,6 @@ import TUIO.TuioPoint;
 import TUIO.TuioTime;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphMaker;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -187,13 +185,21 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	
 	private void updateDomNodes(TuioPoint point, Node tuioNode) {
 		Set<Node> prevPointDomNodesMapping = point2domNodesMapping.get(point);
-		for (Node prevDomNode : prevPointDomNodesMapping) {
-			if (!currPointDomNodesMapping.contains(prevDomNode))
-				tuioGraph.delete( new Triple(tuioNode, TUIO.isOn.asNode(), prevDomNode));
-		}
-		for (Node currDomNode : currPointDomNodesMapping) {
-			if (!prevPointDomNodesMapping.contains(currDomNode))
+		if (prevPointDomNodesMapping == null) {
+			for (Node currDomNode : currPointDomNodesMapping) {
 				tuioGraph.add( new Triple(tuioNode, TUIO.isOn.asNode(), currDomNode));
+			}
+//			prevPointDomNodesMapping = new HashSet<Node>();
+//			point2domNodesMapping.put(point, prevPointDomNodesMapping);
+		} else {
+			for (Node prevDomNode : prevPointDomNodesMapping) {
+				if (!currPointDomNodesMapping.contains(prevDomNode))
+					tuioGraph.delete( new Triple(tuioNode, TUIO.isOn.asNode(), prevDomNode));
+			}
+			for (Node currDomNode : currPointDomNodesMapping) {
+				if (!prevPointDomNodesMapping.contains(currDomNode))
+					tuioGraph.add( new Triple(tuioNode, TUIO.isOn.asNode(), currDomNode));
+			}
 		}
 		point2domNodesMapping.put(point, currPointDomNodesMapping);
 		currPointDomNodesMapping = null;
