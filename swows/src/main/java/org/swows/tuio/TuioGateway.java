@@ -46,6 +46,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
     private Node tuioSourceNode;
     private Map<TuioPoint, Node> point2nodeMapping = new HashMap<TuioPoint, Node>();
     private Map<TuioPoint, Set<Node>> point2domNodesMapping = new HashMap<TuioPoint, Set<Node>>();
+    private Set<Node> currPointDomNodesMapping = null;
     private boolean isReceiving = false;
     private Logger logger;
     private Vector<TuioListener> listenerList = new Vector<TuioListener>();
@@ -184,8 +185,23 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	private static final Node T0 =
 			Node.createLiteral( "0", (String) null, XSDDatatype.XSDdecimal );
 	
+	private void updateDomNodes(TuioPoint point, Node tuioNode) {
+		Set<Node> prevPointDomNodesMapping = point2domNodesMapping.get(point);
+		for (Node prevDomNode : prevPointDomNodesMapping) {
+			if (!currPointDomNodesMapping.contains(prevDomNode))
+				tuioGraph.delete( new Triple(tuioNode, TUIO.isOn.asNode(), prevDomNode));
+		}
+		for (Node currDomNode : currPointDomNodesMapping) {
+			if (!prevPointDomNodesMapping.contains(currDomNode))
+				tuioGraph.add( new Triple(tuioNode, TUIO.isOn.asNode(), currDomNode));
+		}
+		point2domNodesMapping.put(point, currPointDomNodesMapping);
+		currPointDomNodesMapping = null;
+	}
+	
 	private Node addTuioPoint(TuioPoint point) {
 		startReceiving();
+		currPointDomNodesMapping = new HashSet<Node>();
 		Node pointNode = Node.createURI(TUIO.getInstanceURI() + "point_" + point.hashCode());
 		tuioGraph.add( new Triple( pointNode, RDF.type.asNode(), TUIO.Tracked.asNode() ) );
 		tuioGraph.add( new Triple(pointNode, TUIO.source.asNode(), tuioSourceNode));
@@ -214,6 +230,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 			TuioListener listener = (TuioListener) listenerList.elementAt(i);
 			if (listener!=null) listener.addTuioCursor(cursor);
 		}								
+		updateDomNodes(cursor, cursorNode);
 		logger.debug("Added cursor " + cursor + " (" + cursorNode + ") in TUIO gateway");
 		//debugSubtreeExceptSource(cursorNode);
 	}
@@ -233,6 +250,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 			TuioListener listener = (TuioListener) listenerList.elementAt(i);
 			if (listener!=null) listener.addTuioObject(object);
 		}								
+		updateDomNodes(object, objectNode);
 		logger.debug("Added object " + object + " (" + objectNode + ") in TUIO gateway");
 		//debugSubtreeExceptSource(objectNode);
 	}
@@ -321,6 +339,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 
 	private void removeTuioPoint(TuioPoint point) {
 		startReceiving();
+		currPointDomNodesMapping = new HashSet<Node>();
 		deleteSubtreeExceptSource(point2nodeMapping.get(point));
 		point2nodeMapping.remove(point);
 	}
@@ -368,6 +387,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	
 	private Node updateTuioPoint(TuioPoint point) {
 		startReceiving();
+		currPointDomNodesMapping = new HashSet<Node>();
 		Node pointNode = point2nodeMapping.get(point);
 		Node positionNode = tuioGraph.find(pointNode, TUIO.position.asNode(), Node.ANY).next().getObject();
 		changeObjectDecimal(positionNode, TUIO.x.asNode(), point.getX());
@@ -386,11 +406,12 @@ public class TuioGateway implements TuioListener, DomEventListener {
 				"TUIO Gateway: updating cursor " + cursor
 				        //+ " " + point2nodeMapping.get(cursor)
 						+ " ( x:" + cursor.getX() + ", y:" + cursor.getY() + ")");
-		updateTuioPoint(cursor);
+		Node cursorNode = updateTuioPoint(cursor);
 		for (int i=0;i<listenerList.size();i++) {
 			TuioListener listener = (TuioListener) listenerList.elementAt(i);
 			if (listener!=null) listener.updateTuioCursor(cursor);
 		}								
+		updateDomNodes(cursor, cursorNode);
 		logger.debug(
 				"TUIO Gateway: updated cursor " + cursor);
 //						+ " " + point2nodeMapping.get(cursor));
@@ -408,6 +429,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 			TuioListener listener = (TuioListener) listenerList.elementAt(i);
 			if (listener!=null) listener.updateTuioObject(object);
 		}								
+		updateDomNodes(object, objectNode);
 		logger.debug(
 				"TUIO Gateway: updated object " + object);
 	}

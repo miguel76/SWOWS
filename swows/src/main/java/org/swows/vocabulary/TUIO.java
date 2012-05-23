@@ -61,6 +61,7 @@ public class TUIO {
     
     public final static Resource defaultSource = resource("defaultSource");
 
+    public final static Property isOn = property("isOn");
     public final static Property source = property("source");
     public final static Property id = property("id");
     public final static Property markerId = property("markerId");
