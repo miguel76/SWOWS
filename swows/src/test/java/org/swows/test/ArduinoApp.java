@@ -68,8 +68,8 @@ public class ArduinoApp {
 //		wfDataset.getDefaultModel().write(System.out,"N-TRIPLE");
 //		System.out.println("***************************************");
 
-		//TuioApp tuioApp = 
-//		new TuioApp("SWOWS TUIO test", conf, wfGraph);
+		//MouseApp tuioApp = 
+//		new MouseApp("SWOWS TUIO test", conf, wfGraph);
 		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768);
 		
     }	

@@ -186,8 +186,8 @@ public class TimedApp extends JFrame {
 //		wfDataset.getDefaultModel().write(System.out,"N-TRIPLE");
 //		System.out.println("***************************************");
 
-		//TuioApp tuioApp = 
-//		new TuioApp("SWOWS TUIO test", conf, wfGraph);
+		//MouseApp tuioApp = 
+//		new MouseApp("SWOWS TUIO test", conf, wfGraph);
 		new TimedApp(windowTitle, conf, wfGraph, fullScreen);
 		
     }	

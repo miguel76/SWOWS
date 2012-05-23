@@ -67,8 +67,8 @@ public class TimedTest {
 //		wfDataset.getDefaultModel().write(System.out,"N-TRIPLE");
 //		System.out.println("***************************************");
 
-		//TuioApp tuioApp = 
-//		new TuioApp("SWOWS TUIO test", conf, wfGraph);
+		//MouseApp tuioApp = 
+//		new MouseApp("SWOWS TUIO test", conf, wfGraph);
 //		new TimedApp("ESAPACK DEMO", conf, wfGraph, false, 1024, 768);
 		new TimedApp("ESAPACK DEMO", conf, wfGraph, false, 1920, 1080);
 		//		new TimedApp("ESAPACK DEMO", conf, wfGraph, true );
