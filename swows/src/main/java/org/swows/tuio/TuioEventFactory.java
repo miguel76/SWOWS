@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.swows.test;
+package org.swows.tuio;
 import org.w3c.dom.events.Event;
 import org.apache.batik.dom.events.DOMMouseEvent;
 import org.apache.batik.dom.events.DocumentEventSupport.EventFactory;
@@ -23,7 +23,7 @@ public class TuioEventFactory extends DocumentEventSupport {
     
     protected static class TuioEvent implements EventFactory {
         public Event createEvent() {
-             return new TuioEventTest();
+             return new org.swows.tuio.TuioEvent();
          }
     }
          
