@@ -57,7 +57,7 @@ public class BatikDarioTest extends JFrame {
             String eventType = "tuioEvent";
             TuioEventTest evt = new TuioEventTest();
             DocumentEventSupport docSupport = new DocumentEventSupport();
-            docSupport.registerEventFactory(eventType, new DocumentEventSupportTuio.TuioEventFactory());
+            docSupport.registerEventFactory(eventType, new TuioDocumentEventSupport.TuioEventFactory());
             docSupport.createEvent(eventType);
             evt.initTuioClickEvent(defaultView, 86, 126);
             EventTarget t = (EventTarget) element;

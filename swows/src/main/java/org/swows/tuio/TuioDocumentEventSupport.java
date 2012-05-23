@@ -12,21 +12,21 @@ import org.apache.batik.dom.util.HashTable;
  *
  * @author dario
  */
-public class TuioEventFactory extends DocumentEventSupport {
+public class TuioDocumentEventSupport extends DocumentEventSupport {
      
     public static final String TUIO_EVENT = "tuioEvent";
     
     protected HashTable eventFactories = new HashTable();
     {
-        eventFactories.put(TUIO_EVENT, new TuioEventFactory ());
+        eventFactories.put(TUIO_EVENT, new TuioDocumentEventSupport ());
     }
     
-    protected static class TuioEvent implements EventFactory {
+    protected static class TuioEventFactory implements EventFactory {
         public Event createEvent() {
              return new org.swows.tuio.TuioEvent();
          }
     }
          
-     }
+}
 
 

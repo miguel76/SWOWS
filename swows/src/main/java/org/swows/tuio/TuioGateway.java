@@ -1,9 +1,11 @@
 package org.swows.tuio;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimerTask;
 import java.util.Vector;
 
@@ -14,6 +16,8 @@ import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.TUIO;
+import org.swows.xmlinrdf.DomEventListener;
+import org.w3c.dom.events.Event;
 
 import TUIO.TuioCursor;
 import TUIO.TuioListener;
@@ -31,7 +35,7 @@ import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class TuioGateway implements TuioListener {
+public class TuioGateway implements TuioListener, DomEventListener {
 
 	private static GraphMaker graphMaker = new SimpleGraphMaker(); 
 
@@ -41,8 +45,10 @@ public class TuioGateway implements TuioListener {
     
     private Node tuioSourceNode;
     private Map<TuioPoint, Node> point2nodeMapping = new HashMap<TuioPoint, Node>();
+    private Map<TuioPoint, Set<Node>> point2domNodesMapping = new HashMap<TuioPoint, Set<Node>>();
     private boolean isReceiving = false;
     private Logger logger;
+    private Vector<TuioListener> listenerList = new Vector<TuioListener>();
     
     private RunnableContext runnableContext = null;
     
@@ -68,6 +74,31 @@ public class TuioGateway implements TuioListener {
     	isReceiving = false;
     }
     
+    /**
+     * Adds the provided TuioListener to the list of registered TUIO event listeners
+     *
+     * @param  listener  the TuioListener to add
+     */
+    public void addTuioListener(TuioListener listener) {
+    	listenerList.addElement(listener);
+    }
+
+    /**
+     * Removes the provided TuioListener from the list of registered TUIO event listeners
+     *
+     * @param  listener  the TuioListener to remove
+     */
+    public void removeTuioListener(TuioListener listener) {	
+    	listenerList.removeElement(listener);
+    }
+
+    /**
+     * Removes all TuioListener from the list of registered TUIO event listeners
+     */
+    public void removeAllTuioListeners() {	
+    	listenerList.clear();
+    }
+
     private void setup() {
     	logger = Logger.getLogger(getClass());
 		tuioClient.addTuioListener(new TuioSmoother(this));
@@ -179,6 +210,10 @@ public class TuioGateway implements TuioListener {
 		logger.debug("Adding cursor " + cursor + " in TUIO gateway");
 		Node cursorNode = addTuioPoint(cursor);
 		tuioGraph.add( new Triple(cursorNode, RDF.type.asNode(), TUIO.Cursor.asNode()));
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.addTuioCursor(cursor);
+		}								
 		logger.debug("Added cursor " + cursor + " (" + cursorNode + ") in TUIO gateway");
 		//debugSubtreeExceptSource(cursorNode);
 	}
@@ -194,6 +229,10 @@ public class TuioGateway implements TuioListener {
 		tuioGraph.add( new Triple(objectNode, TUIO.angle.asNode(), angleNode));
 		Node symbolNode = Node.createLiteral(Integer.toString(object.getSymbolID()), (String) null, XSDDatatype.XSDinteger);
 		tuioGraph.add( new Triple(objectNode, TUIO.markerId.asNode(), symbolNode));
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.addTuioObject(object);
+		}								
 		logger.debug("Added object " + object + " (" + objectNode + ") in TUIO gateway");
 		//debugSubtreeExceptSource(objectNode);
 	}
@@ -290,6 +329,10 @@ public class TuioGateway implements TuioListener {
 	public synchronized void removeTuioCursor(TuioCursor cursor) {
 		logger.debug("Removing cursor " + cursor + " in TUIO gateway");
 		removeTuioPoint(cursor);
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.removeTuioCursor(cursor);
+		}								
 		logger.debug("Removed cursor " + cursor + " in TUIO gateway");
 	}
 
@@ -297,6 +340,10 @@ public class TuioGateway implements TuioListener {
 	public synchronized void removeTuioObject(TuioObject object) {
 		logger.debug("Removing object " + object + " in TUIO gateway");
 		removeTuioPoint(object);
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.removeTuioObject(object);
+		}								
 		logger.debug("Removed object " + object + " in TUIO gateway");
 	}
 
@@ -340,6 +387,10 @@ public class TuioGateway implements TuioListener {
 				        //+ " " + point2nodeMapping.get(cursor)
 						+ " ( x:" + cursor.getX() + ", y:" + cursor.getY() + ")");
 		updateTuioPoint(cursor);
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.updateTuioCursor(cursor);
+		}								
 		logger.debug(
 				"TUIO Gateway: updated cursor " + cursor);
 //						+ " " + point2nodeMapping.get(cursor));
@@ -353,8 +404,26 @@ public class TuioGateway implements TuioListener {
 						+ " ( x:" + object.getX() + ", y:" + object.getY() + ", angle:" + object.getAngle() + ")");
 		Node objectNode = updateTuioPoint(object);
 		changeObjectDecimal(objectNode, TUIO.angle.asNode(), object.getAngle());
+		for (int i=0;i<listenerList.size();i++) {
+			TuioListener listener = (TuioListener) listenerList.elementAt(i);
+			if (listener!=null) listener.updateTuioObject(object);
+		}								
 		logger.debug(
 				"TUIO Gateway: updated object " + object);
+	}
+
+	@Override
+	public void handleEvent(Event event, Node graphNode) {
+		TuioEvent tuioEvent = (TuioEvent) event;
+		TuioPoint tuioPoint = tuioEvent.getTuioPoint();
+		Set<Node> domNodes = point2domNodesMapping.get(tuioPoint);
+		if (domNodes == null) {
+			domNodes = new HashSet<Node>();
+			point2domNodesMapping.put(tuioPoint, domNodes);
+		}
+		domNodes.add(graphNode);
+//		Node positionNode = tuioGraph.find(pointNode, TUIO.position.asNode(), Node.ANY).next().getObject();
+//		changeObjectDecimal(positionNode, TUIO.x.asNode(), point.getX());
 	}
 
 }
