@@ -16,17 +16,11 @@ public class TuioDocumentEventSupport extends DocumentEventSupport {
      
     public static final String TUIO_EVENT = "tuioEvent";
     
-    protected HashTable eventFactories = new HashTable();
+//    protected HashTable eventFactories = new HashTable();
     {
-        eventFactories.put(TUIO_EVENT, new TuioDocumentEventSupport ());
+        eventFactories.put(TUIO_EVENT, new TuioEventFactory());
     }
     
-    protected static class TuioEventFactory implements EventFactory {
-        public Event createEvent() {
-             return new org.swows.tuio.TuioEvent();
-         }
-    }
-         
 }
 
 
