@@ -294,6 +294,51 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return (new DomDecoder(graph, docRootNode, domImpl, updatesContext, docReceiver)).getDocument();
 	}
 
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		DomDecoder domDecoder = new DomDecoder(graph, docRootNode, domImpl);
+		for (String eventType : domEventListeners.keySet())
+			for (DomEventListener listener : domEventListeners.get(eventType))
+				domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		DomDecoder domDecoder = new DomDecoder(graph, docRootNode, domImpl, updatesContext);
+		for (String eventType : domEventListeners.keySet())
+			for (DomEventListener listener : domEventListeners.get(eventType))
+				domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		DomDecoder domDecoder = new DomDecoder(graph, docRootNode, domImpl, docReceiver);
+		for (String eventType : domEventListeners.keySet())
+			for (DomEventListener listener : domEventListeners.get(eventType))
+				domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		DomDecoder domDecoder = new DomDecoder(graph, docRootNode, domImpl, updatesContext, docReceiver);
+		for (String eventType : domEventListeners.keySet())
+			for (DomEventListener listener : domEventListeners.get(eventType))
+				domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
 	public static Document decodeOne(DynamicGraph graph, DOMImplementation domImpl) {
 		return decodeAll(graph, domImpl).next();
 	}
@@ -316,6 +361,33 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return decodeAll(graph, domImpl, updatesContext, docReceiver).next();
 	}
 
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, domEventListeners).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, updatesContext, domEventListeners).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, docReceiver, domEventListeners).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext, DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, domEventListeners).next();
+	}
+
 	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl) {
 		return decodeAll(graph, domImpl, (RunnableContext) null);
@@ -330,18 +402,45 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl, 
 			final RunnableContext updatesContext) {
-		return decodeAll(graph, domImpl, updatesContext, null);
+		return decodeAll(graph, domImpl, updatesContext, (DocumentReceiver) null);
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl,
 			final RunnableContext updatesContext, final DocumentReceiver docReceiver) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, null);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, (RunnableContext) null, domEventListeners);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, null, docReceiver, domEventListeners);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl, 
+			final RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, updatesContext, null, domEventListeners);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final RunnableContext updatesContext, final DocumentReceiver docReceiver,
+			final Map<String,Set<DomEventListener>> domEventListeners) {
 		return graph
 				.find(Node.ANY, RDF.type.asNode(), xml.Document.asNode())
 				.mapWith(new Map1<Triple, Document>() {
 					@Override
 					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver);
+						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver, domEventListeners);
 					}
 				});
 	}
