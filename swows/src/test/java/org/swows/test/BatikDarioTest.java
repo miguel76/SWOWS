@@ -15,11 +15,14 @@ import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.views.AbstractView;
 import org.w3c.dom.views.DocumentView;
-import org.swows.test.TuioEventTest;
+import org.swows.tuio.TuioEvent;
+import org.swows.tuio.TuioDocumentEventSupport;
+import org.swows.tuio.TuioEventFactory;
 import org.apache.batik.dom.events.DocumentEventSupport;
 import org.apache.batik.dom.events.DocumentEventSupport.EventFactory;
 import org.w3c.dom.events.Event;
 import org.apache.batik.dom.AbstractDocument;
+import TUIO.TuioPoint;
 
 public class BatikDarioTest extends JFrame {
 
@@ -55,11 +58,12 @@ public class BatikDarioTest extends JFrame {
             AbstractView defaultView = ((DocumentView) doc).getDefaultView();
 
             String eventType = "tuioEvent";
-            TuioEventTest evt = new TuioEventTest();
+            TuioEvent evt = new TuioEvent();
             DocumentEventSupport docSupport = new DocumentEventSupport();
-            docSupport.registerEventFactory(eventType, new TuioDocumentEventSupport.TuioEventFactory());
+            docSupport.registerEventFactory(eventType, new TuioEventFactory());
             docSupport.createEvent(eventType);
-            evt.initTuioClickEvent(defaultView, 86, 126);
+            TuioPoint tuioPoint = null;
+            evt.initTuioClickEvent(defaultView, 86, 126, tuioPoint);
             EventTarget t = (EventTarget) element;
             //VEDERE SERVERE APERTO SU FIREFOX   final ItsNatDocument itsNatDoc = getItsNatDocument();
 
@@ -71,7 +75,7 @@ public class BatikDarioTest extends JFrame {
                     int clientY = -1;
                    
                    // if (evt.getType().equals("tuioevent")){
-                    TuioEventTest devt = (TuioEventTest) evt;
+                    TuioEvent devt = (TuioEvent) evt;
           
                     clientX = devt.getClientX();
                     clientY = devt.getClientY();

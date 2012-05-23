@@ -57,6 +57,12 @@ import org.apache.batik.dom.events.DocumentEventSupport;
 import org.w3c.dom.views.AbstractView;
 import org.w3c.dom.views.DocumentView;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
+
+import org.swows.xmlinrdf.DomEventListener;
 
 public class TuioApp extends JFrame {
 
@@ -193,6 +199,12 @@ public class TuioApp extends JFrame {
         setSize(width, height);
 
 		DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation();
+                
+                Set<DomEventListener> domEventListenerSet = new HashSet <DomEventListener>();
+                domEventListenerSet.add(tuioGateway);
+                Map<String,Set<DomEventListener>> domEventListeners = new HashMap <String,Set<DomEventListener>>();
+                domEventListeners.put(new String("tuioEvent"), domEventListenerSet);
+                
 		Document xmlDoc =
 				DomDecoder.decodeOne(
 						cachingGraph,
@@ -232,7 +244,8 @@ public class TuioApp extends JFrame {
 							public void sendDocument(Document doc) {
 								newDocument = doc;
 							}
-						});
+                                                                
+						},domEventListeners);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
