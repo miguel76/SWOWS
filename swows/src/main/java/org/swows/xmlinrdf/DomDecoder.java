@@ -74,6 +74,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 
 	@Override
 	public synchronized void handleEvent(Event evt) {
+		System.out.println("In DOM decoder handling event: " + evt);
 		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
 		if (domEventListeners != null) {
@@ -199,11 +200,14 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				}
 			}
 		}
+		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
 		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, xml.listenedEventType.asNode());
 		while (eventTypeNodes.hasNext()) {
 			Node eventTypeNode = eventTypeNodes.next();
-			if (eventTypeNode.isLiteral())
+			if (eventTypeNode.isLiteral()) {
+				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
 				((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), this, false);
+			}
 		}
 	}
 

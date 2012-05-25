@@ -12,7 +12,7 @@ import org.apache.batik.util.RunnableQueue;
 import org.apache.log4j.PropertyConfigurator;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
-import org.swows.tuio.TuioApp;
+import org.swows.mouse.MouseApp;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -33,7 +33,7 @@ public class PampersMouseTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/pampers5/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/pampers6/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -48,7 +48,7 @@ public class PampersMouseTest {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/pampers5/dataflow/";
+		String baseUri = "/home/miguel/pampers6/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
@@ -66,8 +66,8 @@ public class PampersMouseTest {
 //		System.out.println("***************************************");
 
 		//MouseApp tuioApp = 
-//		new MouseApp("SWOWS TUIO test", conf, wfGraph);
-		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
+		new MouseApp("SWOWS TUIO test", conf, wfGraph);
+//		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
 		
     }	
     
