@@ -200,12 +200,12 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				}
 			}
 		}
-		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
+//		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
 		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, xml.listenedEventType.asNode());
 		while (eventTypeNodes.hasNext()) {
 			Node eventTypeNode = eventTypeNodes.next();
 			if (eventTypeNode.isLiteral()) {
-				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
+//				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
 				((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), this, false);
 			}
 		}

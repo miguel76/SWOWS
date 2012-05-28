@@ -442,16 +442,16 @@ public class TuioGateway implements TuioListener, DomEventListener {
 
 	@Override
 	public void handleEvent(Event event, Node graphNode) {
-		TuioEvent tuioEvent = (TuioEvent) event;
-		TuioPoint tuioPoint = tuioEvent.getTuioPoint();
-		Set<Node> domNodes = point2domNodesMapping.get(tuioPoint);
-		if (domNodes == null) {
-			domNodes = new HashSet<Node>();
-			point2domNodesMapping.put(tuioPoint, domNodes);
-		}
-		domNodes.add(graphNode);
-//		Node positionNode = tuioGraph.find(pointNode, TUIO.position.asNode(), Node.ANY).next().getObject();
-//		changeObjectDecimal(positionNode, TUIO.x.asNode(), point.getX());
+//		TuioEvent tuioEvent = (TuioEvent) event;
+//		TuioPoint tuioPoint = tuioEvent.getTuioPoint();
+		if (currPointDomNodesMapping != null)
+			currPointDomNodesMapping.add(graphNode);
+//		Set<Node> domNodes = point2domNodesMapping.get(tuioPoint);
+//		if (domNodes == null) {
+//			domNodes = new HashSet<Node>();
+//			point2domNodesMapping.put(tuioPoint, domNodes);
+//		}
+//		domNodes.add(graphNode);
 	}
 
 }
