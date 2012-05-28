@@ -286,6 +286,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private void redecodeDocument(Node docRootNode) {
 		graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 		dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
+		eventType2elements = new HashMap<String, Set<Element>>();
+		element2eventTypes = new HashMap<Element, Set<String>>();
 		decodeDocument(docRootNode);
 		if (docReceiver != null)
 			docReceiver.sendDocument(document);
