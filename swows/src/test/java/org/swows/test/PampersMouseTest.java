@@ -66,7 +66,7 @@ public class PampersMouseTest {
 //		System.out.println("***************************************");
 
 		//MouseApp tuioApp = 
-		new MouseApp("SWOWS TUIO test", conf, wfGraph);
+		new MouseApp("SWOWS TUIO test", conf, wfGraph, false);
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
 		
     }	

@@ -6,8 +6,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
+import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DOMEvents;
@@ -36,12 +38,16 @@ public class MouseInput implements DomEventListener {
     
     private Map<MouseEvent,Set<Node>> event2domNodes = new HashMap<MouseEvent, Set<Node>>();
     
-    private TimerTask localTimerTask = new TimerTask() {
-		@Override
-		public void run() {
-			mouseEventGraph.sendUpdateEvents();
-		}
-	};
+	private Logger logger = Logger.getRootLogger();
+	
+//    private TimerTask localTimerTask = new TimerTask() {
+//		@Override
+//		public void run() {
+//			logger.debug("Sending update events ... ");
+//			mouseEventGraph.sendUpdateEvents();
+//			logger.debug("Update events sent!");
+//		}
+//	};
     
 //    private void startReceiving() {
 //    	isReceiving = true;
@@ -72,18 +78,21 @@ public class MouseInput implements DomEventListener {
 	
 	@Override
 	public synchronized void handleEvent(Event event, Node graphNode) {
+//		logger.debug("In " + this + " received event " + event);
 		MouseEvent mouseEvent = (MouseEvent) event;
 		Set<Node> domNodes = event2domNodes.get(mouseEvent);
-		if (event.getTarget() instanceof Element) {
+//		logger.debug("domNodes: " + domNodes);
+		if (event.getCurrentTarget() instanceof Element) {
 			if (domNodes == null) {
 				domNodes = new HashSet<Node>();
 				event2domNodes.put(mouseEvent, domNodes);
 			}
 			domNodes.add(graphNode);
-		} else if (event.getTarget() instanceof Document) {
+		} else if (event.getCurrentTarget() instanceof Document) {
 			
 			buildGraph();
 			
+
 			Node eventNode = Node.createURI(DOMEvents.getInstanceURI() + "event_" + event.hashCode());
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.Event.asNode() ) );
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.UIEvent.asNode() ) );
@@ -136,7 +145,23 @@ public class MouseInput implements DomEventListener {
 					mouseEventGraph, eventNode,
 					DOMEvents.button.asNode(), mouseEvent.getButton());
 
-    		RunnableContextFactory.getDefaultRunnableContext().run(localTimerTask);
+			logger.debug("Launching update thread... ");
+			LocalTimer.get().schedule(
+					new TimerTask() {
+						@Override
+						public void run() {
+							RunnableContextFactory.getDefaultRunnableContext().run(
+									new Runnable() {
+										@Override
+										public void run() {
+											logger.debug("Sending update events ... ");
+											mouseEventGraph.sendUpdateEvents();
+											logger.debug("Update events sent!");
+										}
+									} );
+						}
+					}, 0 );
+			logger.debug("Update thread launched!");
 		}
 	}
 

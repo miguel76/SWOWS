@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
@@ -49,6 +50,11 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
 	
+	private Map<String, Set<Element>> eventType2elements = new HashMap<String, Set<Element>>();
+	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
+	
+	private Logger logger = Logger.getRootLogger();
+	
 	public void addDomEventListener(String eventType, DomEventListener l) {
 		synchronized(this) {
 			if (domEventListeners == null)
@@ -74,13 +80,14 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 
 	@Override
 	public synchronized void handleEvent(Event evt) {
-		System.out.println("In DOM decoder handling event: " + evt);
+		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
 		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
 		if (domEventListeners != null) {
 			synchronized (domEventListeners) {
 				Set<DomEventListener> domEventListenersForType = domEventListeners.get(evt.getType());
 				for (DomEventListener l : domEventListenersForType) {
+					logger.debug("Sending to " + l + " the event " + evt);
 					l.handleEvent(evt, eventTargetGraphNode);
 				}
 			}
@@ -205,8 +212,25 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		while (eventTypeNodes.hasNext()) {
 			Node eventTypeNode = eventTypeNodes.next();
 			if (eventTypeNode.isLiteral()) {
+				String eventType = eventTypeNode.getLiteralLexicalForm();
 //				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
-				((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), this, false);
+				((EventTarget) element).addEventListener(eventType, this, false);
+				
+				Set<Element> elemsForEventType = eventType2elements.get(eventType);
+				if (elemsForEventType == null) {
+					elemsForEventType = new HashSet<Element>();
+					eventType2elements.put(eventType, elemsForEventType);
+					((EventTarget) document).addEventListener(eventType, this, false);
+				}
+				elemsForEventType.add(element);
+				
+				Set<String> eventTypesForElement = element2eventTypes.get(element);
+				if (eventTypesForElement == null) {
+					eventTypesForElement = new HashSet<String>();
+					element2eventTypes.put(element, eventTypesForElement);
+				}
+				eventTypesForElement.add(eventType);
+				
 			}
 		}
 	}
@@ -486,6 +510,21 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				removeSubtreeMapping(children.item(i));
 			}
 		}
+		if (domNode instanceof Element) {
+			Element element = (Element) domNode;
+			Set<String> eventTypesForElement = element2eventTypes.get(element);
+			if (eventTypesForElement != null) {
+				for (String eventType : eventTypesForElement) {
+					Set<Element> elementsForEventType = eventType2elements.get(eventType);
+					elementsForEventType.remove(element);
+					if (elementsForEventType.isEmpty()) {
+						eventType2elements.remove(eventType);
+						((EventTarget) document).removeEventListener(eventType, DomDecoder.this, false);
+					}
+				}
+				element2eventTypes.remove(element);
+			}			
+		}
 	}
 	
 	private DomDecoder(Graph graph) {
@@ -632,6 +671,31 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
+									} else if ( newTriple.getPredicate().equals(xml.listenedEventType.asNode()) ) {
+										Node eventTypeNode = newTriple.getObject();
+										if (eventTypeNode.isLiteral()) {
+											String eventType = eventTypeNode.getLiteralLexicalForm();
+											while (domSubjIter.hasNext()) {
+												Element element = (Element) domSubjIter.next();
+//												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
+												((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder.this, false);
+
+												Set<Element> elemsForEventType = eventType2elements.get(eventType);
+												if (elemsForEventType == null) {
+													elemsForEventType = new HashSet<Element>();
+													eventType2elements.put(eventType, elemsForEventType);
+													((EventTarget) document).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder.this, false);
+												}
+												elemsForEventType.add(element);
+
+												Set<String> eventTypesForElement = element2eventTypes.get(element);
+												if (eventTypesForElement == null) {
+													eventTypesForElement = new HashSet<String>();
+													element2eventTypes.put(element, eventTypesForElement);
+												}
+												eventTypesForElement.add(eventType);
+											}
+										}
 									}
 								}			
 							}
@@ -720,6 +784,28 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 														if (!e.equals(DOMException.NOT_FOUND_ERR))
 															throw e;
 													}
+												}
+											}
+										}
+									} else if ( oldTriple.getPredicate().equals(xml.listenedEventType.asNode()) ) {
+										Node eventTypeNode = oldTriple.getObject();
+										if (eventTypeNode.isLiteral()) {
+											String eventType = eventTypeNode.getLiteralLexicalForm();
+											while (domSubjIter.hasNext()) {
+												Element element = (Element) domSubjIter.next();
+//												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
+												((EventTarget) element).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder.this, false);
+												Set<Element> elemsForEventType = eventType2elements.get(eventType);
+												elemsForEventType.remove(element);
+												if (elemsForEventType.isEmpty()) {
+													eventType2elements.remove(eventType);
+													((EventTarget) document).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder.this, false);
+												}
+
+												Set<String> eventTypesForElement = element2eventTypes.get(element);
+												eventTypesForElement.remove(eventType);
+												if (eventTypesForElement.isEmpty()) {
+													element2eventTypes.remove(element);
 												}
 											}
 										}
