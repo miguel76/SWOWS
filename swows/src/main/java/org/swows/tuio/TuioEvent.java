@@ -15,9 +15,9 @@ public class TuioEvent extends DOMMouseEvent  {
 	private TuioPoint tuioPoint;
    
     public void initTuioClickEvent (AbstractView defaultView, int x, int y, TuioPoint tuioPoint) {
-        this.initMouseEvent("tuioclick",true,false,defaultView,0,0,0,x,y,false,false,false,false,(short)0/*left button*/,null);
+        this.initMouseEvent("tuioEvent",true,false,defaultView,0,0,0,x,y,false,false,false,false,(short)0/*left button*/,null);
         this.tuioPoint = tuioPoint;
-    }
+                   }
     
     public TuioPoint getTuioPoint() {
     	return tuioPoint;

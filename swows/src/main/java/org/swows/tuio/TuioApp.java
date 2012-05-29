@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.swows.xmlinrdf.DomEventListener;
 
@@ -76,6 +77,8 @@ public class TuioApp extends JFrame {
 	private Document newDocument = null;
 	private JSVGCanvas svgCanvas = null;
 
+        private static ArrayList <Event> eventList; 
+        
 	public TuioApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
 		this(title, gc, dataflowGraph, true);
 	}
@@ -132,10 +135,11 @@ public class TuioApp extends JFrame {
 //    					}
 //    				}
 //    			});
-    	final TuioGateway tuioGateway =
-    			new TuioGateway(autoRefresh, RunnableContextFactory.getDefaultRunnableContext());
-		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(tuioGateway.getGraph());
-		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
+    	final TuioGateway tuioGateway = new TuioGateway(autoRefresh, RunnableContextFactory.getDefaultRunnableContext());
+	TuioApp.TuioDomGateway tuioDomGateway = new TuioApp.TuioDomGateway();
+        tuioGateway.addTuioListener(tuioDomGateway);
+        final DynamicDataset inputDatasetGraph = new SingleGraphDataset(tuioGateway.getGraph());
+		DataflowProducer applyOps = new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
 		cachingGraph = new EventCachingGraph(outputGraph);
 //		cachingGraph = new EventCachingGraph( new LoggingGraph(outputGraph, Logger.getRootLogger(), true, true) );
@@ -204,7 +208,7 @@ public class TuioApp extends JFrame {
                 domEventListenerSet.add(tuioGateway);
                 Map<String,Set<DomEventListener>> domEventListeners = new HashMap <String,Set<DomEventListener>>();
                 domEventListeners.put(new String("tuioEvent"), domEventListenerSet);
-                
+                //System.out.println("decodeOne");
 		Document xmlDoc =
 				DomDecoder.decodeOne(
 						cachingGraph,
@@ -243,35 +247,14 @@ public class TuioApp extends JFrame {
 							@Override
 							public void sendDocument(Document doc) {
 								newDocument = doc;
-							}
+                                                              	}
                                                                 
 						},domEventListeners);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
-     /*   EventTarget t = (EventTarget) xmlDoc;
-
-        if (EventsProducer.getEventsProducer() == null) {
-            try {
-                             
-              EventsProducer.setEventsProducer();      
-            } catch (java.lang.ExceptionInInitializerError ex) {
-                ex.printStackTrace();
-                ex.getCause();
-            }
-        }
-
-       t.addEventListener("click", new EventListener() {
-
-            public void handleEvent(Event evt) {
-                EventsProducer.getEventsProducer().update(evt);
-                
-            }
-        }, false);
-
-*/
         svgCanvas.setDocument(xmlDoc);
-
+                
 //        TransformerFactory transformerFactory = TransformerFactory.newInstance();
 //		Transformer transformer;
 //		try {
@@ -285,9 +268,19 @@ public class TuioApp extends JFrame {
 
 	}
         
+         public static ArrayList<Event> getEventList (){
+                return eventList;
+            }
         
-        class TuioDomGateway implements TuioListener {
-
+       public class TuioDomGateway implements TuioListener {
+                DocumentEventSupport docSupport = new DocumentEventSupport();
+                public ArrayList <Event> eventList; 
+                
+            public TuioDomGateway () {
+                 docSupport.registerEventFactory("tuioEvent", new DocumentEventSupportTuio.TuioEventFactory());
+                 eventList = new ArrayList<Event>();
+            }
+            
             public void addTuioObject(TuioObject object) {
                 addTuioPoint(object);
             }
@@ -300,7 +293,7 @@ public class TuioApp extends JFrame {
             }
 
             public void addTuioCursor(TuioCursor cursor) {
-                addTuioPoint(cursor);
+                 addTuioPoint(cursor);
             }
 
             public void updateTuioCursor(TuioCursor cursor) {
@@ -316,28 +309,36 @@ public class TuioApp extends JFrame {
             }
             
             public void addTuioPoint (TuioPoint point) {
-                if (newDocument != null) {
-                
-                AbstractView defaultView = ((DocumentView) svgCanvas).getDefaultView();
+               // if /*(newDocument != null)*/ (newDocument != null) {
+                AbstractView defaultView = ((DocumentView) svgCanvas.getSVGDocument()).getDefaultView();
                 String eventType = "tuioEvent";
                 TuioEvent evt = new TuioEvent();
-                DocumentEventSupport docSupport = new DocumentEventSupport();
-                docSupport.registerEventFactory(eventType, new DocumentEventSupportTuio.TuioEventFactory());
                 docSupport.createEvent(eventType);
-                
                 //DA CONTROLLARE:
-              /*  int x = point.getScreenX(svgCanvas.getWidth());
+                int x = point.getScreenX(svgCanvas.getWidth());
                 int y = point.getScreenY(svgCanvas.getHeight());
-                evt.initTuioClickEvent(defaultView, x, y);
-                */
-                EventTarget t = (EventTarget) svgCanvas;
+                evt.initTuioClickEvent(defaultView, x, y, point);
+                   System.out.println("X="+x+" Y="+y);
+                EventTarget t = (EventTarget) svgCanvas.getSVGDocument().getDocumentElement();
                 
+                System.out.println("ELEMENTO= "+svgCanvas.getSVGDocument().getDocumentElement().toString());
+               // t.addEventListener(eventType, new DomDecoder(), false);
                 t.dispatchEvent(evt);
-                
-                //t.addEventListener("tuioclick", new EventListener() {
-                
+          //      t.addEventListener("tuioEvent",  
+                                 
+                eventList.add(evt);      
+                        
+                        /*new EventListener() {
+
+                public void handleEvent(Event evt) {
+                    
                 }
-            }
+                },false);
+            */
+                }
+                        
+            
+           
             
             public void updateTuioPoint (TuioPoint point) {
                 addTuioPoint (point);
