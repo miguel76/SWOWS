@@ -46,10 +46,12 @@ public class SystemTime implements Runnable {
 //	}
 	
 	private static Triple tripleFromTime() {
+		long time = System.currentTimeMillis();
 		return new Triple(
 				Instance.GraphRoot.asNode(),
 				org.swows.vocabulary.time.systemTime.asNode(),
-				Node.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
+				Node.createLiteral( String.format("%d.%03d", time / 1000, time % 1000 ), (String) null, XSDDatatype.XSDdecimal ) );
+//				Node.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
 	}
 	
 	public DynamicGraph getGraph() {
