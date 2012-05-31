@@ -88,7 +88,7 @@ public class MouseInput implements DomEventListener {
 				event2domNodes.put(mouseEvent, domNodes);
 			}
 			domNodes.add(graphNode);
-		} else if (event.getCurrentTarget() instanceof Document) {
+		} else if (event.getCurrentTarget() instanceof Document && domNodes != null) {
 			
 			buildGraph();
 			
