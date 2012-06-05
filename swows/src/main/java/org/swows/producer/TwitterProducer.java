@@ -1,17 +1,30 @@
 /*
-* To change this template, choose Tools | Templates
-* and open the template in the editor.
-*/
+ * Copyright (c) 2011 Dario
+ * 
+
+ * This file is part of Semantic Web Open Web Server (SWOWS).
+
+ * SWOWS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * SWOWS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General
+ * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.swows.producer;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Date;
-import java.util.Timer;
 import java.util.List;
 import java.util.TimerTask;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,26 +33,25 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import org.swows.graph.DynamicChangingGraph;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.graph.events.DynamicGraph;
+import org.swows.runnable.LocalTimer;
+import org.swows.util.GraphUtils;
+import org.swows.vocabulary.SPINX;
+import org.swows.xmlinrdf.DomEncoder;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 
-import org.swows.xmlinrdf.DomEncoder;
-import org.swows.graph.DynamicChangingGraph;
-import org.swows.runnable.LocalTimer;
-
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-
-import java.lang.Thread;
-import java.lang.InterruptedException;
-import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
-import org.swows.graph.events.DynamicGraph;
-import org.swows.graph.events.DynamicDataset;
 
 public class TwitterProducer extends GraphProducer {
 

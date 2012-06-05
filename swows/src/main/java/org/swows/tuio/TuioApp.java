@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2011 Miguel Ceriani
+ * miguel.ceriani@gmail.com
+
+ * This file is part of Semantic Web Open Web Server (SWOWS).
+
+ * SWOWS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * SWOWS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General
+ * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.swows.tuio;
 
 import java.awt.GraphicsConfiguration;
@@ -5,10 +24,16 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
 
+import org.apache.batik.dom.events.DocumentEventSupport;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
@@ -18,10 +43,8 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
-import org.apache.log4j.Logger;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.EventCachingGraph;
-import org.swows.graph.LoggingGraph;
 import org.swows.graph.SingleGraphDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -31,39 +54,23 @@ import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.xmlinrdf.DocumentReceiver;
 import org.swows.xmlinrdf.DomDecoder;
+import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-
-import com.hp.hpl.jena.graph.Graph;
-
-import java.awt.Robot;
-import java.awt.event.InputEvent;
-import org.apache.batik.dom.events.DOMMouseEvent;
-import org.w3c.dom.events.EventListener;
-import org.w3c.dom.events.EventTarget;
-
-//import org.swows.producer.EventsProducer;
 import org.w3c.dom.events.Event;
-
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
+import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.views.AbstractView;
+import org.w3c.dom.views.DocumentView;
 
 import TUIO.TuioCursor;
 import TUIO.TuioListener;
 import TUIO.TuioObject;
 import TUIO.TuioPoint;
 import TUIO.TuioTime;
-import org.apache.batik.dom.events.DocumentEventSupport;
-import org.w3c.dom.views.AbstractView;
-import org.w3c.dom.views.DocumentView;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
-
-import org.swows.xmlinrdf.DomEventListener;
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetFactory;
 
 public class TuioApp extends JFrame {
 

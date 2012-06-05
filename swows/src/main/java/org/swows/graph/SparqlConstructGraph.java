@@ -19,8 +19,6 @@
  */
 package org.swows.graph;
 
-import java.util.Iterator;
-
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
@@ -28,12 +26,10 @@ import org.swows.graph.events.Listener;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * The Class SparqlConstructGraph it's the result of a

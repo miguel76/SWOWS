@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.xml;
 import org.swows.vocabulary.xmlInstance;
 import org.w3c.dom.Attr;

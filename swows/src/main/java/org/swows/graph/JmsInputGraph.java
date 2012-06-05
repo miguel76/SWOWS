@@ -1,8 +1,25 @@
+/*
+ * Copyright (c) 2011 Miguel Ceriani
+ * miguel.ceriani@gmail.com
+
+ * This file is part of Semantic Web Open Web Server (SWOWS).
+
+ * SWOWS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * SWOWS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General
+ * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.swows.graph;
 
 import java.io.StringReader;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -16,19 +33,13 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.bcel.generic.NEW;
 import org.apache.log4j.Logger;
-import org.swows.reader.ReaderFactory;
-import org.swows.runnable.LocalTimer;
-import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.xmlInstance;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.util.FileManager;
 
 public class JmsInputGraph extends DynamicChangingGraph {
 	

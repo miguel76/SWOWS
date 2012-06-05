@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2011 Miguel Ceriani
+ * miguel.ceriani@gmail.com
+
+ * This file is part of Semantic Web Open Web Server (SWOWS).
+
+ * SWOWS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * SWOWS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General
+ * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.swows.graph;
 
 import java.util.Iterator;
@@ -12,24 +31,9 @@ import org.swows.graph.events.Listener;
 import org.swows.vocabulary.Instance;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
-import com.hp.hpl.jena.sparql.core.DatasetGraphOne;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
-import com.hp.hpl.jena.sparql.modify.request.UpdateAdd;
-import com.hp.hpl.jena.sparql.modify.request.UpdateClear;
-import com.hp.hpl.jena.sparql.modify.request.UpdateCopy;
-import com.hp.hpl.jena.sparql.modify.request.UpdateCreate;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDataDelete;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDataInsert;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteWhere;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDrop;
-import com.hp.hpl.jena.sparql.modify.request.UpdateLoad;
-import com.hp.hpl.jena.sparql.modify.request.UpdateModify;
-import com.hp.hpl.jena.sparql.modify.request.UpdateMove;
-import com.hp.hpl.jena.sparql.modify.request.UpdateVisitor;
 import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
 import com.hp.hpl.jena.update.GraphStore;
 import com.hp.hpl.jena.update.Update;

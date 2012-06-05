@@ -25,7 +25,6 @@ import org.swows.graph.events.DynamicGraph;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.compose.Intersection;
 
 /**
  * The Class IntersectionFunction calculates the

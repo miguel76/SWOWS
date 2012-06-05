@@ -1,27 +1,44 @@
+/*
+ * Copyright (c) 2011 Dario
+
+ * This file is part of Semantic Web Open Web Server (SWOWS).
+
+ * SWOWS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+
+ * SWOWS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+
+ * You should have received a copy of the GNU Affero General
+ * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.swows.test;
 
-import org.apache.batik.swing.*;
-import java.awt.*;
-import javax.swing.*;
-import org.w3c.dom.*;
+import java.awt.BorderLayout;
 import java.io.IOException;
-import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
-import org.apache.batik.util.XMLResourceDescriptor;
-import org.w3c.dom.svg.SVGDocument;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.apache.batik.dom.events.DOMMouseEvent;
+import org.apache.batik.dom.events.DocumentEventSupport;
+import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.util.XMLResourceDescriptor;
+import org.swows.tuio.TuioEvent;
+import org.swows.tuio.TuioEventFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-import org.w3c.dom.events.Event;
+import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.views.AbstractView;
 import org.w3c.dom.views.DocumentView;
-import org.swows.tuio.TuioEvent;
-import org.swows.tuio.TuioDocumentEventSupport;
-import org.swows.tuio.TuioEventFactory;
-import org.apache.batik.dom.events.DocumentEventSupport;
-import org.apache.batik.dom.events.DocumentEventSupport.EventFactory;
-import org.w3c.dom.events.Event;
-import org.apache.batik.dom.AbstractDocument;
+
 import TUIO.TuioPoint;
 
 public class BatikDarioTest extends JFrame {

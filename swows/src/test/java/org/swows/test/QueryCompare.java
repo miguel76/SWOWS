@@ -18,12 +18,12 @@ package org.swows.test;
  * limitations under the License.
  */
 
-import org.openjena.atlas.lib.Lib ;
+import org.openjena.atlas.lib.Lib;
 
-import com.hp.hpl.jena.query.Query ;
-import com.hp.hpl.jena.query.QueryVisitor ;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryVisitor;
 import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap ;
+import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
 
 // Two queries comparison 
 

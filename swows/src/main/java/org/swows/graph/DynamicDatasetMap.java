@@ -24,7 +24,6 @@ import java.util.Iterator;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 
-import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
 
