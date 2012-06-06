@@ -19,6 +19,7 @@
  */
 package org.swows.mouse;
 
+import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -78,13 +79,27 @@ public class MouseApp extends JFrame {
 		this(title, gc, dataflowGraph, true);
 	}
 		
+	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, Color bgColor) {
+		this(title, gc, dataflowGraph, true, bgColor);
+	}
+		
 	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen) {
-		this(title, gc, dataflowGraph, fullscreen, gc.getBounds().width, gc.getBounds().height);
+		this(title, gc, dataflowGraph, fullscreen, gc.getBounds().width, gc.getBounds().height, null);
+	}
+	
+	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen, Color bgColor) {
+		this(title, gc, dataflowGraph, fullscreen, gc.getBounds().width, gc.getBounds().height, bgColor);
 	}
 	
 	public MouseApp(
 			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
 			final boolean fullscreen, int width, int height) {
+		this(title, gc, dataflowGraph, fullscreen, width, height, null);
+	}
+	
+	public MouseApp(
+			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
+			final boolean fullscreen, int width, int height, Color bgColor) {
 		super(title, gc);
 		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
 			@Override
@@ -166,10 +181,11 @@ public class MouseApp extends JFrame {
         		batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
             	if (!graphicsInitialized) {
             		// Display the frame.
+            		pack();
             		if (fullscreen)
             			gc.getDevice().setFullScreenWindow(MouseApp.this);
-            		pack();
-            		setVisible(true);
+            		else
+            			setVisible(true);
 //            		tuioGateway.connect();
             		graphicsInitialized = true;
             	}
@@ -177,6 +193,9 @@ public class MouseApp extends JFrame {
         });
 
         getContentPane().setSize(width, height);
+        if (bgColor != null)
+        	getContentPane().setBackground(bgColor);
+        svgCanvas.setBackground(bgColor);
         getContentPane().add(svgCanvas);
 
         addWindowListener(new WindowAdapter() {
@@ -283,21 +302,23 @@ public class MouseApp extends JFrame {
 	    GraphicsDevice device = ge.getDefaultScreenDevice();
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-        if (args.length != 3) {
+        if (args.length != 4) {
         	System.out.println("Wrong Number of Arguments!");
-        	System.out.println("usage: java -jar swows-mouse.jar <dataflow_uri> <window_title> F(ull screen)/W(indow)");
+        	System.out.println("usage: java -jar swows-mouse.jar <dataflow_uri> <window_title> F(ull screen)/W(indow) <bg_color>");
         	System.exit(0);
         }
 		String mainGraphUrl = args[0];
 		String windowTitle = args[1];
 		char windowMode = args[2].charAt(0);
 		
+		Color color = Color.decode(args[3]);
+		
 		boolean fullScreen = windowMode == 'f' || windowMode == 'F';
 
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
-		new MouseApp(windowTitle, conf, wfGraph, fullScreen);
+		new MouseApp(windowTitle, conf, wfGraph, fullScreen, color);
 		
     }	
 

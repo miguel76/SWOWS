@@ -19,7 +19,6 @@
  */
 package org.swows.test;
 
-import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -39,7 +38,7 @@ import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
-public class PampersMouseTest {
+public class WorldinfoMouseTest {
 
     static JFrame frame;
     static GraphicsDevice device = null;
@@ -53,7 +52,7 @@ public class PampersMouseTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/pampers/pampers6/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/worldInfo/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -68,7 +67,7 @@ public class PampersMouseTest {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/pampers/pampers6/dataflow/";
+		String baseUri = "/home/miguel/worldInfo/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
@@ -86,8 +85,7 @@ public class PampersMouseTest {
 //		System.out.println("***************************************");
 
 		//MouseApp tuioApp = 
-//		new MouseApp("SWOWS TUIO test", conf, wfGraph, true);
-		new MouseApp("SWOWS rrr test", conf, wfGraph, true , Color.decode("#F9F9F9"));
+		new MouseApp("SWOWS TUIO test", conf, wfGraph, true);
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
 		
     }	
