@@ -19,6 +19,7 @@
  */
 package org.swows.spinx;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -123,10 +124,38 @@ public class AggregatorSymbols {
 	public static Aggregator getAggregator(Node uriNode, boolean distinct, Expr expr) {
 		Class<? extends Aggregator> aggregatorClass = getAggregatorClass(uriNode, distinct, expr != null);
 		try {
-			return (Aggregator) (
-						(expr == null) ?
-								aggregatorClass.getConstructor().newInstance() :
-								aggregatorClass.getConstructor(Expr.class).newInstance(expr) );
+			if (expr == null) {
+				try {
+					return ((Constructor<Aggregator>) aggregatorClass.getConstructor()).newInstance();
+				} catch(NoSuchMethodException e) {
+					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
+					for (Constructor<Aggregator> currConstr : constructors) {
+						Class[] params = currConstr.getParameterTypes();
+						if (!params[0].equals(Expr.class)) {
+							Object[] nullValues = new Object[params.length];
+							for (int i = 0; i < params.length; i++) nullValues[i] = null;
+							return currConstr.newInstance(nullValues);
+						}
+					}
+					throw new RuntimeException("Could not find empty constructor for " + aggregatorClass);
+				}
+			} else {
+				try {
+					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(Expr.class)).newInstance(expr);
+				} catch(NoSuchMethodException e) {
+					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
+					for (Constructor<Aggregator> currConstr : constructors) {
+						Class[] params = currConstr.getParameterTypes();
+						if (params[0].equals(Expr.class)) {
+							Object[] exprAndNullValues = new Object[params.length];
+							exprAndNullValues[0] = expr;
+							for (int i = 1; i < params.length; i++) exprAndNullValues[i] = null;
+							return currConstr.newInstance(exprAndNullValues);
+						}
+					}
+					throw new RuntimeException("Could not find Expr constructor for " + aggregatorClass);
+				}
+			}
 		} catch (Exception e) {
 			if (e instanceof RuntimeException)
 					throw (RuntimeException) e; 

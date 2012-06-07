@@ -122,9 +122,10 @@ public class TuioApp extends JFrame {
 						}
 					});
 					if (newDocument != null && svgCanvas != null) {
-						svgCanvas.setDocument(newDocument);
-						newDocument = null;
 						batikRunnableQueue = null;
+						Document doc = newDocument;
+						newDocument = null;
+						svgCanvas.setDocument(doc);
 					}
 				} catch(InterruptedException e) {
 					throw new RuntimeException(e);

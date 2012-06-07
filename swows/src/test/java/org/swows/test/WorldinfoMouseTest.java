@@ -85,7 +85,7 @@ public class WorldinfoMouseTest {
 //		System.out.println("***************************************");
 
 		//MouseApp tuioApp = 
-		new MouseApp("SWOWS TUIO test", conf, wfGraph, true);
+		new MouseApp("World Info", conf, wfGraph, false);
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);
 		
     }	

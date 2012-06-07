@@ -79,13 +79,14 @@ public class SystemTime implements Runnable {
 		timeGraph.add(currTriple);
 //		if (timeGraph == null) {
 //		LocalTimer.get().schedule(this, 0, updatePeriod);
-		final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
+//		final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
 		Timer updateTimer = new Timer();
 //		Timer updateTimer = LocalTimer.get();
 		updateTimer.schedule( new TimerTask() {
 			@Override
 			public void run() {
-				runnableCtxt.run(SystemTime.this);
+//				runnableCtxt.run(SystemTime.this);
+				RunnableContextFactory.getDefaultRunnableContext().run(SystemTime.this);
 			}
 		}, 0, updatePeriod);
 //		}

@@ -605,7 +605,10 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 							
 							DomDecoder newDom = new DomDecoder(sourceGraph);
 							newDom.dom2graphNodeMapping = (Map<org.w3c.dom.Node, Node>) ((HashMap<org.w3c.dom.Node, Node>) dom2graphNodeMapping).clone();
-							newDom.graph2domNodeMapping = (Map<Node, Set<org.w3c.dom.Node>>) ((HashMap<Node, Set<org.w3c.dom.Node>>) graph2domNodeMapping).clone();
+//							newDom.graph2domNodeMapping = (Map<Node, Set<org.w3c.dom.Node>>) ((HashMap<Node, Set<org.w3c.dom.Node>>) graph2domNodeMapping).clone();
+							for (Node key : graph2domNodeMapping.keySet()) {
+								newDom.graph2domNodeMapping.put(key, (Set<org.w3c.dom.Node>) ((HashSet<org.w3c.dom.Node>) graph2domNodeMapping.get(key)).clone());
+							}
 							newDom.document = document;
 //							newDom.document = (Document) document.cloneNode(true);
 							
