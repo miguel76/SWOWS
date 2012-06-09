@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,9 +24,8 @@ import java.util.TimerTask;
 
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
-import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -67,8 +66,8 @@ public class SystemTime implements Runnable {
 	private static Triple tripleFromTime() {
 		long time = System.currentTimeMillis();
 		return new Triple(
-				Instance.GraphRoot.asNode(),
-				org.swows.vocabulary.time.systemTime.asNode(),
+				SWI.GraphRoot.asNode(),
+				org.swows.vocabulary.TIME.systemTime.asNode(),
 				Node.createLiteral( String.format("%d.%03d", time / 1000, time % 1000 ), (String) null, XSDDatatype.XSDdecimal ) );
 //				Node.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
 	}

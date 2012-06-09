@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -50,22 +50,22 @@ public class JmsInputGraphProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public JmsInputGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
-		Node urlNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.url.asNode() );
+		Node urlNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.url.asNode() );
 		if (urlNode != null)
 			url = urlNode.getURI();
-		Node userNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.user.asNode() );
+		Node userNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.user.asNode() );
 		if (userNode != null)
 			user = userNode.getLiteralLexicalForm();
-		Node pwdNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.password.asNode() );
+		Node pwdNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.password.asNode() );
 		if (pwdNode != null)
 			password = pwdNode.getLiteralLexicalForm();
-		Node subjNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.subject.asNode() );
+		Node subjNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.subject.asNode() );
 		if (subjNode != null)
 			subject = subjNode.getLiteralLexicalForm();
-		Node baseURINode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.baseUri.asNode() );
+		Node baseURINode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.baseUri.asNode() );
 		if (baseURINode != null)
 			baseURI = baseURINode.getURI();
-		Node syntaxNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.syntax.asNode() );
+		Node syntaxNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.syntax.asNode() );
 		if (syntaxNode != null)
 			syntax = syntaxNode.getURI();
 	}

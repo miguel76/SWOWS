@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 Dario
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as

@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -51,7 +51,7 @@ import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.SystemTime;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DocumentReceiver;
 import org.swows.xmlinrdf.DomDecoder;
 import org.swows.xmlinrdf.DomEventListener;
@@ -139,7 +139,7 @@ public class MouseApp extends JFrame {
     	final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
-    	inputDatasetGraph.addGraph(Node.createURI(Instance.getURI() + "mouseEvents"), mouseInput.getGraph());
+    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
 //		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);

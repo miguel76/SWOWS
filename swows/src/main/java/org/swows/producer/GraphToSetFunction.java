@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,7 @@ import org.swows.graph.DynamicChangingGraph;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -46,7 +46,7 @@ public abstract class GraphToSetFunction extends GraphFunction {
         Graph newGraph = GraphFactory.createGraphMem();
         while (elements.hasNext()) {
         	newGraph.add(
-        			new Triple(	Instance.GraphRoot.asNode(), RDFS.member.asNode(), elements.next() ) );
+        			new Triple(	SWI.GraphRoot.asNode(), RDFS.member.asNode(), elements.next() ) );
         }
 		return newGraph;
 	}

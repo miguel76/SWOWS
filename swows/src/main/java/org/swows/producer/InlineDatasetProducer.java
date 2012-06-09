@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -26,7 +26,7 @@ import java.util.Map;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -45,12 +45,12 @@ public class InlineDatasetProducer extends DatasetProducer {
 	 * @see Producer
 	 */
 	public InlineDatasetProducer(Graph conf, Node confRoot, final ProducerMap map) {
-		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.input.asNode()) );
-		Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, confRoot, SPINX.namedInput.asNode());
+		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
+		Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.namedInput.asNode());
 		while (namedInputNodes.hasNext()) {
 			Node namedInputNode = namedInputNodes.next();
-			Node graphNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, SPINX.input.asNode());
-			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, SPINX.id.asNode());
+			Node graphNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.input.asNode());
+			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.id.asNode());
 			Producer producer = map.getProducer(graphNode);
 			if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
 			namedInputProducers.put(nameNode, producer);

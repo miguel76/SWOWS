@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,8 +24,8 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -57,8 +57,8 @@ public class SparqlConstructFunction extends GraphProducer {
 	 * @see Producer
 	 */
 	public SparqlConstructFunction(Graph conf, Node confRoot, final ProducerMap map) {
-		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.input.asNode()) );
-		configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.config.asNode()) );
+		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
+		configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 //		final Model confModel = ModelFactory.createModelForGraph(conf);
 //		Resource constructResource =
 //			confModel
@@ -191,7 +191,7 @@ public class SparqlConstructFunction extends GraphProducer {
 		Graph conf = configProducer.createGraph(inputDataset);
 		final Model confModel = ModelFactory.createModelForGraph(conf);
 		Node constructNode =
-			confModel.getRDFNode(Instance.GraphRoot.asNode()).asNode();
+			confModel.getRDFNode(SWI.GraphRoot.asNode()).asNode();
 		Query query = QueryFactory.toQuery(conf, constructNode);
 		if (query == null)
 			throw new RuntimeException("Parsing Error");

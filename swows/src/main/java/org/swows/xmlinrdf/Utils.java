@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,7 +19,7 @@
  */
 package org.swows.xmlinrdf;
 
-import org.swows.vocabulary.xml;
+import org.swows.vocabulary.XML;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
@@ -33,58 +33,58 @@ public class Utils {
 	static Resource mapNodeType2resource(short nodeType) {
 		switch (nodeType) {
 		case org.w3c.dom.Node.ATTRIBUTE_NODE:
-			return xml.Attr;
+			return XML.Attr;
 		case org.w3c.dom.Node.CDATA_SECTION_NODE:
-			return xml.CDATASection;
+			return XML.CDATASection;
 		case org.w3c.dom.Node.COMMENT_NODE:
-			return xml.Comment;
+			return XML.Comment;
 		case org.w3c.dom.Node.DOCUMENT_FRAGMENT_NODE:
-			return xml.DocumentFragment;
+			return XML.DocumentFragment;
 		case org.w3c.dom.Node.DOCUMENT_NODE:
-			return xml.Document;
+			return XML.Document;
 		case org.w3c.dom.Node.DOCUMENT_TYPE_NODE:
-			return xml.DocumentType;
+			return XML.DocumentType;
 		case org.w3c.dom.Node.ELEMENT_NODE:
-			return xml.Element;
+			return XML.Element;
 		case org.w3c.dom.Node.ENTITY_NODE:
-			return xml.Entity;
+			return XML.Entity;
 		case org.w3c.dom.Node.ENTITY_REFERENCE_NODE:
-			return xml.EntityReference;
+			return XML.EntityReference;
 		case org.w3c.dom.Node.NOTATION_NODE:
-			return xml.Notation;
+			return XML.Notation;
 		case org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE:
-			return xml.ProcessingInstruction;
+			return XML.ProcessingInstruction;
 		case org.w3c.dom.Node.TEXT_NODE:
-			return xml.Text;
+			return XML.Text;
 		default:
 			return null;
 		}
 	}
 
 	static short mapResource2nodeType(Resource typeRes) {
-		if (typeRes.equals(xml.Attr))
+		if (typeRes.equals(XML.Attr))
 			return org.w3c.dom.Node.ATTRIBUTE_NODE;
-		else if (typeRes.equals(xml.CDATASection))
+		else if (typeRes.equals(XML.CDATASection))
 			return org.w3c.dom.Node.CDATA_SECTION_NODE;
-		else if (typeRes.equals(xml.Comment))
+		else if (typeRes.equals(XML.Comment))
 			return org.w3c.dom.Node.COMMENT_NODE;
-		else if (typeRes.equals(xml.DocumentFragment))
+		else if (typeRes.equals(XML.DocumentFragment))
 			return org.w3c.dom.Node.DOCUMENT_FRAGMENT_NODE;
-		else if (typeRes.equals(xml.Document))
+		else if (typeRes.equals(XML.Document))
 			return org.w3c.dom.Node.DOCUMENT_NODE;
-		else if (typeRes.equals(xml.DocumentType))
+		else if (typeRes.equals(XML.DocumentType))
 			return org.w3c.dom.Node.DOCUMENT_TYPE_NODE;
-		else if (typeRes.equals(xml.Element))
+		else if (typeRes.equals(XML.Element))
 			return org.w3c.dom.Node.ELEMENT_NODE;
-		else if (typeRes.equals(xml.Entity))
+		else if (typeRes.equals(XML.Entity))
 			return org.w3c.dom.Node.ENTITY_NODE;
-		else if (typeRes.equals(xml.EntityReference))
+		else if (typeRes.equals(XML.EntityReference))
 			return org.w3c.dom.Node.ENTITY_REFERENCE_NODE;
-		else if (typeRes.equals(xml.Notation))
+		else if (typeRes.equals(XML.Notation))
 			return org.w3c.dom.Node.NOTATION_NODE;
-		else if (typeRes.equals(xml.ProcessingInstruction))
+		else if (typeRes.equals(XML.ProcessingInstruction))
 			return org.w3c.dom.Node.PROCESSING_INSTRUCTION_NODE;
-		else if (typeRes.equals(xml.Text))
+		else if (typeRes.equals(XML.Text))
 			return org.w3c.dom.Node.TEXT_NODE;
 		else
 			return -1;

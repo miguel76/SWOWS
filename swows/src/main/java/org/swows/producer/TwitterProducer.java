@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Dario
  * 
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -39,7 +39,7 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.runnable.LocalTimer;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 import org.swows.xmlinrdf.DomEncoder;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -73,11 +73,11 @@ public class TwitterProducer extends GraphProducer {
     
     public TwitterProducer(Graph conf, Node confRoot, ProducerMap map) {
         //public static Node getSingleValueProperty(Graph graph, Node subject, Node predicate)
-        Node twitterUsernameNode = GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.twitterUsername.asNode());
+        Node twitterUsernameNode = GraphUtils.getSingleValueProperty(conf, confRoot, DF.twitterUsername.asNode());
         if (twitterUsernameNode != null) {
             twitterUsername = twitterUsernameNode.getLiteralLexicalForm();
         }
-        Node tweetNumberNode = GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.tweetNumber.asNode());
+        Node tweetNumberNode = GraphUtils.getSingleValueProperty(conf, confRoot, DF.tweetNumber.asNode());
         if (tweetNumberNode != null) {
             tweetNumber = Integer.parseInt(tweetNumberNode.getLiteralLexicalForm());
         }

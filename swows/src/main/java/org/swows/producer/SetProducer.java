@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -46,7 +46,7 @@ public abstract class SetProducer extends GraphProducer {
 		//System.out.println("Filling graph...");
         while (elements.hasNext()) {
         	newGraph.add(
-        			new Triple(	Instance.GraphRoot.asNode(), RDFS.member.asNode(), elements.next() ) );
+        			new Triple(	SWI.GraphRoot.asNode(), RDFS.member.asNode(), elements.next() ) );
         }
 		//System.out.println("Graph filled: " + newGraph);
 		return newGraph;

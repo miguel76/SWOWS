@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -27,7 +27,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
  * 
  * @author Holger Knublauch
  */
-public class Instance {
+public class SWI {
 
     public final static String BASE_URI = "http://www.swows.org/instance";
 

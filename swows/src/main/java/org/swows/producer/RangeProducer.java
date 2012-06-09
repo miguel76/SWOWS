@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@ package org.swows.producer;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
@@ -45,7 +45,7 @@ public class RangeProducer extends SetProducer {
 	 */
 	public RangeProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Iterator<Triple> startIter =
-				conf.find(confRoot, SPINX.intervalStart.asNode(), Node.ANY);
+				conf.find(confRoot, DF.intervalStart.asNode(), Node.ANY);
 		if (startIter.hasNext()) {
 			Node startNode = startIter.next().getObject();
 			if (startNode.isLiteral() && startNode.getLiteralDatatype().equals(XSDDatatype.XSDinteger)) {
@@ -55,7 +55,7 @@ public class RangeProducer extends SetProducer {
 		} else
 			throw new ProducerException("Parameter startNode not found");
 		Iterator<Triple> endIter =
-				conf.find(confRoot, SPINX.intervalEnd.asNode(), Node.ANY);
+				conf.find(confRoot, DF.intervalEnd.asNode(), Node.ANY);
 		if (endIter.hasNext()) {
 			Node endNode = endIter.next().getObject();
 			if (endNode.isLiteral() && endNode.getLiteralDatatype().equals(XSDDatatype.XSDinteger)) {

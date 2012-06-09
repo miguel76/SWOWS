@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,8 +28,8 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -54,20 +54,20 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableFromEventsProducer(Graph conf, Node confRoot, ProducerMap map) {
-		Iterator<Node> addConstructIter = GraphUtils.getPropertyValues(conf, confRoot, SPINX.addConstruct.asNode());
+		Iterator<Node> addConstructIter = GraphUtils.getPropertyValues(conf, confRoot, DF.addConstruct.asNode());
 		while( addConstructIter.hasNext() ) {
 			Node base = addConstructIter.next();
-			addEventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.eventsFrom.asNode())));
-			addQueryProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.config.asNode())));
-			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, SPINX.input.asNode());
+			addEventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.eventsFrom.asNode())));
+			addQueryProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.config.asNode())));
+			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, DF.input.asNode());
 			addQueryInputProducerList.add(inputNode == null ? EmptyGraphProducer.getInstance() : map.getProducer(inputNode));
 		}
-		Iterator<Node> deleteConstructIter = GraphUtils.getPropertyValues(conf, confRoot, SPINX.deleteConstruct.asNode());
+		Iterator<Node> deleteConstructIter = GraphUtils.getPropertyValues(conf, confRoot, DF.deleteConstruct.asNode());
 		while( deleteConstructIter.hasNext() ) {
 			Node base = deleteConstructIter.next();
-			deleteEventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.eventsFrom.asNode())));
-			deleteQueryProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.config.asNode())));
-			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, SPINX.input.asNode());
+			deleteEventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.eventsFrom.asNode())));
+			deleteQueryProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.config.asNode())));
+			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, DF.input.asNode());
 			deleteQueryInputProducerList.add(inputNode == null ? EmptyGraphProducer.getInstance() : map.getProducer(inputNode));
 		}
 	}
@@ -107,7 +107,7 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 			addEventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
 		for (Producer queryProducer: addQueryProducerList) {
-			addQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), Instance.GraphRoot.asNode()));
+			addQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
 		for (Producer queryInputProducer: addQueryInputProducerList) {
 			addQueryInputList.add(queryInputProducer.createDataset(inputDataset));
@@ -116,7 +116,7 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 			deleteEventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
 		for (Producer queryProducer: deleteQueryProducerList) {
-			deleteQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), Instance.GraphRoot.asNode()));
+			deleteQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
 		for (Producer queryInputProducer: deleteQueryInputProducerList) {
 			deleteQueryInputList.add(queryInputProducer.createDataset(inputDataset));

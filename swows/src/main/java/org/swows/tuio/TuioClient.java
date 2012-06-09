@@ -2,7 +2,7 @@
  * Copyright (c) 2005-2009 Martin Kaltenbrunner <mkalten@iua.upf.edu>
  * Copyright (c) 2011 Miguel Ceriani <miguel.ceriani@gmail.com>
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
  * It's based on TUIO Java backend - part of the reacTIVision project
 http://reactivision.sourceforge.net/
 

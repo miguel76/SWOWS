@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -37,7 +37,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 /**
  * The Class xml.
  */
-public class xml {
+public class XML {
 
 	private static final String uri = "http://www.swows.org/xml#";
 
@@ -255,33 +255,33 @@ public class xml {
 	}
 
 	public static final org.w3c.dom.Node getNodeProperty(org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
-		if (propNode.equals(xml.firstChild.asNode()))
+		if (propNode.equals(XML.firstChild.asNode()))
 			return node.getFirstChild();
-		if (propNode.equals(xml.lastChild.asNode()))
+		if (propNode.equals(XML.lastChild.asNode()))
 			return node.getLastChild();
-		if (propNode.equals(xml.previousSibling.asNode()))
+		if (propNode.equals(XML.previousSibling.asNode()))
 			return node.getPreviousSibling();
-		if (propNode.equals(xml.nextSibling.asNode()))
+		if (propNode.equals(XML.nextSibling.asNode()))
 			return node.getNextSibling();
-		if (propNode.equals(xml.parentNode.asNode()))
+		if (propNode.equals(XML.parentNode.asNode()))
 			return node.getParentNode();
-		if (propNode.equals(xml.ownerDocument.asNode()))
+		if (propNode.equals(XML.ownerDocument.asNode()))
 			return node.getOwnerDocument();
     	return null;
     }
     
     public static final org.w3c.dom.Node getRevNodeProperty(org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
-		if (propNode.equals(xml.firstChild.asNode()))
+		if (propNode.equals(XML.firstChild.asNode()))
 			return (node.getPreviousSibling() == null) ? node.getParentNode() : null;
-		if (propNode.equals(xml.lastChild.asNode()))
+		if (propNode.equals(XML.lastChild.asNode()))
 			return (node.getNextSibling() == null) ? node.getParentNode() : null;
-		if (propNode.equals(xml.previousSibling.asNode()))
+		if (propNode.equals(XML.previousSibling.asNode()))
 			return node.getNextSibling();
-		if (propNode.equals(xml.nextSibling.asNode()))
+		if (propNode.equals(XML.nextSibling.asNode()))
 			return node.getPreviousSibling();
-		if (propNode.equals(xml.hasChild.asNode()))
+		if (propNode.equals(XML.hasChild.asNode()))
 			return node.getParentNode();
-		if (propNode.equals(xml.hasAttribute.asNode()))
+		if (propNode.equals(XML.hasAttribute.asNode()))
 			return (node.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE)
 						? ( (org.w3c.dom.Attr) node ).getOwnerElement()
 						: null;
@@ -289,9 +289,9 @@ public class xml {
     }
     
     public static final org.w3c.dom.NodeList getNodeListProperty(final org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
-		if (propNode.equals(xml.hasChild.asNode()))
+		if (propNode.equals(XML.hasChild.asNode()))
 			return node.getChildNodes();
-		if (propNode.equals(xml.hasAttribute.asNode())) {
+		if (propNode.equals(XML.hasAttribute.asNode())) {
 			final NamedNodeMap attrMap = node.getAttributes();
 			if (attrMap == null)
 				return emptyNodeList;
@@ -314,9 +314,9 @@ public class xml {
     }
 
     public static final org.w3c.dom.NodeList getRevNodeListProperty(final org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
-		if (propNode.equals(xml.parentNode.asNode()))
+		if (propNode.equals(XML.parentNode.asNode()))
 			return node.getChildNodes();
-		if (propNode.equals(xml.ownerDocument.asNode())) {
+		if (propNode.equals(XML.ownerDocument.asNode())) {
 			if (node.getNodeType() == org.w3c.dom.Node.DOCUMENT_NODE) {
 				final Iterator<Node> docNodes = Utils.listSubtreeNodes(((org.w3c.dom.Document) node).getDocumentElement());
 				return new NodeList() {

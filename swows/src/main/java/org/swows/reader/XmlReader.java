@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -23,7 +23,7 @@ import java.io.Reader;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DomEncoder;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -59,7 +59,7 @@ public class XmlReader extends JenaReaderBase {
 			docBuilderFactory.setNamespaceAware(true);
 			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
 			newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
-			Graph newGraph = DomEncoder.encode(newDoc, Instance.GraphRoot.getURI());
+			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
 			graph.getBulkUpdateHandler().add(newGraph);
 //		} catch (SAXException e) {
 //		} catch (IOException e) {

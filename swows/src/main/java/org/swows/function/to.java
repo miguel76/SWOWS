@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@ package org.swows.function;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
@@ -53,7 +53,7 @@ public class to extends GraphReturningFunction {
         BigInteger to = toNV.getInteger();
         Graph newGraph = GraphFactory.createGraphMem();
 		//System.out.println("Empty graph created");
-		Node root = Instance.GraphRoot.asNode();
+		Node root = SWI.GraphRoot.asNode();
 		//System.out.println("Filling graph...");
         while(index.compareTo(to) <= 0) {
         	newGraph.add(

@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -35,7 +35,7 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 import org.swows.runnable.RunnableContextFactory;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -96,7 +96,7 @@ public class JmsInputGraph extends DynamicChangingGraph {
         	                String msg = txtMsg.getText(); 
         	                logger.debug("[" + this + "] Received: '" + msg + "' (length " + msg.getBytes().length + ")");
         	                Model model = ModelFactory.createDefaultModel();
-        	                model.read(new StringReader(msg), baseURI == null ? Instance.getURI() : baseURI, syntax);
+        	                model.read(new StringReader(msg), baseURI == null ? SWI.getURI() : baseURI, syntax);
         	                final Graph newGraph = model.getGraph();
         	                RunnableContextFactory.getDefaultRunnableContext().run(new Runnable() {
         						@Override

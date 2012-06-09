@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,8 +28,8 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -53,15 +53,15 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableFromEventsProducer2(Graph conf, Node confRoot, ProducerMap map) {
-		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, SPINX.baseGraph.asNode());
+		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
 		if (baseGraphNode != null)
 			baseGraphProducer = map.getProducer(baseGraphNode);
-		Iterator<Node> inputIter = GraphUtils.getPropertyValues(conf, confRoot, SPINX.input.asNode());
+		Iterator<Node> inputIter = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
 		while( inputIter.hasNext() ) {
 			Node base = inputIter.next();
-			eventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.eventsFrom.asNode())));
-			updateProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, SPINX.config.asNode())));
-			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, SPINX.input.asNode());
+			eventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.eventsFrom.asNode())));
+			updateProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.config.asNode())));
+			Node inputNode = GraphUtils.getSingleValueOptProperty(conf, base, DF.input.asNode());
 			updateInputProducerList.add(inputNode == null ? EmptyGraphProducer.getInstance() : map.getProducer(inputNode));
 		}
 	}
@@ -92,7 +92,7 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 			eventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
 		for (Producer updateProducer: updateProducerList) {
-			updateList.add(QueryFactory.toUpdateRequest(updateProducer.createGraph(inputDataset), Instance.GraphRoot.asNode()));
+			updateList.add(QueryFactory.toUpdateRequest(updateProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
 		for (Producer updateInputProducer: updateInputProducerList) {
 			updateInputList.add(updateInputProducer.createDataset(inputDataset));

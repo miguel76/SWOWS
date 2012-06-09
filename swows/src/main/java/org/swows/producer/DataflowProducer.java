@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -29,8 +29,8 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -64,8 +64,8 @@ public class DataflowProducer extends DatasetProducer {
 	 */
 	public DataflowProducer(Graph conf, Node confRoot, ProducerMap map) {
 		this(
-				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.config.asNode()) ),
-				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.input.asNode()) ) );
+				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) ),
+				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) ) );
 	}
 
 	/**
@@ -137,46 +137,46 @@ public class DataflowProducer extends DatasetProducer {
 	*/
 
 	private Class<?> getProducerClass(Graph conf, Node graphId) {
-		if (conf.contains(graphId, RDF.type.asNode(), SPINX.UnionGraph.asNode()))
+		if (conf.contains(graphId, RDF.type.asNode(), DF.UnionGraph.asNode()))
 			return UnionFunction.class;
 //		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InputGraph.asNode()))
 //			return InputProvider.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.IdentityGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.IdentityGraph.asNode()))
 			return IdentityGraphFunction.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.ConstructGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.ConstructGraph.asNode()))
 			return SparqlConstructFunction.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.DataflowGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.DataflowGraph.asNode()))
 			return DataflowProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InferenceGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.InferenceGraph.asNode()))
 			return InferenceGraphProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.EmptyGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.EmptyGraph.asNode()))
 			return EmptyGraphProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableGraph.asNode()))
-			return UpdatableProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableFromEventsGraph.asNode()))
-			return UpdatableFromEventsProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.UpdatableFromEventsGraph2.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableGraph.asNode()))
 			return UpdatableFromEventsProducer2.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableFromEventsGraph.asNode()))
+			return UpdatableFromEventsProducer2.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableFromEventsGraph2.asNode()))
+			return UpdatableFromEventsProducer2.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.InlineGraph.asNode()))
 			return InlineGraphProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.InlineDataset.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.InlineDataset.asNode()))
 			return InlineDatasetProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.SelectGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.SelectGraph.asNode()))
 			return SelectGraphProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.LoadGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.LoadGraph.asNode()))
 			return LoadGraphProducer.class;
 		//TODO: manage the included graphs pre-dataflow execution!
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.IncludedGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.IncludedGraph.asNode()))
 			return LoadGraphProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.LoggedGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.LoggedGraph.asNode()))
 			return LoggingProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.IntegerRange.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.IntegerRange.asNode()))
 			return RangeProducer.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.IntegerRangeFromGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.IntegerRangeFromGraph.asNode()))
 			return RangeFunction.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), SPINX.JmsInputGraph.asNode()))
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.JmsInputGraph.asNode()))
 			return JmsInputGraphProducer.class;
-        else if (conf.contains(graphId, RDF.type.asNode(), SPINX.TwitterGraph.asNode()))
+        else if (conf.contains(graphId, RDF.type.asNode(), DF.TwitterGraph.asNode()))
 			return TwitterProducer.class;
 		throw new RuntimeException("Unrecognized Graph Producer for node " + graphId + " in graph " + conf);
 		//return null;
@@ -236,7 +236,7 @@ public class DataflowProducer extends DatasetProducer {
 //			if (existingProducer != null)
 //				return existingProducer;
 //		}
-			if (node.equals(Instance.InputDataset.asNode()))
+			if (node.equals(SWI.InputDataset.asNode()))
 				return new DatasetProducer() {
 					@Override
 					public boolean dependsFrom(Producer producer) {
@@ -354,7 +354,7 @@ public class DataflowProducer extends DatasetProducer {
 		final DynamicGraph configGraph = confProducer.createGraph(parentInputDataset);
 		final DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		
-		Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+		Producer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
 		final RecursionDataset outputDataset = new RecursionDataset(outputProducer.createDataset(inputDataset));
 		
 		configGraph.getEventManager2().register(new Listener() {
@@ -362,7 +362,7 @@ public class DataflowProducer extends DatasetProducer {
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 //				System.out.println("Start of notifyUpdate()");
 				innerProds = new ConcurrentHashMap<Node, Producer>();
-				Producer outputProducer = getInnerProducer(configGraph, Instance.OutputDataset.asNode(), null);
+				Producer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
 				outputDataset.setBaseDataset(outputProducer.createDataset(inputDataset));
 //				System.out.println("End of notifyUpdate()");
 			}

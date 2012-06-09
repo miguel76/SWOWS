@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.swows.graph.UpdatableGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -46,13 +46,13 @@ public class UpdatableProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableProducer(Graph conf, Node confRoot, ProducerMap map) {
-		Iterator<Triple> baseGraphTriples = conf.find(confRoot, SPINX.baseGraph.asNode(), Node.ANY);
+		Iterator<Triple> baseGraphTriples = conf.find(confRoot, DF.baseGraph.asNode(), Node.ANY);
 		if (baseGraphTriples.hasNext())
 			baseGraphProducer = map.getProducer(baseGraphTriples.next().getObject());
-		Iterator<Triple> addGraphTriples = conf.find(confRoot, SPINX.addGraph.asNode(), Node.ANY);
+		Iterator<Triple> addGraphTriples = conf.find(confRoot, DF.addGraph.asNode(), Node.ANY);
 		if (addGraphTriples.hasNext())
 			addGraphProducer = map.getProducer(addGraphTriples.next().getObject());
-		Iterator<Triple> deleteGraphTriples = conf.find(confRoot, SPINX.deleteGraph.asNode(), Node.ANY);
+		Iterator<Triple> deleteGraphTriples = conf.find(confRoot, DF.deleteGraph.asNode(), Node.ANY);
 		if (deleteGraphTriples.hasNext())
 			deleteGraphProducer = map.getProducer(deleteGraphTriples.next().getObject());
 	}

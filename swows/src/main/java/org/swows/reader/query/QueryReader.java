@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ import java.io.StringWriter;
 import java.util.Iterator;
 
 import org.swows.spinx.SpinxFactory;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.n3.JenaReaderBase;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -70,7 +70,7 @@ public class QueryReader extends JenaReaderBase {
 		sw.flush();
 		sw.close();
 		com.hp.hpl.jena.query.Query query = QueryFactory.create(sw.toString(), querySyntax);
-		SpinxFactory.fromQuery(query, model.getGraph(), Instance.GraphRoot.asNode());
+		SpinxFactory.fromQuery(query, model.getGraph(), SWI.GraphRoot.asNode());
 	}
 
 }

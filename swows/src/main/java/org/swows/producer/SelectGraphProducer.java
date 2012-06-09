@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@ package org.swows.producer;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -42,8 +42,8 @@ public class SelectGraphProducer extends GraphProducer {
 	 */
 	public SelectGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		this(
-				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.input.asNode()) ),
-				GraphUtils.getSingleValueProperty(conf, confRoot, SPINX.id.asNode()) );
+				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) ),
+				GraphUtils.getSingleValueProperty(conf, confRoot, DF.id.asNode()) );
 	}
 
 	/**

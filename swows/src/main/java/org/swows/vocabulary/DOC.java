@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -24,7 +24,7 @@ package org.swows.vocabulary;
 /**
  * The Class xml.
  */
-public class xmlInstance {
+public class DOC {
 
 	private static final String uri = "http://www.swows.org/xml/instance#";
 

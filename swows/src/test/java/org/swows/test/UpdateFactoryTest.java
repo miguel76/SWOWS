@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,7 @@ import java.util.Vector;
 import javax.xml.transform.TransformerException;
 
 import org.swows.spinx.SpinxFactory;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -75,7 +75,7 @@ public class UpdateFactoryTest {
     	
     	//Node queryRootNode = queryGraph.find(Node.ANY, RDF.type.asNode(), SP.Query.asNode()).next().getSubject();
     	
-    	UpdateRequest outputUpdate = org.swows.spinx.QueryFactory.toUpdateRequest(queryGraph, Instance.GraphRoot.asNode());
+    	UpdateRequest outputUpdate = org.swows.spinx.QueryFactory.toUpdateRequest(queryGraph, SWI.GraphRoot.asNode());
     	
     	System.out.println(outputUpdate.toString());
     	
@@ -153,17 +153,17 @@ public class UpdateFactoryTest {
 
     	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
 		GraphStore graphStore = new GraphStoreBasic(inputDataset);
-		graphStore.addGraph(Instance.ThisGraph.asNode(), GraphFactory.createGraphMem());
+		graphStore.addGraph(SWI.ThisGraph.asNode(), GraphFactory.createGraphMem());
 		for (Update update : inputUpdate.getOperations()) {
 			if (update instanceof UpdateWithUsing)
-				((UpdateWithUsing) update).setWithIRI(Instance.ThisGraph.asNode());
+				((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
 		}
 		
 		long queryStart = System.currentTimeMillis();
 		UpdateProcessor updateProcessor = UpdateExecutionFactory.create(inputUpdate, graphStore);
 		updateProcessor.execute();
 		Model inputQueryResult =
-				ModelFactory.createModelForGraph( graphStore.getGraph(Instance.ThisGraph.asNode()) );
+				ModelFactory.createModelForGraph( graphStore.getGraph(SWI.ThisGraph.asNode()) );
 		long queryEnd = System.currentTimeMillis();
 		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
 

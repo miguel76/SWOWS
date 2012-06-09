@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -32,8 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.swows.vocabulary.xml;
-import org.swows.vocabulary.xmlInstance;
+import org.swows.vocabulary.DOC;
+import org.swows.vocabulary.XML;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -124,7 +124,7 @@ public class DomEncoder {
 
 		private synchronized Node createNode() {
 			return Node.createURI(
-					xmlInstance.getURI()
+					DOC.getURI()
 					+ "node_"
 					+ Long.toString(docId)		
                     + "_"
@@ -163,15 +163,15 @@ public class DomEncoder {
 			if (node.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
 				Attr idAttr = ((Element) node).getAttributeNode("id");
 				if (idAttr != null)
-					graphNode = Node.createURI(xmlInstance.getURI() + idAttr.getValue());
+					graphNode = Node.createURI(DOC.getURI() + idAttr.getValue());
 				else {
 					Attr xmlIdAttr = ((Element) node).getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "id");
 					if (xmlIdAttr != null)
-						graphNode = Node.createURI(xmlInstance.getURI() + xmlIdAttr.getValue());
+						graphNode = Node.createURI(DOC.getURI() + xmlIdAttr.getValue());
 					else {
 						Attr svgIdAttr = ((Element) node).getAttributeNodeNS("http://www.w3.org/2000/svg", "id");
 						if (svgIdAttr != null)
-							graphNode = Node.createURI(xmlInstance.getURI() + svgIdAttr.getValue());
+							graphNode = Node.createURI(DOC.getURI() + svgIdAttr.getValue());
 					}
 				}
 				
@@ -230,7 +230,7 @@ public class DomEncoder {
 						
 						// Schema: * * o
 						return // namescape
-								( o.isURI() && ( xml.getURI().equals(o.getURI()) || document.getElementsByTagNameNS(o.getURI(), "*").getLength() > 0 ) )
+								( o.isURI() && ( XML.getURI().equals(o.getURI()) || document.getElementsByTagNameNS(o.getURI(), "*").getLength() > 0 ) )
 								|| // nodeName
 								( document.getElementsByTagNameNS("*", o.getLiteralLexicalForm()).getLength() > 0 )
 								|| // nodeVallue
@@ -246,29 +246,29 @@ public class DomEncoder {
 					if (o == null || !o.isConcrete()) {
 						
 						// Schema: * p *
-						if ( p.equals(xml.namespace.asNode()) )
+						if ( p.equals(XML.namespace.asNode()) )
 							return true;
-						if ( p.equals(xml.nodeName.asNode()) )
+						if ( p.equals(XML.nodeName.asNode()) )
 							return true;
-						if ( p.equals(xml.nodeValue.asNode()) )
+						if ( p.equals(XML.nodeValue.asNode()) )
 							return Utils.containsNodeValue(document);
-						if ( p.equals(xml.nodeType.asNode()) )
+						if ( p.equals(XML.nodeType.asNode()) )
 							return true;
-						if (p.equals(xml.hasChild.asNode()))
+						if (p.equals(XML.hasChild.asNode()))
 							return true;
-						if (p.equals(xml.firstChild.asNode()))
+						if (p.equals(XML.firstChild.asNode()))
 							return true;
-						if (p.equals(xml.lastChild.asNode()))
+						if (p.equals(XML.lastChild.asNode()))
 							return true;
-						if (p.equals(xml.previousSibling.asNode()))
+						if (p.equals(XML.previousSibling.asNode()))
 							return Utils.containsSiblings(document);
-						if (p.equals(xml.nextSibling.asNode()))
+						if (p.equals(XML.nextSibling.asNode()))
 							return Utils.containsSiblings(document);
-						if (p.equals(xml.parentNode.asNode()))
+						if (p.equals(XML.parentNode.asNode()))
 							return true;
-						if (p.equals(xml.hasAttribute.asNode()))
+						if (p.equals(XML.hasAttribute.asNode()))
 							return Utils.containsAttributes(document);
-						if (p.equals(xml.ownerDocument.asNode()))
+						if (p.equals(XML.ownerDocument.asNode()))
 							return true;
 						return false;
 
@@ -276,37 +276,37 @@ public class DomEncoder {
 
 						// Schema: * p o
 						
-						if ( p.equals(xml.namespace.asNode()) )
+						if ( p.equals(XML.namespace.asNode()) )
 							return o.isURI()
-									&& ( xml.getURI().equals(o.getURI()) || document.getElementsByTagNameNS(o.getURI(), "*").getLength() > 0 );
-						if ( p.equals(xml.nodeName.asNode()) )
+									&& ( XML.getURI().equals(o.getURI()) || document.getElementsByTagNameNS(o.getURI(), "*").getLength() > 0 );
+						if ( p.equals(XML.nodeName.asNode()) )
 							return (document.getElementsByTagNameNS("*", o.getLiteralLexicalForm()).getLength() > 0 );
-						if ( p.equals(xml.nodeValue.asNode()) )
+						if ( p.equals(XML.nodeValue.asNode()) )
 							return Utils.containsNodeValue(document, o.getLiteralLexicalForm());
-						if ( p.equals(xml.nodeType.asNode()) )
+						if ( p.equals(XML.nodeType.asNode()) )
 							return o.isURI() && Utils.containsNodeType(document, Utils.mapResource2nodeType(ResourceFactory.createResource(o.getURI())));
 
 						// Part in which object must represent an xml node
 						org.w3c.dom.Node objXmlNode = mapGraphNode2XmlNode(o);
 						if (objXmlNode == null)
 							return false;
-						if (p.equals(xml.hasChild.asNode()))
+						if (p.equals(XML.hasChild.asNode()))
 							return objXmlNode.getParentNode() != null;
-						if (p.equals(xml.firstChild.asNode()))
+						if (p.equals(XML.firstChild.asNode()))
 							return objXmlNode.getParentNode() != null
 								&& objXmlNode.getPreviousSibling() == null;
-						if (p.equals(xml.lastChild.asNode()))
+						if (p.equals(XML.lastChild.asNode()))
 							return objXmlNode.getParentNode() != null
 								&& objXmlNode.getNextSibling() == null;
-						if (p.equals(xml.previousSibling.asNode()))
+						if (p.equals(XML.previousSibling.asNode()))
 							return objXmlNode.getNextSibling() != null;
-						if (p.equals(xml.nextSibling.asNode()))
+						if (p.equals(XML.nextSibling.asNode()))
 							return objXmlNode.getPreviousSibling() != null;
-						if (p.equals(xml.parentNode.asNode()))
+						if (p.equals(XML.parentNode.asNode()))
 							return objXmlNode.hasChildNodes();
-						if (p.equals(xml.hasAttribute.asNode()))
+						if (p.equals(XML.hasAttribute.asNode()))
 							return (objXmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE);
-						if (p.equals(xml.ownerDocument.asNode()))
+						if (p.equals(XML.ownerDocument.asNode()))
 							return objXmlNode.getNodeType() == org.w3c.dom.Node.DOCUMENT_NODE;
 						return false;
 
@@ -376,7 +376,7 @@ public class DomEncoder {
 						// Schema: s p *
 						return ( mapGraphNode2XmlNode(s) == null )
 									? false
-									: xml.isNodeProperty(p);
+									: XML.isNodeProperty(p);
 
 					} else  {
 						
@@ -385,42 +385,42 @@ public class DomEncoder {
 						org.w3c.dom.Node subjXmlNode = mapGraphNode2XmlNode(s);
 						if (subjXmlNode == null)
 							return false;
-						if ( p.equals(xml.namespace.asNode()) )
+						if ( p.equals(XML.namespace.asNode()) )
 							//return o.hasURI(subjXmlNode.lookupNamespaceURI(subjXmlNode.getPrefix()));
 							return o.hasURI(subjXmlNode.getNamespaceURI());
-						if ( p.equals(xml.nodeName.asNode()) )
+						if ( p.equals(XML.nodeName.asNode()) )
 							return o.getLiteralLexicalForm().equals(subjXmlNode.getNodeName());
-						if ( p.equals(xml.nodeValue.asNode()) )
+						if ( p.equals(XML.nodeValue.asNode()) )
 							return subjXmlNode.getNodeValue() != null && o.getLiteralLexicalForm().equals(subjXmlNode.getNodeValue());
-						if ( p.equals(xml.nodeType.asNode()) )
+						if ( p.equals(XML.nodeType.asNode()) )
 							return o.equals(Utils.mapNodeType2resource(subjXmlNode.getNodeType()).asNode());
 
 						// Part in which object must represent an xml node
 						org.w3c.dom.Node objXmlNode = mapGraphNode2XmlNode(o);
 						if (objXmlNode == null)
 							return false;
-						if (p.equals(xml.hasChild.asNode())) {
+						if (p.equals(XML.hasChild.asNode())) {
 							org.w3c.dom.Node parentNode = objXmlNode.getParentNode();
                                                         return (parentNode != null && parentNode.equals(subjXmlNode));
                                                 }
-                                                        if (p.equals(xml.firstChild.asNode()))
+                                                        if (p.equals(XML.firstChild.asNode()))
 							return subjXmlNode.getFirstChild().equals(objXmlNode);
-						if (p.equals(xml.lastChild.asNode()))
+						if (p.equals(XML.lastChild.asNode()))
 							return subjXmlNode.getLastChild().equals(objXmlNode);
-						if (p.equals(xml.previousSibling.asNode())) {
+						if (p.equals(XML.previousSibling.asNode())) {
                                                     org.w3c.dom.Node previousSiblingNode = objXmlNode.getParentNode();
                                                         return (previousSiblingNode != null && previousSiblingNode.equals(subjXmlNode));
                                                 }
-						if (p.equals(xml.nextSibling.asNode()))
+						if (p.equals(XML.nextSibling.asNode()))
 							return subjXmlNode.getNextSibling().equals(objXmlNode);
-						if (p.equals(xml.parentNode.asNode()))
+						if (p.equals(XML.parentNode.asNode()))
 							return subjXmlNode.getParentNode().equals(objXmlNode);
-						if (p.equals(xml.hasAttribute.asNode()))
+						if (p.equals(XML.hasAttribute.asNode()))
 							return (objXmlNode.getNodeType() == org.w3c.dom.Node.ATTRIBUTE_NODE
 								&& subjXmlNode.getAttributes().getNamedItemNS(
 										objXmlNode.lookupNamespaceURI(objXmlNode.getPrefix()),
 										objXmlNode.getLocalName()) != null);
-						if (p.equals(xml.ownerDocument.asNode()))
+						if (p.equals(XML.ownerDocument.asNode()))
 							return subjXmlNode.getOwnerDocument().equals(objXmlNode);
 						return false;
 
@@ -467,7 +467,7 @@ public class DomEncoder {
 						
 						// Schema: * * o
 						ExtendedIterator<Triple> resultIterator = new NullIterator<Triple>();
-						Iterator<Node> availableProps = xml.nodeProperties();
+						Iterator<Node> availableProps = XML.nodeProperties();
 						while (availableProps.hasNext()) {
 							resultIterator = resultIterator.andThen( find( s, availableProps.next(), o ) );
 						}
@@ -492,22 +492,22 @@ public class DomEncoder {
 
 						// Schema: * p o
 						ExtendedIterator<org.w3c.dom.Node> subjIterator = null;
-						if ( p.equals(xml.namespace.asNode()) && o.isURI())
+						if ( p.equals(XML.namespace.asNode()) && o.isURI())
 							subjIterator =
 									o.isLiteral()
 										? Utils.listSubtreeNodes( document, null, null, o.getURI(), null )
 										: emptyNodeIterator;
-						else if ( p.equals(xml.nodeName.asNode()) )
+						else if ( p.equals(XML.nodeName.asNode()) )
 							subjIterator =
 									o.isLiteral()
 										? Utils.listSubtreeNodes( document, null, o.getLiteralLexicalForm(), null, null )
 										: emptyNodeIterator;
-						else if ( p.equals(xml.nodeValue.asNode()) )
+						else if ( p.equals(XML.nodeValue.asNode()) )
 							subjIterator =
 									o.isLiteral()
 										? Utils.listSubtreeNodes( document, null, null, null, o.getLiteralLexicalForm() )
 										: emptyNodeIterator;
-						else if ( p.equals(xml.nodeType.asNode()) ) {
+						else if ( p.equals(XML.nodeType.asNode()) ) {
 							if (o.isURI()) {
 								short nodeType = Utils.mapResource2nodeType( ResourceFactory.createResource(o.getURI()) );
 								if (nodeType != -1)
@@ -528,7 +528,7 @@ public class DomEncoder {
 						org.w3c.dom.Node objXmlNode = mapGraphNode2XmlNode(o);
 						if ( objXmlNode == null )
 							return emptyTripleIterator;
-						final NodeList subjList = xml.getRevNodeListProperty(objXmlNode, p);
+						final NodeList subjList = XML.getRevNodeListProperty(objXmlNode, p);
 						return new NiceIterator<Triple>() {
 							private int subjectIndex = 0;
 							@Override
@@ -554,7 +554,7 @@ public class DomEncoder {
 					if ( subjXmlNode == null )
 						return emptyTripleIterator;
 					ExtendedIterator<Triple> resultIterator = new NullIterator<Triple>();
-					Iterator<Node> availableProps = xml.nodeProperties();
+					Iterator<Node> availableProps = XML.nodeProperties();
 					while (availableProps.hasNext()) {
 						resultIterator = resultIterator.andThen( find( s, availableProps.next(), o ) );
 					}
@@ -570,20 +570,20 @@ public class DomEncoder {
 							return emptyTripleIterator;
 						Node singleObjectNode = null;
 						String singleObjectString = null;
-						if ( p.equals(xml.nodeName.asNode()) )
+						if ( p.equals(XML.nodeName.asNode()) )
 							singleObjectString = subjXmlNode.getNodeName();
-						else if ( p.equals(xml.nodeValue.asNode()) )
+						else if ( p.equals(XML.nodeValue.asNode()) )
 							singleObjectString = subjXmlNode.getNodeValue();
 						if (singleObjectString != null)
 							singleObjectNode = Node.createLiteral(singleObjectString);
 						else {
-							if ( p.equals(xml.namespace.asNode()) ) {
+							if ( p.equals(XML.namespace.asNode()) ) {
 								singleObjectNode =
 										subjXmlNode.getNamespaceURI() == null
 											? null
 											: Node.createURI(subjXmlNode.getNamespaceURI());
 							}
-							else if ( p.equals(xml.nodeType.asNode()) ) {
+							else if ( p.equals(XML.nodeType.asNode()) ) {
 								singleObjectNode = Utils.mapNodeType2resource(subjXmlNode.getNodeType()).asNode();
 								if (singleObjectNode == null)
 									return emptyTripleIterator;
@@ -592,7 +592,7 @@ public class DomEncoder {
 						if (singleObjectNode != null)
 							return new SingletonIterator<Triple>(new Triple(s, p, singleObjectNode));
 						else {
-							final NodeList objList = xml.getNodeListProperty(subjXmlNode, p);
+							final NodeList objList = XML.getNodeListProperty(subjXmlNode, p);
 							return new NiceIterator<Triple>() {
 								private int objectIndex = 0;
 								@Override
@@ -787,7 +787,7 @@ public class DomEncoder {
 	public static void developInRDF(Graph graph) {
 		Model model = ModelFactory.createModelForGraph(graph);
 		Iterator<Resource> xmlResources =
-				model.listResourcesWithProperty(RDF.type, xml.Document)
+				model.listResourcesWithProperty(RDF.type, XML.Document)
 				.filterKeep( new Filter<Resource>() {
 					@Override
 					public boolean accept(Resource res) {
@@ -795,7 +795,7 @@ public class DomEncoder {
 						boolean textProp = false;
 						while (stmtIterator.hasNext()) {
 							Property prop = stmtIterator.next().getPredicate();
-							if (prop.equals(xml.text)) {
+							if (prop.equals(XML.text)) {
 								// TODO: check for single literal string value of xml.text
 								textProp = true;
 							}
@@ -814,7 +814,7 @@ public class DomEncoder {
 		xmlResources = xmlResourcesList.iterator();
 		while (xmlResources.hasNext()) {
 			Resource xmlRes = xmlResources.next();
-			String xmlString = xmlRes.getRequiredProperty(xml.text).getString();
+			String xmlString = xmlRes.getRequiredProperty(XML.text).getString();
 			InputSource xmlInputSource = new InputSource(new StringReader(xmlString));
 			String rootUri = null;
 			Node rootNode = null;

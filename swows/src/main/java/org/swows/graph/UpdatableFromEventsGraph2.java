@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
@@ -79,20 +79,20 @@ public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 							
 //							Graph thisGraph = GraphFactory.createGraphMem();
 //							thisGraph.getBulkUpdateHandler().add(baseGraphCopy);
-							graphStore.addGraph(Instance.ThisGraph.asNode(), baseGraphCopy);
+							graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
 							
 //							Graph addedGraph = GraphFactory.createGraphMem();
 //							addedGraph.getBulkUpdateHandler().add(updateEvent.getAddedGraph());
-							graphStore.addGraph(Instance.AddedGraph.asNode(), updateEvent.getAddedGraph());
+							graphStore.addGraph(SWI.AddedGraph.asNode(), updateEvent.getAddedGraph());
 							
 //							Graph deletedGraph = GraphFactory.createGraphMem();
 //							deletedGraph.getBulkUpdateHandler().add(updateEvent.getDeletedGraph());
-							graphStore.addGraph(Instance.DeletedGraph.asNode(), updateEvent.getDeletedGraph());
+							graphStore.addGraph(SWI.DeletedGraph.asNode(), updateEvent.getDeletedGraph());
 							
 //							GraphStore graphStore = new GraphStoreBasic(inputDataset);
 							for (Update update : updateRequest.getOperations()) {
 								if (update instanceof UpdateWithUsing)
-									((UpdateWithUsing) update).setWithIRI(Instance.ThisGraph.asNode());
+									((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
 							}
 							UpdateProcessor updateProcessor = UpdateExecutionFactory.create(updateRequest, graphStore);
 							updateProcessor.execute();

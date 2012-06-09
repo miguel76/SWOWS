@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,8 +22,8 @@ package org.swows.producer;
 import java.math.BigInteger;
 import java.util.Iterator;
 
-import org.swows.vocabulary.Instance;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
@@ -48,7 +48,7 @@ public class RangeFunction extends GraphToSetFunction {
 	public Iterator<Node> createIterator(Graph inputGraph) {
 		final BigInteger start, end;
 		Iterator<Triple> startIter =
-				inputGraph.find(Instance.GraphRoot.asNode(), SPINX.intervalStart.asNode(), Node.ANY);
+				inputGraph.find(SWI.GraphRoot.asNode(), DF.intervalStart.asNode(), Node.ANY);
 		if (startIter.hasNext()) {
 			Node startNode = startIter.next().getObject();
 			if (startNode.isLiteral() && startNode.getLiteralDatatype().equals(XSDDatatype.XSDinteger)) {
@@ -63,7 +63,7 @@ public class RangeFunction extends GraphToSetFunction {
 			};
 //			throw new ProducerException("Parameter intervalStart not found");
 		Iterator<Triple> endIter =
-				inputGraph.find(Instance.GraphRoot.asNode(), SPINX.intervalEnd.asNode(), Node.ANY);
+				inputGraph.find(SWI.GraphRoot.asNode(), DF.intervalEnd.asNode(), Node.ANY);
 		if (endIter.hasNext()) {
 			Node endNode = endIter.next().getObject();
 			if (endNode.isLiteral() && endNode.getLiteralDatatype().equals(XSDDatatype.XSDinteger)) {

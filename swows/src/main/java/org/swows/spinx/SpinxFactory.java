@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.swows.vocabulary.Instance;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
@@ -654,7 +654,7 @@ public class SpinxFactory {
 	}
 	
 	public static void fromUpdate(Update update, Graph graph) {
-		fromUpdate(update, graph, Instance.GraphRoot.asNode());
+		fromUpdate(update, graph, SWI.GraphRoot.asNode());
 	}
 	
 	public static void fromUpdateRequest(UpdateRequest updateRequest, Graph graph, Node requestRootNode) {
@@ -667,7 +667,7 @@ public class SpinxFactory {
 	}
 
 	public static void fromUpdateRequest(UpdateRequest updateRequest, Graph graph) {
-		fromUpdateRequest(updateRequest, graph, Instance.GraphRoot.asNode());
+		fromUpdateRequest(updateRequest, graph, SWI.GraphRoot.asNode());
 	}
 
 	public static void fromQuery(Query query, Graph graph, Node queryRootNode, Map<Var,Node> parentVarMap) {
@@ -680,7 +680,7 @@ public class SpinxFactory {
 	}
 
 	public static void fromQuery(Query query, Graph graph) {
-		fromQuery(query, graph, Instance.GraphRoot.asNode());
+		fromQuery(query, graph, SWI.GraphRoot.asNode());
 	}
 
 	public static Graph fromQuery(Query query) {

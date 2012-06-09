@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-import org.swows.vocabulary.Instance;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.DatasetFactory;
@@ -73,15 +73,15 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 							
 							Graph thisGraph = GraphFactory.createGraphMem();
 							thisGraph.getBulkUpdateHandler().add(baseGraphCopy);
-							inputDataset.addGraph(Instance.ThisGraph.asNode(), thisGraph);
+							inputDataset.addGraph(SWI.ThisGraph.asNode(), thisGraph);
 							
 							Graph addedGraph = GraphFactory.createGraphMem();
 							addedGraph.getBulkUpdateHandler().add(update.getAddedGraph());
-							inputDataset.addGraph(Instance.AddedGraph.asNode(), addedGraph);
+							inputDataset.addGraph(SWI.AddedGraph.asNode(), addedGraph);
 							
 							Graph deletedGraph = GraphFactory.createGraphMem();
 							deletedGraph.getBulkUpdateHandler().add(update.getDeletedGraph());
-							inputDataset.addGraph(Instance.DeletedGraph.asNode(), deletedGraph);
+							inputDataset.addGraph(SWI.DeletedGraph.asNode(), deletedGraph);
 							
 							QueryExecution queryExecution =
 									QueryExecutionFactory.create(query, DatasetFactory.create(inputDataset));
@@ -121,9 +121,9 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 //							System.out.println("Added graph: " +  update.getAddedGraph());
 //							System.out.println("Deleted graph: " +  update.getDeletedGraph());
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
-							inputDataset.addGraph(Instance.ThisGraph.asNode(), baseGraphCopy);
-							inputDataset.addGraph(Instance.AddedGraph.asNode(), update.getAddedGraph());
-							inputDataset.addGraph(Instance.DeletedGraph.asNode(), update.getDeletedGraph());
+							inputDataset.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
+							inputDataset.addGraph(SWI.AddedGraph.asNode(), update.getAddedGraph());
+							inputDataset.addGraph(SWI.DeletedGraph.asNode(), update.getDeletedGraph());
 							QueryExecution queryExecution =
 									QueryExecutionFactory.create(query, DatasetFactory.create(inputDataset));
 					        final Graph resGraph = queryExecution.execConstruct().getGraph();

@@ -2,7 +2,7 @@
  * Copyright (c) 2011 Miguel Ceriani
  * miguel.ceriani@gmail.com
 
- * This file is part of Semantic Web Open Web Server (SWOWS).
+ * This file is part of Semantic Web Open datatafloW System (SWOWS).
 
  * SWOWS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,7 +25,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
-import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -49,16 +49,16 @@ public class LoadGraphProducer extends GraphProducer {
 	 * @see Producer
 	 */
 	public LoadGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
-		Node urlNode = GraphUtils.getSingleValueProperty( conf, confRoot, SPINX.url.asNode() );
+		Node urlNode = GraphUtils.getSingleValueProperty( conf, confRoot, DF.url.asNode() );
 		if (urlNode != null)
 			filenameOrURI = urlNode.getURI();
-		Node baseURINode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.baseUri.asNode() );
+		Node baseURINode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.baseUri.asNode() );
 		if (baseURINode != null)
 			baseURI = baseURINode.getURI();
-		Node syntaxNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.syntax.asNode() );
+		Node syntaxNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.syntax.asNode() );
 		if (syntaxNode != null)
 			rdfSyntax = syntaxNode.getURI();
-		Node pollingPeriodNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, SPINX.pollingPeriod.asNode() );
+		Node pollingPeriodNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.pollingPeriod.asNode() );
 		if (pollingPeriodNode != null)
 			pollingPeriod = Long.parseLong(pollingPeriodNode.getLiteralLexicalForm());
 	}
