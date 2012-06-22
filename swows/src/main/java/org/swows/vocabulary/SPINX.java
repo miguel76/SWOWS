@@ -166,6 +166,9 @@ public class SPINX {
     public final static Property functionLabel = property("functionLabel");
     public final static Property opName = property("opName");
     public final static Property resultVariable = property("resultVariable");
+    public final static Property scalarval = property("scalarval");
+    public final static Property key = property("key");
+    public final static Property value = property("value");
 
 //    public final static Property intervalStart = property("intervalStart");
 //    public final static Property intervalEnd = property("intervalEnd");

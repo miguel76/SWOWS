@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -293,10 +294,21 @@ public class QueryFactory {
 			Node aggregType = exprTypes.next();
 			Node innerExpr = getObject(exprRootNode, SP.expression.asNode());
 			Node distinct = getObject(exprRootNode, SP.distinct.asNode());
+			Properties scalarvals = null;
+			Iterator<Node> scalarvalNodes = GraphUtils.getPropertyValues(graph, exprRootNode, SPINX.scalarval.asNode());
+			if  (scalarvalNodes.hasNext())
+				scalarvals = new Properties();
+			while (scalarvalNodes.hasNext()) {
+				Node scalarvalNode = scalarvalNodes.next();
+				Node keyNode = GraphUtils.getSingleValueProperty(graph, scalarvalNode, SPINX.key.asNode());
+				Node valueNode = GraphUtils.getSingleValueProperty(graph, scalarvalNode, SPINX.value.asNode());
+				scalarvals.setProperty(keyNode.getLiteralLexicalForm(), valueNode.getLiteralLexicalForm());
+			}
 			return AggregatorSymbols.getAggregator(
 					aggregType,
 					(distinct != null),
-					(innerExpr == null) ? null : toExpr(innerExpr));
+					(innerExpr == null) ? null : toExpr(innerExpr),
+					scalarvals );
 		}
 		throw new RuntimeException("Aggregation type not found!");
 	}

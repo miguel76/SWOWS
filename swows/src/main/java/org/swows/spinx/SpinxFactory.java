@@ -45,7 +45,11 @@ import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
 import com.hp.hpl.jena.sparql.expr.ExprVar;
 import com.hp.hpl.jena.sparql.expr.FunctionLabel;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
+import com.hp.hpl.jena.sparql.expr.aggregate.Accumulator;
+import com.hp.hpl.jena.sparql.expr.aggregate.AggGroupConcat;
+import com.hp.hpl.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
 import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
+import com.hp.hpl.jena.sparql.expr.nodevalue.NodeValueString;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.modify.request.UpdateAdd;
 import com.hp.hpl.jena.sparql.modify.request.UpdateClear;
@@ -159,6 +163,16 @@ public class SpinxFactory {
 		Expr expression = aggregator.getExpr();
 		if (expression != null)
 			graph.add(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expression)));
+		if (aggregator instanceof AggGroupConcat || aggregator instanceof AggGroupConcatDistinct) {
+			Accumulator accumulator = aggregator.copy(new NodeValueString("")).createAccumulator();
+			accumulator.accumulate(null, null);
+			accumulator.accumulate(null, null);
+			String separator = accumulator.getValue().asString();
+			Node scalarvalNode = Node.createAnon();
+			graph.add(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
+			graph.add(new Triple( scalarvalNode, SPINX.key.asNode(), Node.createLiteral("separator") ));
+			graph.add(new Triple( scalarvalNode, SPINX.value.asNode(), Node.createLiteral(separator) ));
+		}
 		return aggrNode;
 	}
 	

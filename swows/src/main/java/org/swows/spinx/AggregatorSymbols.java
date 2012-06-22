@@ -20,9 +20,12 @@
 package org.swows.spinx;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.swows.vocabulary.SPINX;
@@ -121,46 +124,90 @@ public class AggregatorSymbols {
 		return uris2aggregators.get(uriNode).get(distinct).get(withExpr);
 	}
 
-	public static Aggregator getAggregator(Node uriNode, boolean distinct, Expr expr) {
+	public static Aggregator getAggregator(Node uriNode, boolean distinct, Expr expr, Properties scalarvals) {
 		Class<? extends Aggregator> aggregatorClass = getAggregatorClass(uriNode, distinct, expr != null);
+//		Object[] baseValues = null;
+		int exprValuesCount = (expr == null) ? 0 : 1;
+		int scalarvalsCount = (scalarvals != null) ? scalarvals.size() : 0;
+		Object[] actualParams = new Object[exprValuesCount + scalarvalsCount];
+		Class[] actualClasses = new Class[exprValuesCount + scalarvalsCount];
+		
+		if (expr != null) {
+			actualParams[0] = expr;
+			actualClasses[0] = Expr.class;
+		}
+		
+		if (scalarvals != null) {
+			Enumeration<String> scalarvalNames = (Enumeration<String>) scalarvals.propertyNames();
+			for (int i = exprValuesCount; scalarvalNames.hasMoreElements(); i++ ) {
+				actualParams[i] = scalarvals.getProperty(scalarvalNames.nextElement());
+				actualClasses[i] = String.class;
+			}
+		}
+
 		try {
-			if (expr == null) {
-				try {
-					return ((Constructor<Aggregator>) aggregatorClass.getConstructor()).newInstance();
-				} catch(NoSuchMethodException e) {
-					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
-					for (Constructor<Aggregator> currConstr : constructors) {
-						Class[] params = currConstr.getParameterTypes();
-						if (!params[0].equals(Expr.class)) {
-							Object[] nullValues = new Object[params.length];
-							for (int i = 0; i < params.length; i++) nullValues[i] = null;
-							return currConstr.newInstance(nullValues);
-						}
+			try {
+				return ((Constructor<Aggregator>) aggregatorClass.getConstructor(actualClasses)).newInstance(actualParams);
+			} catch(NoSuchMethodException e) {
+				Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
+				for (Constructor<Aggregator> currConstr : constructors) {
+					Class[] paramTypes = currConstr.getParameterTypes();
+					if ( paramTypes.length >= actualParams.length
+							&& Arrays.equals( Arrays.copyOf(paramTypes, actualParams.length), actualClasses ) ) {
+						Object[] params = new Object[paramTypes.length];
+						for (int i = 0; i < actualParams.length; i++) params[i] = actualParams[i];
+						for (int i = actualParams.length; i < params.length; i++) params[i] = null;
+						return currConstr.newInstance(params);
 					}
-					throw new RuntimeException("Could not find empty constructor for " + aggregatorClass);
 				}
-			} else {
-				try {
-					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(Expr.class)).newInstance(expr);
-				} catch(NoSuchMethodException e) {
-					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
-					for (Constructor<Aggregator> currConstr : constructors) {
-						Class[] params = currConstr.getParameterTypes();
-						if (params[0].equals(Expr.class)) {
-							Object[] exprAndNullValues = new Object[params.length];
-							exprAndNullValues[0] = expr;
-							for (int i = 1; i < params.length; i++) exprAndNullValues[i] = null;
-							return currConstr.newInstance(exprAndNullValues);
-						}
-					}
-					throw new RuntimeException("Could not find Expr constructor for " + aggregatorClass);
-				}
+				throw new RuntimeException("Could not find constructor for params: " + actualParams);
 			}
 		} catch (Exception e) {
 			if (e instanceof RuntimeException)
 					throw (RuntimeException) e; 
 			throw new RuntimeException(e); 
 		}
+
+//		try {
+//			if (expr == null) {
+//				try {
+//					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(scalarvalClasses)).newInstance();
+//				} catch(NoSuchMethodException e) {
+//					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
+//					for (Constructor<Aggregator> currConstr : constructors) {
+//						Class[] paramTypes = currConstr.getParameterTypes();
+//						if (!paramTypes[0].equals(Expr.class) && paramTypes.length >= scalarvalParams.length) {
+//							Object[] params = new Object[paramTypes.length];
+//							for (int i = 0; i < scalarvalParams.length; i++) params[i] = scalarvalParams[i];
+//							for (int i = scalarvalParams.length; i < params.length; i++) params[i] = null;
+//							return currConstr.newInstance(params);
+//						}
+//					}
+//					throw new RuntimeException("Could not find empty constructor for " + aggregatorClass);
+//				}
+//			} else {
+//				try {
+//					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(Array Expr.class, scalarvalClasses)).newInstance(expr);
+//				} catch(NoSuchMethodException e) {
+//					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
+//					for (Constructor<Aggregator> currConstr : constructors) {
+//						Class[] paramTypes = currConstr.getParameterTypes();
+//						if (paramTypes[0].equals(Expr.class) && paramTypes.length >= scalarvalParams.length + 1) {
+//							Object[] params = new Object[paramTypes.length];
+//							params[0] = expr;
+//							for (int i = 1; i < scalarvalParams.length + 1; i++) params[i] = scalarvalParams[i];
+//							for (int i = scalarvalParams.length + 1; i < params.length; i++) params[i] = null;
+//							return currConstr.newInstance(params);
+//						}
+//					}
+//					throw new RuntimeException("Could not find Expr constructor for " + aggregatorClass);
+//				}
+//			}
+//		} catch (Exception e) {
+//			if (e instanceof RuntimeException)
+//					throw (RuntimeException) e; 
+//			throw new RuntimeException(e); 
+//		}
 	}
 
 }
