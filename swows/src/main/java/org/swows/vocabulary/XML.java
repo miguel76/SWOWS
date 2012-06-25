@@ -149,6 +149,7 @@ public class XML {
     public static final Property text = property( "text" );
 
     public static final Property listenedEventType = property( "listenedEventType" );
+    public static final Property documentURI = property( "documentURI" );
 
     public static final List<Property> allProperties = new Vector<Property>();
     
@@ -165,6 +166,8 @@ public class XML {
     	allProperties.add(nextSibling);
     	allProperties.add(parentNode);
     	allProperties.add(ownerDocument);
+    	allProperties.add(documentURI);
+    	allProperties.add(listenedEventType);
     }
     
     public static final boolean isNodeNeededProperty(com.hp.hpl.jena.graph.Node propNode) {
@@ -212,6 +215,8 @@ public class XML {
     				|| propNode.equals(previousSibling.asNode())
     				|| propNode.equals(hasAttribute.asNode())
     				|| propNode.equals(namespace.asNode())
+    				|| propNode.equals(documentURI.asNode())
+    				|| propNode.equals(listenedEventType.asNode())
     			);
     }
     

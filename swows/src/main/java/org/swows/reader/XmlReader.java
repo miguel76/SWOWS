@@ -50,6 +50,7 @@ public class XmlReader extends JenaReaderBase {
 	protected void readWorker(Graph graph, Reader reader, String base)
 			throws Exception {
 		InputSource xmlInputSource = new InputSource(reader);
+		xmlInputSource.setSystemId(base);
 		
 		Document newDoc;
 //		try {
@@ -58,7 +59,7 @@ public class XmlReader extends JenaReaderBase {
 			//docBuilderFactory.setFeature("XML 2.0", true);
 			docBuilderFactory.setNamespaceAware(true);
 			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
-			newDoc.setDocumentURI(base);
+			//newDoc.setDocumentURI(base);
 			//newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
 			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
 			graph.getBulkUpdateHandler().add(newGraph);
