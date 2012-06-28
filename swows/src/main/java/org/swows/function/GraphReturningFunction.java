@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.swows.node.Skolemizer;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.QueryBuildException;
@@ -87,7 +89,7 @@ public abstract class GraphReturningFunction implements Function {
         
         Graph newGraph = exec(evalArgs) ;
 		System.out.println("Graph created: " + newGraph);
-        Node graphName = Node.createAnon();
+        Node graphName = Skolemizer.getInstance().getNode(env, evalArgs);
         // TODO find another way to add this graph!!!!
         env.getDataset().addGraph(graphName, newGraph);
         //arguments = null ;
