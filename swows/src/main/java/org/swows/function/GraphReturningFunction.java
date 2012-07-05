@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.swows.graph.events.DynamicGraph;
+import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.node.Skolemizer;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -60,7 +62,13 @@ public abstract class GraphReturningFunction implements Function {
     	return wantedArgNum;
     }
 
-	@Override
+	public Graph exec(
+			List<NodeValue> params,
+			FunctionEnv env) {
+		return exec(params);
+	}
+
+    @Override
 	public NodeValue exec(
 			Binding binding,
             ExprList args,
@@ -87,7 +95,9 @@ public abstract class GraphReturningFunction implements Function {
             evalArgs.add(x) ;
         }
         
-        Graph newGraph = exec(evalArgs) ;
+//        Graph newGraph = exec(evalArgs) ;
+        DynamicGraph newGraph =
+        		new DynamicGraphFromGraph( exec(evalArgs, env) );
 		System.out.println("Graph created: " + newGraph);
         Node graphName = Skolemizer.getInstance().getNode(env, evalArgs);
         // TODO find another way to add this graph!!!!

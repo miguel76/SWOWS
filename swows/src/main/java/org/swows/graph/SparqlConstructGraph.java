@@ -97,7 +97,9 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		long queryStart = System.currentTimeMillis();
 		
 		QueryExecution queryExecution =
-				QueryExecutionFactory.create(query, DatasetFactory.create(queryDataset));
+				QueryExecutionFactory.create(
+						query,
+						DatasetFactory.create(new DynamicDatasetMap( queryDataset) ));
 //        Graph resGraph = GraphFactory.createGraphMem();
 //        resGraph.getBulkUpdateHandler().add(queryExecution.execConstruct().getGraph());
         Graph resGraph = queryExecution.execConstruct().getGraph();

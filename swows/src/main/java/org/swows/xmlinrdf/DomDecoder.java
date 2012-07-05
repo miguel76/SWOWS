@@ -293,6 +293,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 					namespace(graph, elementNode),
 					qName(graph, elementNode),
 					null);
+				if (docRootNode.isURI())
+					document.setDocumentURI(docRootNode.getURI());
 				Element docElement = document.getDocumentElement();
 				addNodeMapping(docRootNode, document);
 				addNodeMapping(elementNode, docElement);

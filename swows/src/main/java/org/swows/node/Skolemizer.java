@@ -32,6 +32,10 @@ public class Skolemizer {
 //			new WeakHashMap<FunctionEnv, Map<List<Node>, Node>>();
 //	private Map<FunctionEnv, Node> singleNodesMap =
 //			new WeakHashMap<FunctionEnv, Node>();
+	private Map<FunctionEnv, Map<Integer, Node>> varSingleNodesMap =
+			new WeakHashMap<FunctionEnv, Map<Integer, Node>>();
+	private Map<FunctionEnv, Map<List<NodeValue>, Map<Integer, Node>>> varNodesMap =
+			new WeakHashMap<FunctionEnv, Map<List<NodeValue>, Map<Integer, Node>>>();
 	private Map<FunctionEnv, Map<List<NodeValue>, Node>> nodesMap =
 			new WeakHashMap<FunctionEnv, Map<List<NodeValue>, Node>>();
 	private Map<FunctionEnv, Node> singleNodesMap =
@@ -58,19 +62,45 @@ public class Skolemizer {
 //		return resNode;
 //	}
 
+	public synchronized Node getNode(
+			FunctionEnv env,
+			List<NodeValue> list,
+			int varNum) {
+		if (list == null)
+			return getNode(env, varNum);
+		Map<List<NodeValue>, Map<Integer, Node>> paramMap = varNodesMap.get(env);
+		Node resNode = null;
+		Map<Integer, Node> varMap = null;
+		if (paramMap == null) {
+			paramMap = new HashMap<List<NodeValue>, Map<Integer, Node>>();
+			varNodesMap.put(env, paramMap);
+		} else
+			varMap = paramMap.get(list);
+		if (varMap == null) {
+			varMap = new HashMap<Integer, Node>();
+			varSingleNodesMap.put(env, varMap);
+		} else
+			resNode = varMap.get(varNum);
+		if (resNode == null) {
+			resNode = createNode();
+			varMap.put(varNum, resNode);
+		}
+		return resNode;
+	}
+
 	public synchronized Node getNode(FunctionEnv env, List<NodeValue> list) {
 		if (list == null)
 			return getNode(env);
-		Map<List<NodeValue>, Node> varMap = nodesMap.get(env);
+		Map<List<NodeValue>, Node> paramMap = nodesMap.get(env);
 		Node resNode = null;
-		if (varMap == null) {
-			varMap = new HashMap<List<NodeValue>, Node>();
-			nodesMap.put(env, varMap);
+		if (paramMap == null) {
+			paramMap = new HashMap<List<NodeValue>, Node>();
+			nodesMap.put(env, paramMap);
 		} else
-			resNode = varMap.get(list);
+			resNode = paramMap.get(list);
 		if (resNode == null) {
 			resNode = createNode();
-			varMap.put(list, resNode);
+			paramMap.put(list, resNode);
 		}
 		return resNode;
 	}
@@ -80,6 +110,21 @@ public class Skolemizer {
 		if (resNode == null) {
 			resNode = createNode();
 			singleNodesMap.put(env, resNode);
+		}
+		return resNode;
+	}
+	
+	public synchronized Node getNode(FunctionEnv env, int varNum) {
+		Map<Integer, Node> varMap = varSingleNodesMap.get(env);
+		Node resNode = null;
+		if (varMap == null) {
+			varMap = new HashMap<Integer, Node>();
+			varSingleNodesMap.put(env, varMap);
+		} else
+			resNode = varMap.get(varNum);
+		if (resNode == null) {
+			resNode = createNode();
+			varMap.put(varNum, resNode);
 		}
 		return resNode;
 	}

@@ -61,7 +61,8 @@ public class XmlReader extends JenaReaderBase {
 			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
 			//newDoc.setDocumentURI(base);
 			//newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
-			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
+//			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
+			Graph newGraph = DomEncoder.encode(newDoc, base);
 			graph.getBulkUpdateHandler().add(newGraph);
 //		} catch (SAXException e) {
 //		} catch (IOException e) {
