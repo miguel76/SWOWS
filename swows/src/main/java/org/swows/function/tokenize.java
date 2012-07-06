@@ -23,8 +23,8 @@ public class tokenize extends GraphReturningFunction {
 
 	@Override
 	public int getMaxArgNum() {
-		return 2; // input, pattern
-//		return 3; // input, pattern, flags
+//		return 2; // input, pattern
+		return 3; // input, pattern, flags
 	}
 
 	private Node createMatching(
@@ -51,9 +51,24 @@ public class tokenize extends GraphReturningFunction {
 	public Graph exec(List<NodeValue> args, FunctionEnv env) {
         NodeValue inputNV = args.get(0);
         NodeValue patternNV = args.get(1);
+        int flags = 0;
+        if (args.size() > 2) {
+            NodeValue flagsNV = args.get(2);
+            String flagsStr = flagsNV.asString();
+            if (flagsStr.contains("m"))
+            	flags |= Pattern.MULTILINE;
+            if (flagsStr.contains("s"))
+            	flags |= Pattern.DOTALL;
+            if (flagsStr.contains("i"))
+            	flags |= Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+            if (flagsStr.contains("x"))
+            	flags |= Pattern.COMMENTS;
+            if (flagsStr.contains("d"))
+            	flags |= Pattern.UNIX_LINES;
+        }
         String inputStr = inputNV.asString();
         String patternStr = patternNV.asString();
-        Pattern pattern = Pattern.compile(patternStr);
+        Pattern pattern = Pattern.compile(patternStr, flags);
         Matcher matcher = pattern.matcher(inputStr);
         Graph newGraph = GraphFactory.createGraphMem();
 		Node root = SWI.GraphRoot.asNode();
