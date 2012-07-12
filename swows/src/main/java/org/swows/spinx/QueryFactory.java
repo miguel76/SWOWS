@@ -56,15 +56,20 @@ import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
 import com.hp.hpl.jena.sparql.modify.request.QuadAcc;
 import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteInsert;
 import com.hp.hpl.jena.sparql.path.P_Alt;
+import com.hp.hpl.jena.sparql.path.P_Distinct;
 import com.hp.hpl.jena.sparql.path.P_FixedLength;
 import com.hp.hpl.jena.sparql.path.P_Inverse;
 import com.hp.hpl.jena.sparql.path.P_Link;
 import com.hp.hpl.jena.sparql.path.P_Mod;
+import com.hp.hpl.jena.sparql.path.P_Multi;
 import com.hp.hpl.jena.sparql.path.P_NegPropSet;
-import com.hp.hpl.jena.sparql.path.P_OneOrMore;
+import com.hp.hpl.jena.sparql.path.P_OneOrMore1;
+import com.hp.hpl.jena.sparql.path.P_OneOrMoreN;
 import com.hp.hpl.jena.sparql.path.P_ReverseLink;
 import com.hp.hpl.jena.sparql.path.P_Seq;
-import com.hp.hpl.jena.sparql.path.P_ZeroOrMore;
+import com.hp.hpl.jena.sparql.path.P_Shortest;
+import com.hp.hpl.jena.sparql.path.P_ZeroOrMore1;
+import com.hp.hpl.jena.sparql.path.P_ZeroOrMoreN;
 import com.hp.hpl.jena.sparql.path.P_ZeroOrOne;
 import com.hp.hpl.jena.sparql.path.Path;
 import com.hp.hpl.jena.sparql.path.PathVisitor;
@@ -883,10 +888,6 @@ public class QueryFactory {
 				@Override
 				public void visit(P_Alt pathAlt) {}
 				@Override
-				public void visit(P_OneOrMore path) {}
-				@Override
-				public void visit(P_ZeroOrMore path) {}
-				@Override
 				public void visit(P_ZeroOrOne path) {}
 				@Override
 				public void visit(P_FixedLength pFixedLength) {}
@@ -902,13 +903,26 @@ public class QueryFactory {
 					if (predNode instanceof Var)
 						producedVars.add((Var) predNode);
 				}
-				
 				@Override
 				public void visit(P_Link pathNode) {
 					Node predNode = pathNode.getNode();
 					if (predNode instanceof Var)
 						producedVars.add((Var) predNode);
 				}
+				@Override
+				public void visit(P_Distinct arg0) {}
+				@Override
+				public void visit(P_Multi arg0) {}
+				@Override
+				public void visit(P_Shortest arg0) {}
+				@Override
+				public void visit(P_ZeroOrMore1 arg0) {}
+				@Override
+				public void visit(P_ZeroOrMoreN arg0) {}
+				@Override
+				public void visit(P_OneOrMore1 arg0) {}
+				@Override
+				public void visit(P_OneOrMoreN arg0) {}
 			});
 			if (tripleObjNode instanceof Var)
 				producedVars.add((Var) tripleObjNode);

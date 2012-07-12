@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
 
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
@@ -107,13 +108,30 @@ public class MouseApp extends JFrame {
 				try {
 					while (batikRunnableQueue == null || cachingGraph == null) Thread.yield();
 //					while (batikRunnableQueue == null) Thread.yield();
+					final long start = System.currentTimeMillis();
 					batikRunnableQueue.invokeAndWait(new Runnable() {
 						@Override
 						public void run() {
+							long runEntered = System.currentTimeMillis();
+							System.out.println(
+									"Update thread launched in "
+											+ (runEntered - start) + "ms" );
 							runnable.run();
+							long afterCascade = System.currentTimeMillis();
+							System.out.println(
+									"RDF envent cascade executed in "
+											+ (afterCascade - runEntered) + "ms" );
 							cachingGraph.sendEvents();
+							long afterSvgDom = System.currentTimeMillis();
+							System.out.println(
+									"SVG DOM updated in "
+											+ (afterSvgDom - afterCascade) + "ms" );
 						}
 					});
+					long runFinished = System.currentTimeMillis();
+					System.out.println(
+							"SVG updated and repainted in "
+									+ (runFinished - start + "ms" ) );
 					if (newDocument != null && svgCanvas != null) {
 						batikRunnableQueue = null;
 						Document doc = newDocument;

@@ -169,13 +169,13 @@ public class QueryCompare implements QueryVisitor
         check("OFFSET", query1.getOffset() == query2.getOffset() ) ;
     }
 
-    @Override
-    public void visitBindings(Query query1)
-    {
-        // Must be same order for now.
-        check("BINDINGS/variables", query1.getBindingVariables(), query2.getBindingVariables()) ;
-        check("BINDINGS/values", query1.getBindingValues(), query2.getBindingValues()) ;
-    }
+//    @Override
+//    public void visitBindings(Query query1)
+//    {
+//        // Must be same order for now.
+//        check("BINDINGS/variables", query1.getBindingVariables(), query2.getBindingVariables()) ;
+//        check("BINDINGS/values", query1.getBindingValues(), query2.getBindingValues()) ;
+//    }
 
     @Override
     public void finishVisit(Query query1)
@@ -198,4 +198,10 @@ public class QueryCompare implements QueryVisitor
     }
 
     public boolean isTheSame() { return result ; }
+
+	@Override
+	public void visitValues(Query arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }
