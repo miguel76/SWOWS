@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DomEncoder;
+import org.swows.xmlinrdf.DomEncoder2;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -52,18 +53,18 @@ public class XmlReader extends JenaReaderBase {
 		InputSource xmlInputSource = new InputSource(reader);
 		xmlInputSource.setSystemId(base);
 		
-		Document newDoc;
-//		try {
-			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			docBuilderFactory.setCoalescing(true);
-			//docBuilderFactory.setFeature("XML 2.0", true);
-			docBuilderFactory.setNamespaceAware(true);
-			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
-			//newDoc.setDocumentURI(base);
-			//newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
-//			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
-			Graph newGraph = DomEncoder.encode(newDoc, base);
-			graph.getBulkUpdateHandler().add(newGraph);
+//		Document newDoc;
+////		try {
+//			DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+//			docBuilderFactory.setCoalescing(true);
+//			//docBuilderFactory.setFeature("XML 2.0", true);
+//			docBuilderFactory.setNamespaceAware(true);
+//			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
+//			//newDoc.setDocumentURI(base);
+//			//newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
+////			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
+		DomEncoder2.encode(xmlInputSource, base, graph);
+			//graph.getBulkUpdateHandler().add(newGraph);
 //		} catch (SAXException e) {
 //		} catch (IOException e) {
 //		} catch (ParserConfigurationException e) {

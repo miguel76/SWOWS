@@ -114,6 +114,10 @@ public class Skolemizer {
 		return resNode;
 	}
 	
+	public synchronized Node getNode() {
+		return createNode();
+	}
+	
 	public synchronized Node getNode(FunctionEnv env, int varNum) {
 		Map<Integer, Node> varMap = varSingleNodesMap.get(env);
 		Node resNode = null;
