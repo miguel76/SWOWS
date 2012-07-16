@@ -68,11 +68,15 @@ import com.hp.hpl.jena.sparql.path.P_FixedLength;
 import com.hp.hpl.jena.sparql.path.P_Inverse;
 import com.hp.hpl.jena.sparql.path.P_Link;
 import com.hp.hpl.jena.sparql.path.P_Mod;
+import com.hp.hpl.jena.sparql.path.P_OneOrMore1;
+import com.hp.hpl.jena.sparql.path.P_OneOrMoreN;
 import com.hp.hpl.jena.sparql.path.P_Path0;
 import com.hp.hpl.jena.sparql.path.P_Path1;
 import com.hp.hpl.jena.sparql.path.P_Path2;
 import com.hp.hpl.jena.sparql.path.P_ReverseLink;
 import com.hp.hpl.jena.sparql.path.P_Seq;
+import com.hp.hpl.jena.sparql.path.P_ZeroOrMore1;
+import com.hp.hpl.jena.sparql.path.P_ZeroOrMoreN;
 import com.hp.hpl.jena.sparql.path.P_ZeroOrOne;
 import com.hp.hpl.jena.sparql.path.Path;
 import com.hp.hpl.jena.sparql.syntax.Element;
@@ -257,9 +261,9 @@ public class SpinxFactory {
 					} else if (path instanceof P_Mod) {
 						min = ((P_Mod) path).getMin();
 						max = ((P_Mod) path).getMax();
-					} else if (path instanceof P_OneOrMore) {
+					} else if (path instanceof P_OneOrMore1 || path instanceof P_OneOrMoreN) {
 						min = 1;
-					} else if (path instanceof P_ZeroOrMore) {
+					} else if (path instanceof P_ZeroOrMore1 || path instanceof P_ZeroOrMoreN) {
 					} else if (path instanceof P_ZeroOrOne) {
 						max = 1;
 					} else {
