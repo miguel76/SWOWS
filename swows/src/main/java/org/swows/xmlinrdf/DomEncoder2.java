@@ -103,6 +103,7 @@ public class DomEncoder2 {
 		private static final NullIterator<Triple> emptyTripleIterator = new NullIterator<Triple>();
 		private static final NullIterator<org.w3c.dom.Node> emptyNodeIterator = new NullIterator<org.w3c.dom.Node>();
 		private static Random rnd = new Random();
+		private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
 		
 		private Graph outputGraph;
 		private Stack<Node> nodeStack = new Stack<Node>();
@@ -141,7 +142,7 @@ public class DomEncoder2 {
 
 		private Node defineAttr(String namespace, String localName) {
 			if (namespace == null || namespace.isEmpty()) {
-				Node attrNode = getTypeNode(DOC.getURI(), localName);
+				Node attrNode = getTypeNode(VOID_NAMESPACE, localName);
 				outputGraph.add(
 						new Triple(
 								attrNode,
@@ -202,6 +203,7 @@ public class DomEncoder2 {
 		@Override
 		public void startDocument() throws SAXException {
 			docNode = Node.createURI(docURI);
+			outputGraph.add(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
 		}
 
 		@Override

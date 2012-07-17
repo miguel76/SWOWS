@@ -42,7 +42,9 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 public class XmlInRdfTest {
 
 	public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
-		String xmlUri = "/home/miguel/Scaricati/there.is.only.xul";
+//		String xmlUri = "/home/miguel/Scaricati/there.is.only.xul";
+		String xmlUri = "/home/miguel/worldInfo2/svg/BlankMapWithRadioBox.svg";
+		
 //		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 //		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 //		Document document = documentBuilder.parse(xmlUri);
