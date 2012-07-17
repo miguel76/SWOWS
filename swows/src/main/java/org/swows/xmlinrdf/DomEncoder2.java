@@ -167,13 +167,16 @@ public class DomEncoder2 {
 		}
 		
 		private void textBufferFlush() {
-			String textBufferStr = textBuffer.toString();
+			String textBufferStr = textBuffer.toString().trim();
 			if (!textBufferStr.isEmpty()) {
+				Node newNode = Skolemizer.getInstance().getNode();
+				outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Text.asNode()));
 				outputGraph.add(
 						new Triple(
-								nodeStack.peek(),
+								newNode,
 								XML.text.asNode(),
 								Node.createLiteral(textBufferStr) ));
+				connectNode(newNode);
 				textBuffer = new StringBuffer();
 			}
 		}
@@ -208,6 +211,23 @@ public class DomEncoder2 {
 		@Override
 		public void endPrefixMapping(String prefix) throws SAXException { }
 
+		private void connectNode(Node newNode) {
+			outputGraph.add(new Triple(newNode, XML.ownerDocument.asNode(), docNode));
+			if (!nodeStack.isEmpty()) {
+				Node parentNode = nodeStack.peek();
+				outputGraph.add(new Triple(newNode, XML.parentNode.asNode(), parentNode));
+				outputGraph.add(new Triple(parentNode, XML.hasChild.asNode(), newNode));
+				Node lastSibling = lastSiblingStack.pop();
+				if (lastSibling == null) {
+					outputGraph.add(new Triple(parentNode, XML.firstChild.asNode(), newNode));
+				} else {
+					outputGraph.add(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
+					outputGraph.add(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
+				}
+				lastSiblingStack.push(newNode);
+			}
+		}
+		
 		@Override
 		public void startElement(
 				String uri, String localName,
@@ -226,21 +246,8 @@ public class DomEncoder2 {
 								
 			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
 			outputGraph.add(new Triple(newNode, RDF.type.asNode(), getTypeNode(uri, localName)));
-			outputGraph.add(new Triple(newNode, XML.ownerDocument.asNode(), docNode));
 			
-			if (!nodeStack.isEmpty()) {
-				Node parentNode = nodeStack.peek();
-				outputGraph.add(new Triple(newNode, XML.parentNode.asNode(), parentNode));
-				outputGraph.add(new Triple(parentNode, XML.hasChild.asNode(), newNode));
-				Node lastSibling = lastSiblingStack.pop();
-				if (lastSibling == null) {
-					outputGraph.add(new Triple(parentNode, XML.firstChild.asNode(), newNode));
-				} else {
-					outputGraph.add(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
-					outputGraph.add(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
-				}
-				lastSiblingStack.push(newNode);
-			}
+			connectNode(newNode);
 			
 			for (int i = 0; i < atts.getLength(); i++) {
 				outputGraph.add(
