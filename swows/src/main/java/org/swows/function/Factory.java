@@ -25,7 +25,7 @@ import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
 public class Factory implements FunctionFactory {
 	
-	private static final String BASE_URI = "http://www.swows.org/function#";
+	static final String BASE_URI = "http://www.swows.org/function#";
 	private static final int BASE_URI_LENGTH = BASE_URI.length();
 	private static Factory singleton;
 	
@@ -39,6 +39,7 @@ public class Factory implements FunctionFactory {
 		FunctionRegistry.get().put(BASE_URI + "sin", this);
 		FunctionRegistry.get().put(BASE_URI + "cos", this);
 		FunctionRegistry.get().put(BASE_URI + "atan", this);
+		FunctionRegistry.get().put(BASE_URI + "analyze-string", this);
 	}
 	
 	public static Factory getInstance() {
@@ -61,6 +62,8 @@ public class Factory implements FunctionFactory {
 				return new cos();
 			if (pfunctionName.equals("atan"))
 				return new atan();
+			if (pfunctionName.equals("analyze-string"))
+				return new AnalyzeString();
 		}
 		return null;
 	}
