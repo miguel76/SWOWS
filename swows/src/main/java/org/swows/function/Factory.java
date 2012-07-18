@@ -53,16 +53,16 @@ public class Factory implements FunctionFactory {
 	@Override
 	public Function create(String uri) {
 		if (uri.startsWith(BASE_URI)) {
-			String pfunctionName = uri.substring(BASE_URI_LENGTH);
-			if (pfunctionName.equals("to"))
+			String functionName = uri.substring(BASE_URI_LENGTH);
+			if (functionName.equals("to"))
 				return new to();
-			if (pfunctionName.equals("sin"))
+			if (functionName.equals("sin"))
 				return new sin();
-			if (pfunctionName.equals("cos"))
+			if (functionName.equals("cos"))
 				return new cos();
-			if (pfunctionName.equals("atan"))
+			if (functionName.equals("atan"))
 				return new atan();
-			if (pfunctionName.equals("analyze-string"))
+			if (functionName.equals("analyze-string"))
 				return new AnalyzeString();
 		}
 		return null;

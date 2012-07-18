@@ -141,7 +141,7 @@ public class AnalyzeString extends GraphReturningFunction {
 					createNonMatching( inputStr.substring(lastMatchedPos) );
 				}
 			}
-		};
+		}.run();
 		return newGraph;
 	}
 

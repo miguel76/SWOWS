@@ -24,6 +24,8 @@ import java.util.Vector;
 
 import javax.xml.transform.TransformerException;
 
+import org.swows.function.Factory;
+import org.swows.reader.ReaderFactory;
 import org.swows.spinx.SpinxFactory;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -36,13 +38,19 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.util.FileManager;
 
 public class QueryFactoryTest {
 
+	static {
+		ReaderFactory.initialize();
+	}
+	
     public static void main(final String[] args) throws TransformerException {
     	
 //    	String baseUri = "/home/miguel/TUIO/circles/";
-    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
+//    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
+    	String baseUri = "/home/miguel/svg2canvas/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -53,8 +61,9 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "svgPacchi.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "svg2canvas.sparql");
     	
+    	Factory.getInstance();
     	
     	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
     	Node queryRootNode = Node.createURI("#defaultQuery");
@@ -139,12 +148,23 @@ public class QueryFactoryTest {
 //    	String defaultGraphUri = baseUri + "quantityHistoryStart_T.n3";
 //		List<String> namedGraphUris = new Vector<String>();
 		
-    	String defaultGraphUri = baseUri + "input.n3";
+//    	String defaultGraphUri = baseUri + "input.n3";
+    	String defaultGraphUri = baseUri + "BlankMapWithRadioBox.svg";
 		List<String> namedGraphUris = new Vector<String>();
-		namedGraphUris.add(baseUri + "config.n3");
-		namedGraphUris.add(baseUri + "selectedPage.n3");
+		Model defaultModel = FileManager.get().loadModel(defaultGraphUri,defaultGraphUri,"http://www.swows.org/syntaxes/XML");
+//		namedGraphUris.add(baseUri + "config.n3");
+//		namedGraphUris.add(baseUri + "selectedPage.n3");
 
-    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
+		System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Input Model ***");
+    	System.out.println("**************************");
+    	defaultModel.write(System.out,"N3");
+    	System.out.println("****************************");
+    	System.out.println();
+
+    	//    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
+    	Dataset inputDataset = DatasetFactory.create(defaultModel);
 		
 		long queryStart = System.currentTimeMillis();
 		QueryExecution queryExecution =
@@ -153,21 +173,20 @@ public class QueryFactoryTest {
 		long queryEnd = System.currentTimeMillis();
 		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
 
-		
-//    	System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Input Query Result ***");
-//    	System.out.println("**************************");
-//    	inputQueryResult.write(System.out,"N3");
-//    	System.out.println("****************************");
-//    	System.out.println();
+		System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Input Query Result ***");
+    	System.out.println("**************************");
+    	inputQueryResult.write(System.out,"N3");
+    	System.out.println("****************************");
+    	System.out.println();
     	
-		queryStart = System.currentTimeMillis();
-		QueryExecution outQueryExecution =
-				QueryExecutionFactory.create(outputQuery, inputDataset);
-		Model outputQueryResult = outQueryExecution.execConstruct();
-		queryEnd = System.currentTimeMillis();
-		System.out.println("Output Query execution time: " + (queryEnd - queryStart) );
+//		queryStart = System.currentTimeMillis();
+//		QueryExecution outQueryExecution =
+//				QueryExecutionFactory.create(outputQuery, inputDataset);
+//		Model outputQueryResult = outQueryExecution.execConstruct();
+//		queryEnd = System.currentTimeMillis();
+//		System.out.println("Output Query execution time: " + (queryEnd - queryStart) );
 		
 //    	System.out.println();
 //    	System.out.println("**************************");
