@@ -39,6 +39,9 @@ public class Factory implements FunctionFactory {
 		FunctionRegistry.get().put(BASE_URI + "sin", this);
 		FunctionRegistry.get().put(BASE_URI + "cos", this);
 		FunctionRegistry.get().put(BASE_URI + "atan", this);
+                FunctionRegistry.get().put(BASE_URI + "replace", this);
+                FunctionRegistry.get().put(BASE_URI + "substring", this);
+                
 	}
 	
 	public static Factory getInstance() {
@@ -61,6 +64,15 @@ public class Factory implements FunctionFactory {
 				return new cos();
 			if (pfunctionName.equals("atan"))
 				return new atan();
+                        if (pfunctionName.equals("replace"))
+				return new replace();
+                        if (pfunctionName.equals("REPLACE"))
+				return new replace();
+                        if (pfunctionName.equals("substring"))
+				return new substring();
+                        if (pfunctionName.equals("SUBSTRING"))
+				return new substring();
+                        
 		}
 		return null;
 	}
