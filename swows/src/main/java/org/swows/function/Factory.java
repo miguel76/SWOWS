@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.swows.function;
 
 import com.hp.hpl.jena.sparql.function.Function;
