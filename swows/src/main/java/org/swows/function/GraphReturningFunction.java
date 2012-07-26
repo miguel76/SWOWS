@@ -104,7 +104,7 @@ public abstract class GraphReturningFunction implements Function {
         env.getDataset().addGraph(graphName, newGraph);
         //arguments = null ;
 		System.out.println("Graph returning function executed and returning " + graphName);
-        return new NodeValueNode(graphName);
+		return NodeValue.makeNode(graphName);
 		
 	}
 	

@@ -29,6 +29,7 @@ public class AnalyzeString extends GraphReturningFunction {
 		NEXT_NON_MATCH_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next-non-match"), 
 		FIRST_GROUP_PROPERTY =	Node.createURI( Factory.getBaseURI() + "first-group"),
 		NEXT_GROUP_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next-group"),
+		GROUP_NON_MATCH_CLASS =	Node.createURI( Factory.getBaseURI() + "group-non-match"),
 		STRING_PROPERTY =	Node.createURI( Factory.getBaseURI() + "string");
 
 	@Override
@@ -98,11 +99,20 @@ public class AnalyzeString extends GraphReturningFunction {
 						newGraph.add(new Triple(lastGroup, NEXT_GROUP_PROPERTY, group));
 					else
 						newGraph.add(new Triple(node, FIRST_GROUP_PROPERTY, group));
-					newGraph.add(
-							new Triple(
-									group,
-									STRING_PROPERTY,
-									Node.createLiteral(matchResult.group(i)) ));
+					String match = matchResult.group(i);
+					if (match != null)
+						newGraph.add(
+								new Triple(
+										group,
+										STRING_PROPERTY,
+										Node.createLiteral(match) ));
+					else
+						newGraph.add(
+								new Triple(
+										group,
+										RDF.type.asNode(),
+										GROUP_NON_MATCH_CLASS ));
+					lastGroup = group;
 				}
 				return node;
 			}
