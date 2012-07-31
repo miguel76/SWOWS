@@ -59,7 +59,7 @@ public class XmlReader extends JenaReaderBase {
 			docBuilderFactory.setNamespaceAware(true);
 			newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
 			newDoc.setDocumentURI(base);
-			//newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
+			newDoc.getDocumentElement().setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", base);
 			Graph newGraph = DomEncoder.encode(newDoc, SWI.GraphRoot.getURI());
 			graph.getBulkUpdateHandler().add(newGraph);
 //		} catch (SAXException e) {
