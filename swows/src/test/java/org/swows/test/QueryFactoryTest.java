@@ -19,12 +19,17 @@
  */
 package org.swows.test;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Vector;
 
 import javax.xml.transform.TransformerException;
 
+import org.swows.reader.XmlReader;
 import org.swows.spinx.SpinxFactory;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -42,7 +47,7 @@ public class QueryFactoryTest {
     public static void main(final String[] args) throws TransformerException {
     	
 //    	String baseUri = "/home/miguel/TUIO/circles/";
-    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
+    	String baseUri = "/home/miguel/svg2canvas/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -53,24 +58,36 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "svgPacchi.sparql");
-    	
+//    	Query inputQuery = QueryFactory.read(baseUri + "svgPacchi.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "path_test2.sparql");
     	
     	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
     	Node queryRootNode = Node.createURI("#defaultQuery");
     	
-    	
-    	System.out.println();
-    	System.out.println("*************************");
-    	System.out.println("*** Input Query in N3 ***");
-    	System.out.println("*************************");
-    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
-    	System.out.println("*************************");
-    	System.out.println();
-    	
+//    	System.out.println();
+//    	System.out.println("*************************");
+//    	System.out.println("*** Input Query in N3 ***");
+//    	System.out.println("*************************");
+//    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
+//    	System.out.println("*************************");
+//    	System.out.println();
+
+    	OutputStream out = null;
+    	try {
+    		out = new FileOutputStream(baseUri+"query.n3");
+    		ModelFactory.createModelForGraph(queryGraph).write(out,"N3");
+    	} catch(IOException e) {
+    		
+    	} finally {
+    		try {
+    			if (out != null) out.close();
+    		} catch(IOException e) {}
+    	}
+    		
     	//Node queryRootNode = queryGraph.find(Node.ANY, RDF.type.asNode(), SP.Query.asNode()).next().getSubject();
     	
-    	Query outputQuery = org.swows.spinx.QueryFactory.toQuery(queryGraph, queryRootNode);
+    	
+    	Query outputQuery = org.swows.spinx.QueryFactory.toQuery(queryGraph, SWI.GraphRoot.asNode());
     	
     	outputQuery.serialize(System.out);
     	
@@ -139,12 +156,31 @@ public class QueryFactoryTest {
 //    	String defaultGraphUri = baseUri + "quantityHistoryStart_T.n3";
 //		List<String> namedGraphUris = new Vector<String>();
 		
-    	String defaultGraphUri = baseUri + "input.n3";
-		List<String> namedGraphUris = new Vector<String>();
-		namedGraphUris.add(baseUri + "config.n3");
-		namedGraphUris.add(baseUri + "selectedPage.n3");
+//    	String defaultGraphUri = baseUri + "input.n3";
+//		List<String> namedGraphUris = new Vector<String>();
+//		namedGraphUris.add(baseUri + "config.n3");
+//		namedGraphUris.add(baseUri + "selectedPage.n3");
+		
+    	String svgGraphUri = "file:" + baseUri + "BlankMapWithRadioBox.svg";
+//		List<String> namedGraphUris = new Vector<String>();
+		XmlReader xmlReader = new XmlReader();
+		Model model = ModelFactory.createDefaultModel();
+		xmlReader.read(model, svgGraphUri);
+		Dataset inputDataset = DatasetFactory.create(model);
 
-    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
+		out = null;
+    	try {
+    		out = new FileOutputStream(baseUri+"input.n3");
+    		model.write(out,"N3");
+    	} catch(IOException e) {
+    		
+    	} finally {
+    		try {
+    			if (out != null) out.close();
+    		} catch(IOException e) {}
+    	}
+
+    	//    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
 		
 		long queryStart = System.currentTimeMillis();
 		QueryExecution queryExecution =
@@ -152,15 +188,14 @@ public class QueryFactoryTest {
 		Model inputQueryResult = queryExecution.execConstruct();
 		long queryEnd = System.currentTimeMillis();
 		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
-
 		
-//    	System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Input Query Result ***");
-//    	System.out.println("**************************");
-//    	inputQueryResult.write(System.out,"N3");
-//    	System.out.println("****************************");
-//    	System.out.println();
+    	System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Input Query Result ***");
+    	System.out.println("**************************");
+    	inputQueryResult.write(System.out,"N3");
+    	System.out.println("****************************");
+    	System.out.println();
     	
 		queryStart = System.currentTimeMillis();
 		QueryExecution outQueryExecution =
@@ -169,13 +204,13 @@ public class QueryFactoryTest {
 		queryEnd = System.currentTimeMillis();
 		System.out.println("Output Query execution time: " + (queryEnd - queryStart) );
 		
-//    	System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Output Query Result ***");
-//    	System.out.println("**************************");
-//    	outputQueryResult.write(System.out,"N3");
-//    	System.out.println("****************************");
-//    	System.out.println();
+    	System.out.println();
+    	System.out.println("**************************");
+    	System.out.println("*** Output Query Result ***");
+    	System.out.println("**************************");
+    	outputQueryResult.write(System.out,"N3");
+    	System.out.println("****************************");
+    	System.out.println();
 
     }
 		

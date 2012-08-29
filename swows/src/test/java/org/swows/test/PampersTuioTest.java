@@ -52,7 +52,7 @@ public class PampersTuioTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/pampers5/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/twitter0.1.0.3/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -64,10 +64,10 @@ public class PampersTuioTest {
         	if (currDevice.getIDstring().equals(SCREEN))
         		device = currDevice;
         }
-        device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
+//        device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/pampers5/dataflow/";
+		String baseUri = "/home/miguel/twitter0.1.0.3/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
