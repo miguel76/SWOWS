@@ -78,6 +78,7 @@ public abstract class GraphReturningFunction implements Function {
         //this.env = env ;
         
 		System.out.println("Executing a graph returning function...");
+		System.out.println("Binding: " + binding);
 
 		if ( args == null )
             // The contract on the function interface is that this should not happen.
@@ -99,7 +100,8 @@ public abstract class GraphReturningFunction implements Function {
         DynamicGraph newGraph =
         		new DynamicGraphFromGraph( exec(evalArgs, env) );
 		System.out.println("Graph created: " + newGraph);
-        Node graphName = Skolemizer.getInstance().getNode(env, evalArgs);
+//        Node graphName = Skolemizer.getInstance().getNode(env, evalArgs);
+        Node graphName = Skolemizer.getInstance().getNode();
         // TODO find another way to add this graph!!!!
         env.getDataset().addGraph(graphName, newGraph);
         //arguments = null ;

@@ -15,7 +15,7 @@ public class Skolemizer {
 
 	private static Skolemizer singleton = null;
 	
-	public static Skolemizer getInstance() {
+	public static synchronized Skolemizer getInstance() {
 		if (singleton == null)
 			singleton = new Skolemizer();
 		return singleton;

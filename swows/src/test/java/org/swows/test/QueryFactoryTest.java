@@ -19,6 +19,8 @@
  */
 package org.swows.test;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Vector;
 
@@ -27,6 +29,7 @@ import javax.xml.transform.TransformerException;
 import org.swows.function.Factory;
 import org.swows.reader.ReaderFactory;
 import org.swows.spinx.SpinxFactory;
+import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -61,35 +64,46 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "path_test.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "path_test2.sparql");
     	
     	Factory.getInstance();
     	
     	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
-    	Node queryRootNode = Node.createURI("#defaultQuery");
+//    	Node queryRootNode = Node.createURI("#defaultQuery");
     	
     	
-    	System.out.println();
-    	System.out.println("*************************");
-    	System.out.println("*** Input Query in N3 ***");
-    	System.out.println("*************************");
-    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
-    	System.out.println("*************************");
-    	System.out.println();
+//    	System.out.println();
+//    	System.out.println("*************************");
+//    	System.out.println("*** Input Query in N3 ***");
+//    	System.out.println("*************************");
+//    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
+//    	System.out.println("*************************");
+//    	System.out.println();
+    	
+    	try {
+			ModelFactory.createModelForGraph(queryGraph).write(new FileOutputStream("query.n3"),"N3");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
     	
     	//Node queryRootNode = queryGraph.find(Node.ANY, RDF.type.asNode(), SP.Query.asNode()).next().getSubject();
     	
-    	Query outputQuery = org.swows.spinx.QueryFactory.toQuery(queryGraph, queryRootNode);
+    	Query outputQuery = org.swows.spinx.QueryFactory.toQuery(queryGraph, SWI.GraphRoot.asNode());
     	
     	outputQuery.serialize(System.out);
     	
-    	System.out.println();
-    	System.out.println("**************************");
-    	System.out.println("*** Output Query in N3 ***");
-    	System.out.println("**************************");
-    	ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(System.out,"N3");
-    	System.out.println("**************************");
-    	System.out.println();
+    	try {
+			ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(new FileOutputStream("outputQuery.n3"),"N3");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+//    	System.out.println();
+//    	System.out.println("**************************");
+//    	System.out.println("*** Output Query in N3 ***");
+//    	System.out.println("**************************");
+//    	ModelFactory.createModelForGraph(SpinxFactory.fromQuery(outputQuery)).write(System.out,"N3");
+//    	System.out.println("**************************");
+//    	System.out.println();
 //    	
 //    	System.out.println();
 //    	System.out.println("****************************");
@@ -166,11 +180,13 @@ public class QueryFactoryTest {
     	//    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
     	Dataset inputDataset = DatasetFactory.create(defaultModel);
 		
-		long queryStart = System.currentTimeMillis();
+    	long queryStart, queryEnd;
+    	
+		queryStart = System.currentTimeMillis();
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(inputQuery, inputDataset);
 		Model inputQueryResult = queryExecution.execConstruct();
-		long queryEnd = System.currentTimeMillis();
+		queryEnd = System.currentTimeMillis();
 		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
 
 		System.out.println();
@@ -187,7 +203,7 @@ public class QueryFactoryTest {
 //		Model outputQueryResult = outQueryExecution.execConstruct();
 //		queryEnd = System.currentTimeMillis();
 //		System.out.println("Output Query execution time: " + (queryEnd - queryStart) );
-		
+//		
 //    	System.out.println();
 //    	System.out.println("**************************");
 //    	System.out.println("*** Output Query Result ***");
