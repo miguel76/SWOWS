@@ -83,7 +83,9 @@ import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.util.iterator.NiceIterator;
 import com.hp.hpl.jena.util.iterator.NullIterator;
 import com.hp.hpl.jena.util.iterator.SingletonIterator;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -110,7 +112,11 @@ public class DomEncoder2 {
 		private Stack<Node> lastSiblingStack = new Stack<Node>();
 		private String docURI;
 		private Node docNode = null;
+		
 		private Map<String,Map<String,Node>> typeMap = new HashMap<String,Map<String,Node>>();
+		private Map<String,Node> nsMap = new HashMap<String,Node>();
+		private Map<String,Node> lnMap = new HashMap<String,Node>();
+
 		private Map<String,Set<String>> defNsAttrs = new HashMap<String, Set<String>>();
 		private Set<String> defAttrs = new HashSet<String>();
 		private StringBuffer textBuffer = new StringBuffer();
@@ -130,9 +136,50 @@ public class DomEncoder2 {
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
 				typeNode = Node.createURI(namespace + "#" + localName);
+				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
+				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
+				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
 				nsMap.put(localName, typeNode);
 			}
 			return typeNode;
+		}
+		
+//		private Node getAttrTypeNode(String namespace, String localName) {
+//			Node typeNode = null;
+//			Map<String,Node> nsMap = typeMap.get(namespace);
+//			if ( nsMap == null ) {
+//				nsMap = new HashMap<String,Node>();
+//				typeMap.put(namespace, nsMap);
+//			} else 
+//				typeNode = nsMap.get(localName);
+//			if (typeNode == null) {
+//				typeNode = Node.createURI(namespace + "#" + localName);
+//				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
+//				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
+//				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
+//				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
+//				nsMap.put(localName, typeNode);
+//			}
+//			return typeNode;
+//		}
+
+		private Node getNsNode(String namespace) {
+			Node nsNode = nsMap.get(namespace);
+			if (nsNode == null) {
+				nsNode = Node.createURI(namespace);
+				nsMap.put(namespace, nsNode);
+			}
+			return nsNode;
+		}
+		
+		private Node getLnNode(String localName) {
+			Node lnNode = lnMap.get(localName);
+			if (lnNode == null) {
+				lnNode = Node.createLiteral(localName);
+				lnMap.put(localName, lnNode);
+			}
+			return lnNode;
 		}
 		
 //		private boolean isAttrDefined(String namespace, String localName) {
@@ -148,6 +195,7 @@ public class DomEncoder2 {
 								attrNode,
 								RDF.type.asNode(),
 								XML.AttrType.asNode() ));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
 				defAttrs.add(localName);
 				return attrNode;
 			} else {
@@ -162,6 +210,8 @@ public class DomEncoder2 {
 								attrNode,
 								RDF.type.asNode(),
 								XML.AttrType.asNode() ));
+				outputGraph.add(new Triple(attrNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
 				nsSet.add(localName);
 				return attrNode;
 			}
@@ -247,15 +297,30 @@ public class DomEncoder2 {
 				 				: Skolemizer.getInstance().getNode();
 								
 			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
-			outputGraph.add(new Triple(newNode, RDF.type.asNode(), getTypeNode(uri, localName)));
 			
+			Node typeNode = getTypeNode(uri, localName);
+			outputGraph.add(new Triple(newNode, RDF.type.asNode(), typeNode));
+			
+//			outputGraph.add(new Triple(typeNode, OWL.oneOf.asNode(), XML.Element.asNode()));
+			
+//			  <rdfs:subClassOf>
+//			    <owl:Restriction>
+//			      <owl:onProperty rdf:resource="#hasMaker" />
+//			      <owl:allValuesFrom rdf:resource="#Winery" />
+//			    </owl:Restriction>
+//			  </rdfs:subClassOf>
+			
+//			outputGraph.add(new Triple(newNode, XML.namespace.asNode(), getNsNode(uri)));
+//			outputGraph.add(new Triple(newNode, XML.nodeName.asNode(), getLnNode(localName)));
+
 			connectNode(newNode);
 			
 			for (int i = 0; i < atts.getLength(); i++) {
+				Node nodeAttr = defineAttr(atts.getURI(i), atts.getLocalName(i));
 				outputGraph.add(
 						new Triple(
 								newNode,
-								defineAttr(atts.getURI(i), atts.getLocalName(i)),
+								nodeAttr,
 								Node.createLiteral( atts.getValue(i) ) ));
 			}
 								
