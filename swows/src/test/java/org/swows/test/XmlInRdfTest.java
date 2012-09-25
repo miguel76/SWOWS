@@ -19,7 +19,9 @@
  */
 package org.swows.test;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -70,7 +72,8 @@ public class XmlInRdfTest {
 		
 		Graph rdfGraph = DomEncoder2.encode(inputXML, xmlUri);
 		Model model = ModelFactory.createModelForGraph(rdfGraph);
-		model.write(System.out, "N3");
+		OutputStream out = new FileOutputStream("/home/miguel/BlankMapWithRadioBox.n3");
+		model.write(out, "N3");
 		//model.write(System.out);
 	}
 

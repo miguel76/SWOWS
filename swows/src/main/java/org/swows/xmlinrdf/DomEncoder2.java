@@ -126,7 +126,7 @@ public class DomEncoder2 {
 			this.docURI = docURI;
 		}
 
-		private Node getTypeNode(String namespace, String localName) {
+		private Node getElementTypeNode(String namespace, String localName) {
 			Node typeNode = null;
 			Map<String,Node> nsMap = typeMap.get(namespace);
 			if ( nsMap == null ) {
@@ -135,7 +135,7 @@ public class DomEncoder2 {
 			} else 
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
-				typeNode = Node.createURI(namespace + "#" + localName);
+				typeNode = Node.createURI(nsAndLn( namespace, localName ));
 				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
 				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
 				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
@@ -145,24 +145,24 @@ public class DomEncoder2 {
 			return typeNode;
 		}
 		
-//		private Node getAttrTypeNode(String namespace, String localName) {
-//			Node typeNode = null;
-//			Map<String,Node> nsMap = typeMap.get(namespace);
-//			if ( nsMap == null ) {
-//				nsMap = new HashMap<String,Node>();
-//				typeMap.put(namespace, nsMap);
-//			} else 
-//				typeNode = nsMap.get(localName);
-//			if (typeNode == null) {
-//				typeNode = Node.createURI(namespace + "#" + localName);
+		private Node getAttrTypeNode(String namespace, String localName) {
+			Node typeNode = null;
+			Map<String,Node> nsMap = typeMap.get(namespace);
+			if ( nsMap == null ) {
+				nsMap = new HashMap<String,Node>();
+				typeMap.put(namespace, nsMap);
+			} else 
+				typeNode = nsMap.get(localName);
+			if (typeNode == null) {
+				typeNode = Node.createURI(nsAndLn( namespace, localName ));
 //				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
-//				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
-//				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
-//				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
-//				nsMap.put(localName, typeNode);
-//			}
-//			return typeNode;
-//		}
+				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Attr.asNode()));
+				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
+				nsMap.put(localName, typeNode);
+			}
+			return typeNode;
+		}
 
 		private Node getNsNode(String namespace) {
 			Node nsNode = nsMap.get(namespace);
@@ -189,27 +189,27 @@ public class DomEncoder2 {
 
 		private Node defineAttr(String namespace, String localName) {
 			if (namespace == null || namespace.isEmpty()) {
-				Node attrNode = getTypeNode(VOID_NAMESPACE, localName);
-				outputGraph.add(
-						new Triple(
-								attrNode,
-								RDF.type.asNode(),
-								XML.AttrType.asNode() ));
+				Node attrNode = getAttrTypeNode(VOID_NAMESPACE, localName);
+//				outputGraph.add(
+//						new Triple(
+//								attrNode,
+//								RDF.type.asNode(),
+//								XML.AttrType.asNode() ));
 				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
 				defAttrs.add(localName);
 				return attrNode;
 			} else {
-				Node attrNode = getTypeNode(namespace, localName);
+				Node attrNode = getAttrTypeNode(namespace, localName);
 				Set<String> nsSet = defNsAttrs.get(namespace);
 				if (nsSet == null) {
 					nsSet = new HashSet<String>();
 					defNsAttrs.put(namespace, nsSet);
 				}
-				outputGraph.add(
-						new Triple(
-								attrNode,
-								RDF.type.asNode(),
-								XML.AttrType.asNode() ));
+//				outputGraph.add(
+//						new Triple(
+//								attrNode,
+//								RDF.type.asNode(),
+//								XML.AttrType.asNode() ));
 				outputGraph.add(new Triple(attrNode, XML.namespace.asNode(), getNsNode(namespace)));
 				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
 				nsSet.add(localName);
@@ -280,6 +280,10 @@ public class DomEncoder2 {
 			}
 		}
 		
+		private String nsAndLn(String ns, String ln) {
+			return ns + (ns.charAt(ns.length() - 1) == '#' ? "" : "#") + ln;
+		}
+		
 		@Override
 		public void startElement(
 				String uri, String localName,
@@ -293,12 +297,12 @@ public class DomEncoder2 {
 				idAttr = atts.getValue("http://www.w3.org/2000/svg", "id");
 			
 			Node newNode = (idAttr != null)
-								? Node.createURI(docURI + "#" + idAttr)
+								? Node.createURI( nsAndLn(docURI, idAttr) )
 				 				: Skolemizer.getInstance().getNode();
 								
-			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
+//			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
 			
-			Node typeNode = getTypeNode(uri, localName);
+			Node typeNode = getElementTypeNode(uri, localName);
 			outputGraph.add(new Triple(newNode, RDF.type.asNode(), typeNode));
 			
 //			outputGraph.add(new Triple(typeNode, OWL.oneOf.asNode(), XML.Element.asNode()));
