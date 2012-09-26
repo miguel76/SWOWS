@@ -195,7 +195,7 @@ public class DomEncoder2 {
 //								attrNode,
 //								RDF.type.asNode(),
 //								XML.AttrType.asNode() ));
-				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
 				defAttrs.add(localName);
 				return attrNode;
 			} else {
@@ -211,7 +211,7 @@ public class DomEncoder2 {
 //								RDF.type.asNode(),
 //								XML.AttrType.asNode() ));
 				outputGraph.add(new Triple(attrNode, XML.namespace.asNode(), getNsNode(namespace)));
-				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(namespace)));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
 				nsSet.add(localName);
 				return attrNode;
 			}
@@ -250,6 +250,8 @@ public class DomEncoder2 {
 		public void setDocumentLocator(Locator locator) {
 		}
 
+		private boolean nextIsRootElement = true;
+		
 		@Override
 		public void startDocument() throws SAXException {
 			docNode = Node.createURI(docURI);
@@ -304,6 +306,11 @@ public class DomEncoder2 {
 			
 			Node typeNode = getElementTypeNode(uri, localName);
 			outputGraph.add(new Triple(newNode, RDF.type.asNode(), typeNode));
+			
+			if (nextIsRootElement) {
+				outputGraph.add(new Triple(docNode, XML.hasChild.asNode(), newNode));
+				nextIsRootElement = false;
+			}
 			
 //			outputGraph.add(new Triple(typeNode, OWL.oneOf.asNode(), XML.Element.asNode()));
 			
