@@ -99,7 +99,13 @@ public class XmlInRdfTest {
 		PrintWriter out2 =
 				new PrintWriter(
 						new FileOutputStream("/home/miguel/BlankMapWithRadioBox.xml") );
-		out2.print(doc.toString());
+		XMLSerializer serializer2 = new XMLSerializer(out2,new OutputFormat());
+		// As a DOM Serializer
+		try {
+			serializer2.serialize(doc);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		out2.flush();
 		out2.close();
 	}
