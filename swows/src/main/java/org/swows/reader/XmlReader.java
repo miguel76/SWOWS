@@ -36,7 +36,7 @@ import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class XmlReader extends JenaReaderBase {
 	
-	private static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
+	public static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
 
 	protected static void initialize() {
 		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, XmlReader.class.getCanonicalName());

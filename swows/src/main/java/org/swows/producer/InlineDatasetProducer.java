@@ -50,7 +50,9 @@ public class InlineDatasetProducer extends DatasetProducer {
 		while (namedInputNodes.hasNext()) {
 			Node namedInputNode = namedInputNodes.next();
 			Node graphNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.input.asNode());
-			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.id.asNode());
+			Node nameNode = GraphUtils.getSingleValueOptProperty(conf, namedInputNode, DF.id.asNode());
+			if (nameNode == null)
+				nameNode = graphNode;
 			Producer producer = map.getProducer(graphNode);
 			if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
 			namedInputProducers.put(nameNode, producer);

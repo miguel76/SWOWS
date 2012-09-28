@@ -58,6 +58,8 @@ public class LoadGraphProducer extends GraphProducer {
 		Node syntaxNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.syntax.asNode() );
 		if (syntaxNode != null)
 			rdfSyntax = syntaxNode.getURI();
+		else
+			rdfSyntax = LoadGraph.guessLang(filenameOrURI);
 		Node pollingPeriodNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.pollingPeriod.asNode() );
 		if (pollingPeriodNode != null)
 			pollingPeriod = Long.parseLong(pollingPeriodNode.getLiteralLexicalForm());

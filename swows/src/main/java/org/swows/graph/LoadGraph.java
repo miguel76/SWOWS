@@ -23,10 +23,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.swows.reader.ReaderFactory;
+import org.swows.reader.XmlReader;
 import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContextFactory;
 
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.util.FileUtils;
 
 public class LoadGraph extends DynamicChangingGraph {
 	
@@ -36,11 +39,18 @@ public class LoadGraph extends DynamicChangingGraph {
 	
 	private String filenameOrURI, baseURI, rdfSyntax;
 //	private long pollingPeriod;
+	
+	public static String guessLang(String filenameOrURI) {
+		String ext = FileUtils.getFilenameExt(filenameOrURI);
+        if (ext.equals( "sparql" )) return Syntax.syntaxSPARQL.getSymbol();
+        if (ext.equals( "xml" )) return XmlReader.XML_SYNTAX_URI;
+		return FileUtils.guessLang(filenameOrURI);
+	}
 
 	public LoadGraph(String filenameOrURI, String baseURI, String rdfSyntax, final long pollingPeriod) {
 		this.filenameOrURI = filenameOrURI;
 		this.baseURI = baseURI;
-		this.rdfSyntax = rdfSyntax;
+		this.rdfSyntax = rdfSyntax != null ? rdfSyntax : guessLang(filenameOrURI);
 //		this.pollingPeriod = pollingPeriod;
 		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
 		if (pollingPeriod > 0) {

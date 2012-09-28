@@ -52,7 +52,7 @@ public class WorldinfoMouseTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/worldInfo2/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/git/WorldInfo/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
@@ -67,7 +67,7 @@ public class WorldinfoMouseTest {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/worldInfo2/dataflow/";
+		String baseUri = "/home/miguel/git/WorldInfo/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
