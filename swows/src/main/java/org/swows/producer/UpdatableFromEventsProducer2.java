@@ -56,7 +56,7 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
 		if (baseGraphNode != null)
 			baseGraphProducer = map.getProducer(baseGraphNode);
-		Iterator<Node> inputIter = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
+		Iterator<Node> inputIter = GraphUtils.getPropertyValues(conf, confRoot, DF.trigger.asNode());
 		while( inputIter.hasNext() ) {
 			Node base = inputIter.next();
 			eventProducerList.add(map.getProducer(GraphUtils.getSingleValueProperty(conf, base, DF.eventsFrom.asNode())));

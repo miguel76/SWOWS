@@ -132,6 +132,8 @@ public class DF {
     public final static Property addGraph = property("addGraph");
     public final static Property deleteGraph = property("deleteGraph");
 
+    public final static Property trigger = property("trigger");
+
     public final static Property addConstruct = property("addConstruct");
     public final static Property deleteConstruct = property("deleteConstruct");
     public final static Property eventsFrom = property("eventsFrom");

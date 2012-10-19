@@ -42,8 +42,11 @@ public class SelectGraphProducer extends GraphProducer {
 	 */
 	public SelectGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		this(
-				map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) ),
+				null,
 				GraphUtils.getSingleValueProperty(conf, confRoot, DF.id.asNode()) );
+		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
+		if (inputNode != null)
+			this.inputProducer = map.getProducer( inputNode );
 	}
 
 	/**
@@ -59,12 +62,15 @@ public class SelectGraphProducer extends GraphProducer {
 
 	@Override
 	public boolean dependsFrom(Producer producer) {
-		return (producer == inputProducer || inputProducer.dependsFrom(producer));
+		return ( inputProducer != null && ( producer == inputProducer || inputProducer.dependsFrom(producer) ) );
 	}
 
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
-		return inputProducer.createDataset(inputDataset).getGraph(graphNameNode);
+		if (inputProducer == null)
+			return inputDataset.getGraph(graphNameNode);
+		else
+			return inputProducer.createDataset(inputDataset).getGraph(graphNameNode);
 	}
 
 }
