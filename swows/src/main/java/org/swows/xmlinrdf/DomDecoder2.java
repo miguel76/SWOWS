@@ -58,6 +58,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
+	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
+
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
 	private DynamicGraph graph;
@@ -211,10 +213,13 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	}
 	
 	private Attr decodeAttr(Graph graph, Node elementNode) {
+		String nsUri = namespaceAttr(graph, elementNode);
 		return
-				document.createAttributeNS(
-						namespaceAttr(graph, elementNode),
-						qNameAttr(graph, elementNode) );
+				(nsUri.equals(VOID_NAMESPACE))
+					? document.createAttribute( qNameAttr(graph, elementNode) )
+					: document.createAttributeNS(
+							namespaceAttr(graph, elementNode),
+							qNameAttr(graph, elementNode) );
 	}
 
 	private void decodeElementAttrsAndChildren(final Element element, final Graph graph, final Node elementNode) {

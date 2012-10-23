@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
 
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
@@ -54,10 +53,14 @@ import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.SystemTime;
 import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DocumentReceiver;
-import org.swows.xmlinrdf.DomDecoder;
+import org.swows.xmlinrdf.DomDecoder2;
 import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -236,7 +239,7 @@ public class MouseApp extends JFrame {
 		domEventListeners.put("mouseup", domEventListenerSet);
                 
 		Document xmlDoc =
-				DomDecoder.decodeOne(
+				DomDecoder2.decodeOne(
 						cachingGraph,
 //						outputGraph,
 //						new LoggingGraph(cachingGraph, Logger.getRootLogger(), true, true),
@@ -300,6 +303,31 @@ public class MouseApp extends JFrame {
         }, false);
 
 */
+        
+        DOMImplementation implementation = null;
+		try {
+			implementation = DOMImplementationRegistry.newInstance()
+					.getDOMImplementation("XML 3.0");
+		} catch (ClassCastException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (InstantiationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IllegalAccessException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+      	DOMImplementationLS feature = (DOMImplementationLS) implementation.getFeature("LS",
+        		"3.0");
+        LSSerializer serializer = feature.createLSSerializer();
+        LSOutput output = feature.createLSOutput();
+        output.setByteStream(System.out);
+        serializer.write(xmlDoc, output);
+
         svgCanvas.setDocument(xmlDoc);
 
 //        TransformerFactory transformerFactory = TransformerFactory.newInstance();
