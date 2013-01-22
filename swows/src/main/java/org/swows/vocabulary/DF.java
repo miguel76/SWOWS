@@ -31,7 +31,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
  */
 public class DF {
 
-	private static final String uri = "http://www.swows.org/dataflow#";
+	private static final String thisUri = "http://www.swows.org/dataflow#";
 
 	/**
 	 * Gets the ontology URI.
@@ -39,7 +39,7 @@ public class DF {
 	 * @return "http://www.swows.org/spinx#"
 	 */
 	public static String getURI() {
-		return uri;
+		return thisUri;
 	}
 
     /**
@@ -49,7 +49,7 @@ public class DF {
      * @return the created resource
      */
     protected static final Resource resource( String localName ) {
-    	return ResourceFactory.createResource( uri + localName );
+    	return ResourceFactory.createResource( thisUri + localName );
     }
 
     /**
@@ -59,7 +59,7 @@ public class DF {
      * @return the created property
      */
     protected static final Property property( String localName ) {
-    	return ResourceFactory.createProperty( uri, localName );
+    	return ResourceFactory.createProperty( thisUri, localName );
     }
 
     /** The Constant Graph. */
@@ -85,6 +85,7 @@ public class DF {
     public final static Resource DataflowGraph = resource("DataflowGraph");
 
     public final static Resource IncludedGraph = resource("IncludedGraph");
+    public final static Resource ImportedGraph = resource("ImportedGraph");
     public final static Resource TwitterGraph = resource("TwitterGraph");
     public final static Resource JmsInputGraph = resource("JmsInputGraph");
     
@@ -139,6 +140,7 @@ public class DF {
     public final static Property eventsFrom = property("eventsFrom");
 
     public final static Property url = property("url");
+    public final static Property uri = property("uri");
     public final static Property syntax = property("syntax");
     public final static Property baseUri = property("baseUri");
     public final static Property pollingPeriod = property("pollingPeriod");

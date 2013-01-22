@@ -21,16 +21,27 @@ package org.swows.datatypes;
 
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.List;
 
+import org.swows.graph.LoadGraph;
+import org.swows.util.GraphUtils;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SPINX;
 import org.swows.xmlinrdf.DomEncoder;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.LocationMapper;
 import com.hp.hpl.jena.util.Locator;
 import com.hp.hpl.jena.util.TypedStream;
+import com.hp.hpl.jena.util.iterator.Filter;
+import com.hp.hpl.jena.util.iterator.Map1;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SmartFileManager extends FileManager {
 	
@@ -49,6 +60,41 @@ public class SmartFileManager extends FileManager {
     	Graph newGraph = model.getGraph();
     	SparqlJenaQuery.developInRDF(newGraph);
     	DomEncoder.developInRDF(newGraph);
+    }
+    
+    public static void includeAllInAGraph(final Graph graph, final DatasetGraph ds) {
+    	List<Node> includedGraphNodes =
+    			graph.find(Node.ANY, RDF.type.asNode(), DF.IncludedGraph.asNode()).mapWith(new Map1<Triple, Node>() {
+    				@Override
+    				public Node map1(Triple t) {
+    					Node graphNode = t.getSubject();
+    					return graphNode;
+    				}
+    			}).toList();
+    	for (Node graphNode : includedGraphNodes) includeGraph(graph,graphNode,ds);
+    }
+
+    private static void includeGraph(final Graph graph, Node graphNode, DatasetGraph ds) {
+		Node urlNode = GraphUtils.getSingleValueProperty( graph, graphNode, DF.url.asNode() );
+		String filenameOrURI = null, baseURI = null, rdfSyntax = null;
+		if (urlNode != null)
+			filenameOrURI = urlNode.getURI();
+		Node baseURINode = GraphUtils.getSingleValueOptProperty( graph, graphNode, DF.baseUri.asNode() );
+		if (baseURINode != null)
+			baseURI = baseURINode.getURI();
+		Node syntaxNode = GraphUtils.getSingleValueOptProperty( graph, graphNode, DF.syntax.asNode() );
+		if (syntaxNode != null)
+			rdfSyntax = syntaxNode.getURI();
+		else
+			rdfSyntax = LoadGraph.guessLang(filenameOrURI);
+		Graph loadedGraph = SmartFileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
+		includeAllInAGraph(loadedGraph, ds);
+		ds.addGraph(urlNode, loadedGraph);
+    	List<Triple> triplesToDelete =
+    			graph.find(graphNode, Node.ANY, Node.ANY).toList();
+    	for (Triple t : triplesToDelete) graph.delete(t);
+		graph.add(new Triple(graphNode, RDF.type.asNode(), DF.ImportedGraph.asNode()));
+		graph.add(new Triple(graphNode, DF.uri.asNode(), urlNode));
     }
 
     private FileManager baseFileManager;

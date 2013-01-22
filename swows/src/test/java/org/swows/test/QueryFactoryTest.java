@@ -32,7 +32,6 @@ import org.swows.spinx.SpinxFactory;
 import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
@@ -53,7 +52,8 @@ public class QueryFactoryTest {
     	
 //    	String baseUri = "/home/miguel/TUIO/circles/";
 //    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
-    	String baseUri = "/home/miguel/svg2canvas/";
+//    	String baseUri = "/home/miguel/svg2canvas/";
+    	String baseUri = "/home/miguel/git/WorldInfo/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -64,7 +64,7 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "path_test2.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/countryValues.sparql");
     	
     	Factory.getInstance();
     	
@@ -163,22 +163,22 @@ public class QueryFactoryTest {
 //		List<String> namedGraphUris = new Vector<String>();
 		
 //    	String defaultGraphUri = baseUri + "input.n3";
-    	String defaultGraphUri = baseUri + "BlankMapWithRadioBox.svg";
+    	String defaultGraphUri = baseUri + "data/fao.rdf";
 		List<String> namedGraphUris = new Vector<String>();
-		Model defaultModel = FileManager.get().loadModel(defaultGraphUri,defaultGraphUri,"http://www.swows.org/syntaxes/XML");
+//		Model defaultModel = FileManager.get().loadModel(defaultGraphUri,defaultGraphUri,"http://www.swows.org/syntaxes/XML");
 //		namedGraphUris.add(baseUri + "config.n3");
 //		namedGraphUris.add(baseUri + "selectedPage.n3");
 
-		System.out.println();
-    	System.out.println("**************************");
-    	System.out.println("*** Input Model ***");
-    	System.out.println("**************************");
-    	defaultModel.write(System.out,"N3");
-    	System.out.println("****************************");
-    	System.out.println();
+//		System.out.println();
+//    	System.out.println("**************************");
+//    	System.out.println("*** Input Model ***");
+//    	System.out.println("**************************");
+//    	defaultModel.write(System.out,"N3");
+//    	System.out.println("****************************");
+//    	System.out.println();
 
-    	//    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
-    	Dataset inputDataset = DatasetFactory.create(defaultModel);
+    	    	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
+    	//Dataset inputDataset = DatasetFactory.create(defaultModel);
 		
     	long queryStart, queryEnd;
     	
