@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.swows.graph.LoadGraph;
+import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SPINX;
@@ -49,6 +50,7 @@ public class SmartFileManager extends FileManager {
     private static SmartFileManager instanceFromGlobal = null;
     
     public static SmartFileManager get() {
+		ReaderFactory.initialize();
     	if (globalFM == null || FileManager.get() != globalFM) {
     		globalFM = FileManager.get();
     		instanceFromGlobal = new SmartFileManager(globalFM);

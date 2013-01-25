@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.swows.node.Skolemizer;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 import org.swows.vocabulary.SWI;
@@ -109,6 +110,10 @@ public class SpinxFactory {
 	
 	private Map<Var,Node> varMap = new HashMap<Var,Node>();
 	private Map<Var,Node> parentVarMap = null;
+	
+	private static Node createNode() {
+		return Skolemizer.getInstance().getNode();
+	}
 
 	public SpinxFactory(Query query, Graph graph, Map<Var,Node> parentVarMap) {
 		this.query = query;
@@ -136,7 +141,7 @@ public class SpinxFactory {
 	private Node fromVar(Var var) {
 		Node varNode = varMap.get(var);
 		if (varNode == null) {
-			varNode = Node.createAnon();
+			varNode = createNode();
 			Node varNameNode = Node.createLiteral(var.getVarName());
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
@@ -148,7 +153,7 @@ public class SpinxFactory {
 	private Node fromParentVar(Var var) {
 		Node varNode = parentVarMap.get(var);
 		if (varNode == null) {
-			varNode = Node.createAnon();
+			varNode = createNode();
 			Node varNameNode = Node.createLiteral(var.getVarName());
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
@@ -158,7 +163,7 @@ public class SpinxFactory {
 	}
 
 	private Node fromAggregator(Aggregator aggregator) {
-		Node aggrNode = Node.createAnon();
+		Node aggrNode = createNode();
 		graph.add(new Triple( aggrNode, RDF.type.asNode(), SP.Expression.asNode() ));
 		graph.add(new Triple(aggrNode, RDF.type.asNode(), SP.Aggregation.asNode()));
 		graph.add(new Triple(aggrNode, RDF.type.asNode(), AggregatorSymbols.getUriNode(aggregator)));
@@ -170,7 +175,7 @@ public class SpinxFactory {
 			accumulator.accumulate(null, null);
 			accumulator.accumulate(null, null);
 			String separator = accumulator.getValue().asString();
-			Node scalarvalNode = Node.createAnon();
+			Node scalarvalNode = createNode();
 			graph.add(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
 			graph.add(new Triple( scalarvalNode, SPINX.key.asNode(), Node.createLiteral("separator") ));
 			graph.add(new Triple( scalarvalNode, SPINX.value.asNode(), Node.createLiteral(separator) ));
@@ -179,12 +184,12 @@ public class SpinxFactory {
 	}
 	
 	private Node fromExpr(Expr expr) {
-//		Node exprRootNode = Node.createAnon();
+//		Node exprRootNode = createNode();
 //		graph.add(new Triple( exprRootNode, RDF.type.asNode(), SP.Expression.asNode() ));
 		if (expr instanceof ExprFunction) {
 			ExprFunction functionExpr = (ExprFunction) expr;
 //			String functionIRI = ((ExprFunction) expr).getFunctionIRI();
-			Node exprRootNode = Node.createAnon();
+			Node exprRootNode = createNode();
 			graph.add(new Triple( exprRootNode, RDF.type.asNode(), SP.Expression.asNode() ));
 			graph.add(new Triple( exprRootNode, RDF.type.asNode(), SPINX.FunctionCall.asNode() ));
 			String functionIRI = functionExpr.getFunctionIRI();
@@ -236,7 +241,7 @@ public class SpinxFactory {
 			if (path instanceof P_Link)
 				return linkNode;
 			else if (path instanceof P_ReverseLink) {
-				Node pathRootNode = Node.createAnon();
+				Node pathRootNode = createNode();
 				graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
 				graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.ReversePath.asNode()));
 				graph.add(new Triple(pathRootNode, SP.subPath.asNode(), linkNode));
@@ -246,7 +251,7 @@ public class SpinxFactory {
 				return null;
 			}
 		} else {
-			Node pathRootNode = Node.createAnon();
+			Node pathRootNode = createNode();
 			graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
 			if (path instanceof P_Path1) {
 				Node subPathNode = fromPath( ((P_Path1) path).getSubPath() );
@@ -297,7 +302,7 @@ public class SpinxFactory {
 	}
 	
 	private Node fromTriple(Triple triple) {
-		Node elementRootNode = Node.createAnon();
+		Node elementRootNode = createNode();
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
@@ -315,7 +320,7 @@ public class SpinxFactory {
 	private Node fromTriplePath(TriplePath triplePath) {
 		if (triplePath.isTriple())
 			return fromTriple(triplePath.asTriple());
-		Node elementRootNode = Node.createAnon();
+		Node elementRootNode = createNode();
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
@@ -332,7 +337,7 @@ public class SpinxFactory {
 	}
 
 	private Node fromElement(Element element) {
-		Node elementRootNode = Node.createAnon();
+		Node elementRootNode = createNode();
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
@@ -402,7 +407,7 @@ public class SpinxFactory {
 		} else if (element instanceof ElementSubQuery) {
 			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.SubQuery.asNode()));
 			Query subQuery = ((ElementSubQuery) element).getQuery();
-			Node subQueryNode = Node.createAnon();
+			Node subQueryNode = createNode();
 			graph.add(new Triple( elementRootNode, SP.query.asNode(), subQueryNode ));
 			fromQuery( subQuery, graph, subQueryNode, varMap );
 		} else if (element instanceof ElementUnion) {
@@ -422,7 +427,7 @@ public class SpinxFactory {
 	}
 	
 	private Node fromTemplateTriple(Triple triple) {
-		Node tripleRootNode = Node.createAnon();
+		Node tripleRootNode = createNode();
 		Node subjNode = fromNode(triple.getSubject());
 		graph.add(new Triple(tripleRootNode, SP.subject.asNode(), subjNode));
 		Node predNode = fromNode(triple.getPredicate());
@@ -434,7 +439,7 @@ public class SpinxFactory {
 
 	private Node fromTemplate(Template template) {
 		Iterator<Triple> templateTriples = template.getTriples().iterator();
-		Node templateRootNode = Node.createAnon();
+		Node templateRootNode = createNode();
 		while (templateTriples.hasNext()) {
 			Node tripleNode = fromTemplateTriple(templateTriples.next());
 			graph.add(new Triple(templateRootNode, SPINX.triple.asNode(), tripleNode));
@@ -443,7 +448,7 @@ public class SpinxFactory {
 	}	
 
 	private Node fromTriples(List<Triple> triples) {
-		Node triplesRootNode = Node.createAnon();
+		Node triplesRootNode = createNode();
 		for (Triple triple : triples)
 			graph.add(new Triple(triplesRootNode, SPINX.triple.asNode(), fromTemplateTriple(triple)));
 		return triplesRootNode;
@@ -495,7 +500,7 @@ public class SpinxFactory {
 //		List<String> varList = query.getResultVars();
 //		if (varList != null) {
 //			for (String var : varList) {
-//				Node resultNode = Node.createAnon();
+//				Node resultNode = createNode();
 //				graph.add(new Triple(queryRootNode, SPINX.resultVariable.asNode(), resultNode));
 //				Node varNode = fromVar(var, graph);
 //				graph.add(new Triple(queryRootNode, SP.as.asNode(), varNode));
@@ -504,7 +509,7 @@ public class SpinxFactory {
 //		}
 		VarExprList projectedList = query.getProject();
 		for ( Var projectedVar : projectedList.getVars() ) {
-			Node projectedNode = Node.createAnon();
+			Node projectedNode = createNode();
 			graph.add(new Triple(queryRootNode, SPINX.resultVariable.asNode(), projectedNode));
 			graph.add(new Triple(projectedNode, SP.as.asNode(), fromParentVar(projectedVar)));
 			Expr projectedExpr = projectedList.getExpr(projectedVar);
@@ -517,7 +522,7 @@ public class SpinxFactory {
 		VarExprList groupByExprList = query.getGroupBy();
 		if (groupByExprList != null) {
 			for (Var groupByVar : groupByExprList.getVars() ) {
-				Node groupByNode = Node.createAnon();
+				Node groupByNode = createNode();
 				graph.add(new Triple(queryRootNode, SP.groupBy.asNode(), groupByNode));
 				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
 				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
@@ -676,7 +681,7 @@ public class SpinxFactory {
 	public static void fromUpdateRequest(UpdateRequest updateRequest, Graph graph, Node requestRootNode) {
 		List<Update> updates = updateRequest.getOperations();
         for (Update update : updates) {
-        	Node updateRootNode = Node.createAnon();
+        	Node updateRootNode = createNode();
         	graph.add(new Triple(requestRootNode, RDFS.member.asNode(), updateRootNode));
         	fromUpdate(update, graph, updateRootNode);
         }

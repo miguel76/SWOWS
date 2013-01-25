@@ -64,7 +64,7 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/countryValues.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/svg.sparql");
     	
     	Factory.getInstance();
     	

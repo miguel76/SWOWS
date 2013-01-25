@@ -37,6 +37,11 @@ import org.swows.mouse.MouseApp;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
@@ -73,7 +78,7 @@ public class Step2Test {
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
-		String mainGraphUrl = baseUri + "main.n3";
+		String mainGraphUrl = baseUri + "svg.n3";
 
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
@@ -94,9 +99,14 @@ public class Step2Test {
 			System.out.println();
 		}
 		
-//		System.out.println("*** Workflow graph in N-TRIPLE ***");
-//		wfDataset.getDefaultModel().write(System.out,"N-TRIPLE");
-//		System.out.println("***************************************");
+    	Query query = QueryFactory.read("resources/sparql/unite.sparql");
+		QueryExecution queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		Model newWfModel = queryExecution.execConstruct();
+
+		System.out.println("*** Workflow graph in N3 ***");
+		newWfModel.write(System.out,"N3");
+		System.out.println("***************************************");
 
 		//MouseApp tuioApp = 
 //		new MouseApp("World Info", conf, wfGraph, false);
