@@ -49,7 +49,7 @@ CONSTRUCT {
     GRAPH ?graphName {
     
       ?sG ?pG ?oG .
-      FILTER (?sG != swi:GraphRoot AND !(EXISTS{?sG a sp:NamedGraph} AND ?pG == sp:graphNameNode)) .
+      FILTER (?sG != swi:GraphRoot && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode)) .
       
       swi:GraphRoot ?pR ?oR .
       FILTER (?pR != sp:where) .
