@@ -1,7 +1,8 @@
-PREFIX df:   <http://www.swows.org/dataflow#>
-PREFIX swi:  <http://www.swows.org/instance#>
-PREFIX sp:   <http://spinrdf.org/sp#>
-PREFIX bn:     <http://www.swows.org/instance/bnode#>
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:   <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
 
 CONSTRUCT {
     ?s ?p ?o .
@@ -11,8 +12,9 @@ CONSTRUCT {
     ?newWhereElement
       a sp:Element, sp:NamedGraph ;
       sp:graphNameNode ?mainGraph ;
-      sp:element ?mainElement .
-    }
+      spx:element ?mainElement .
+    ?innerNamedGraph sp:graphNameNode ?innerGraph .
+  }
   WHERE {
     ?s ?p ?o .
     ?constructGraph
@@ -43,6 +45,7 @@ CONSTRUCT {
         FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
       }
     }
+    
     ?importedGraph
       a df:ImportedGraph ;
       df:uri ?graphName .
@@ -65,14 +68,14 @@ CONSTRUCT {
         ?newWhereElement
           a sp:NamedGraph ;
           sp:graphNameNode ?mainGraphName ;
-          sp:element ?mainElement .
+          spx:element ?mainElement .
       }
       OPTIONAL {
-        swi:GraphRoot sp:where ?newWhereElement .
-        ?newWhereElement
+        ?innerNamedGraph
           a sp:NamedGraph ;
-          sp:graphNameNode ?mainGraphName ;
-          sp:element ?mainElement .
+          sp:graphNameNode ?innerGraphName ;
+          spx:element ?innerElement .
       }
     }
   }
+  

@@ -33,6 +33,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
+import org.swows.node.Skolemizer;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -42,6 +43,7 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
@@ -78,7 +80,7 @@ public class Step2Test {
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 //		String mainGraphUrl = baseUri + "test-circles.n3";
-		String mainGraphUrl = baseUri + "svg.n3";
+		String mainGraphUrl = baseUri + "main.n3";
 
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
@@ -99,7 +101,8 @@ public class Step2Test {
 			System.out.println();
 		}
 		
-    	Query query = QueryFactory.read("resources/sparql/unite.sparql");
+//    	Query query = QueryFactory.read("resources/sparql/includeQueries.sparql");
+    	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(query, wfDataset);
 		Model newWfModel = queryExecution.execConstruct();
@@ -108,6 +111,13 @@ public class Step2Test {
 		newWfModel.write(System.out,"N3");
 		System.out.println("***************************************");
 
+		Graph newWfGraph = newWfModel.getGraph();
+		
+		System.out.println("*** Workflow graph in N3 ***");
+		ModelFactory.createModelForGraph(Skolemizer.deSkolemize(newWfGraph)).write(System.out,"N3");
+		System.out.println("***************************************");
+
+		
 		//MouseApp tuioApp = 
 //		new MouseApp("World Info", conf, wfGraph, false);
 //		new TuioApp("SWOWS TUIO test", conf, wfGraph, false, 1024, 768, true);

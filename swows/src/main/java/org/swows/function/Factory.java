@@ -40,6 +40,7 @@ public class Factory implements FunctionFactory {
 		FunctionRegistry.get().put(BASE_URI + "cos", this);
 		FunctionRegistry.get().put(BASE_URI + "atan", this);
 		FunctionRegistry.get().put(BASE_URI + "analyze-string", this);
+		FunctionRegistry.get().put(BASE_URI + "recur", this);
 	}
 	
 	public static Factory getInstance() {
@@ -64,6 +65,8 @@ public class Factory implements FunctionFactory {
 				return new atan();
 			if (functionName.equals("analyze-string"))
 				return new AnalyzeString();
+			if (functionName.equals("recur"))
+				return new recur();
 		}
 		return null;
 	}

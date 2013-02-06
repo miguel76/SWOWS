@@ -40,6 +40,9 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.algebra.Algebra;
+import com.hp.hpl.jena.sparql.algebra.Op;
+import com.hp.hpl.jena.sparql.sse.SSE;
 import com.hp.hpl.jena.util.FileManager;
 
 public class QueryFactoryTest {
@@ -69,6 +72,10 @@ public class QueryFactoryTest {
     	Factory.getInstance();
     	
     	Graph queryGraph = SpinxFactory.fromQuery(inputQuery);
+    	
+    	Op op = Algebra.compile(inputQuery);
+    	SSE.write(op);
+    	
 //    	Node queryRootNode = Node.createURI("#defaultQuery");
     	
     	

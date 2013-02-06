@@ -7,9 +7,25 @@ import java.util.WeakHashMap;
 
 import org.swows.vocabulary.SWI;
 
+import com.hp.hpl.jena.graph.BulkUpdateHandler;
+import com.hp.hpl.jena.graph.Capabilities;
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphEventManager;
+import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Reifier;
+import com.hp.hpl.jena.graph.TransactionHandler;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.TripleMatch;
+import com.hp.hpl.jena.graph.query.QueryHandler;
+import com.hp.hpl.jena.shared.AddDeniedException;
+import com.hp.hpl.jena.shared.DeleteDeniedException;
+import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.function.FunctionEnv;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.util.iterator.Map1;
 
 public class Skolemizer {
 
@@ -131,6 +147,68 @@ public class Skolemizer {
 			varMap.put(varNum, resNode);
 		}
 		return resNode;
+	}
+	
+//	public static int getSkolemizedId(Node node) {
+//		if (!node.isURI())
+//			return -1;
+//		int baseLength = SWI.BASE_URI.length() + "/.well-known/genid/".length();
+//		String uri = node.getURI();
+//		if (uri.length() <= baseLength)
+//			return -1;
+//		String numberString = uri.substring(baseLength);
+//		try {
+//			int number = Integer.parseInt(numberString);
+//			if (number < 0)
+//				return -1;
+//			return number;
+//		} catch(NumberFormatException e) {
+//			return -1;
+//		}
+//	}
+
+	public static String getSkolemizedId(Node node) {
+		if (!node.isURI())
+			return null;
+		int baseLength = SWI.BASE_URI.length() + "/.well-known/genid/".length();
+		String uri = node.getURI();
+		if (uri.length() > baseLength
+				&& uri.substring(0, baseLength).equals(SWI.BASE_URI + "/.well-known/genid/"))
+			return uri.substring(baseLength);
+		return null;
+	}
+
+	public static Graph deSkolemize(Graph inputGraph) {
+		Graph newGraph = GraphFactory.createDefaultGraph();
+		newGraph.getBulkUpdateHandler().add(
+				inputGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(new Map1<Triple, Triple>() {
+//					Map<Integer, Node> bnodes = new HashMap<Integer, Node>();
+					Map<String, Node> bnodes = new HashMap<String, Node>();
+					private Node convert(Node inNode) {
+//						int id = getSkolemizedId(inNode);
+//						int id = getSkolemizedId(inNode);
+//						if (id == -1)
+						String id = getSkolemizedId(inNode);
+						if (id == null)
+							return inNode;
+						else {
+							Node bnode = bnodes.get(id);
+							if (bnode == null) {
+								bnode = Node.createAnon();
+								bnodes.put(id, bnode);
+							}
+							return bnode;
+						}
+					}
+					@Override
+					public Triple map1(Triple inTriple) {
+						return new Triple(
+								convert(inTriple.getSubject()),
+								convert(inTriple.getPredicate()),
+								convert(inTriple.getObject()));
+					}
+		}));
+		return newGraph;
 	}
 	
 //	public synchronized Node getNode(Node var) {
