@@ -18,26 +18,46 @@ CONSTRUCT {
   
     ?s ?p ?o .
     FILTER(
-      NOT EXISTS{ ?o a df:DataflowDataset }
-      && NOT EXISTS { ?s a df:DataflowDataset } 
-      && NOT EXISTS {
-           ?sParent
-             a df:DataflowDataset ;
-             df:input ?s .
-           ?s a df:InlineDataset .
-         }
-      && NOT EXISTS {
-           ?s
-             a df:SelectGraph ;
-             df:input ?sAnyDataflowDataset .
-           ?sAnyDataflowDataset a df:DataflowDataset ;
-         }
-      && NOT EXISTS {
-           ?o
-             a df:SelectGraph ;
-             df:input ?oAnyDataflowDataset .
-           ?oAnyDataflowDataset a df:DataflowDataset ;
-         } ) .
+      NOT EXISTS {
+        ?anyDF a df:DataflowDataset .
+        {
+          ?s (df:input?/df:input)? ?anyDF
+        } UNION {
+          ?o (df:input?/df:input)? ?anyDF
+        } UNION {
+          ?anyDF (df:input/df:namedInput?)|df:config ?s
+        }
+      } ).
+#      && NOT EXISTS{ ?s/(df:input?/df:input)?/rdf:type/df:DataflowDataset }
+#      NOT EXISTS{ ?o a df:DataflowDataset }
+#      && NOT EXISTS { ?s a df:DataflowDataset } 
+#      && NOT EXISTS {
+#           ?sParent
+#             a df:DataflowDataset ;
+#             df:input ?s .
+#           ?s a df:InlineDataset .
+#         }
+#      && NOT EXISTS {
+#           ?s2DataflowDataset
+#             a df:DataflowDataset ;
+#             df:input ?sInlineDataset .
+#           ?sInlineDataset
+#             a df:InlineDataset ;
+#             df:namedInput ?s .
+#           ?s a df:NamedGraph .
+#         }
+#      && NOT EXISTS {
+#           ?s
+#             a df:SelectGraph ;
+#             df:input ?sAnyDataflowDataset .
+#           ?sAnyDataflowDataset a df:DataflowDataset ;
+#         }
+#      && NOT EXISTS {
+#           ?o
+#             a df:SelectGraph ;
+#             df:input ?oAnyDataflowDataset .
+#           ?oAnyDataflowDataset a df:DataflowDataset ;
+#         } ) .
 
     OPTIONAL {
 
@@ -62,11 +82,11 @@ CONSTRUCT {
         }
       }
     
-      ?outerDefaultOutputS ?outerDefaultOutputP ?outerDefaultOutput .
-      ?outerDefaultOutput
-        a df:SelectGraph ;
-        df:input ?dataflowDataset .
-      FILTER ( NOT EXISTS { ?outerDefaultOutput df:id ?namedOutputAnyName } ) .
+#      ?outerDefaultOutputS ?outerDefaultOutputP ?outerDefaultOutput .
+#      ?outerDefaultOutput
+#        a df:SelectGraph ;
+#        df:input ?dataflowDataset .
+#      FILTER ( NOT EXISTS { ?outerDefaultOutput df:id ?namedOutputAnyName } ) .
     
       OPTIONAL {
         ?outerNamedOutputS ?outerNamedOutputP ?outerNamedOutput .
@@ -82,16 +102,16 @@ CONSTRUCT {
       GRAPH ?graphName {
     
         ?sG ?pG ?oG .
-        FILTER (   ?oG != swi:InputDataset
-                && ?sG != swi:OutputDataset
-                && NOT EXISTS{
-                     ?oG a df:SelectGraph ;
-                         df:input swi:InputDataset .
-                   } ) .
+#        FILTER (   ?oG != swi:InputDataset
+#                && ?sG != swi:OutputDataset
+#                && NOT EXISTS{
+#                     ?oG a df:SelectGraph ;
+#                         df:input swi:InputDataset .
+#                   } ) .
       
-        swi:OutputDataset
-          a df:InlineDataset ;
-          df:input ?defaultOutput .
+#        swi:OutputDataset
+#          a df:InlineDataset ;
+#          df:input ?defaultOutput .
         OPTIONAL {
           swi:OutputDataset df:namedInput ?namedOutputNode .
           ?namedOutputNode
