@@ -91,15 +91,15 @@ public class Step2Test {
 		wfDataset.getDefaultModel().write(System.out,"N3");
 		System.out.println("***************************************");
 
-		Iterator<String> names = wfDataset.listNames();
-		while (names.hasNext()) {
-			String name = names.next();
-			System.out.println();
-			System.out.println("*** Graph: " + name + " ***");
-			wfDataset.getNamedModel(name).write(System.out,"N3");
-			System.out.println("***************************************");
-			System.out.println();
-		}
+//		Iterator<String> names = wfDataset.listNames();
+//		while (names.hasNext()) {
+//			String name = names.next();
+//			System.out.println();
+//			System.out.println("*** Graph: " + name + " ***");
+//			wfDataset.getNamedModel(name).write(System.out,"N3");
+//			System.out.println("***************************************");
+//			System.out.println();
+//		}
 		
 //    	Query query = QueryFactory.read("resources/sparql/includeQueries.sparql");
     	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
@@ -107,9 +107,15 @@ public class Step2Test {
 				QueryExecutionFactory.create(query, wfDataset);
 		Model newWfModel = queryExecution.execConstruct();
 
-		System.out.println("*** Workflow graph in N3 ***");
-		newWfModel.write(System.out,"N3");
-		System.out.println("***************************************");
+    	Query query2 = QueryFactory.read("resources/sparql/includeQueries.sparql");
+    	wfDataset.setDefaultModel(newWfModel);
+		QueryExecution queryExecution2 =
+				QueryExecutionFactory.create(query2, wfDataset);
+		newWfModel = queryExecution2.execConstruct();
+
+//		System.out.println("*** Workflow graph in N3 ***");
+//		newWfModel.write(System.out,"N3");
+//		System.out.println("***************************************");
 
 		Graph newWfGraph = newWfModel.getGraph();
 		
