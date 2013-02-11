@@ -34,6 +34,7 @@ import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
+import org.swows.util.GraphUtils;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -112,13 +113,16 @@ public class Step2Test {
 		QueryExecution queryExecution2 =
 				QueryExecutionFactory.create(query2, wfDataset);
 		newWfModel = queryExecution2.execConstruct();
-
+		
 //		System.out.println("*** Workflow graph in N3 ***");
 //		newWfModel.write(System.out,"N3");
 //		System.out.println("***************************************");
 
 		Graph newWfGraph = newWfModel.getGraph();
 		
+//		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://www.swows.org/spinx");
+//		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://spinrdf.org/sp");
+
 		System.out.println("*** Workflow graph in N3 ***");
 		ModelFactory.createModelForGraph(Skolemizer.deSkolemize(newWfGraph)).write(System.out,"N3");
 		System.out.println("***************************************");

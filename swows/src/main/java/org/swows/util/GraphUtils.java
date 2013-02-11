@@ -20,12 +20,16 @@
 package org.swows.util;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 
 public class GraphUtils {
@@ -81,6 +85,22 @@ public class GraphUtils {
 						"" + value,
 						(String) null, XSDDatatype.XSDdecimal);
 		graph.add( new Triple(subject, predicate, litNode));
+	}
+	
+	public static void deletePropertyBasedOn(final Graph graph, final String baseUri) {
+//		List<Triple> triplesToDelete = new Vector<Triple>();
+		Set<Triple> triplesToDelete =
+				graph
+				.find(Node.ANY, Node.ANY, Node.ANY)
+				.filterKeep(new Filter<Triple>() {
+					@Override
+					public boolean accept(Triple triple) {
+						Node p = triple.getPredicate();
+						return p.isURI() && p.getURI().startsWith(baseUri);
+					}
+				})
+				.toSet();
+		graph.getBulkUpdateHandler().delete(triplesToDelete.iterator());
 	}
 	
 }
