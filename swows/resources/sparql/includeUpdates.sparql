@@ -1,0 +1,95 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:   <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+   ?s ?p ?o .
+   ?trigger sp:query ?updateQuery .
+   ?sG ?pG ?oG .
+   
+   ?updateQuery sp:where ?newWhereElement .
+   ?newWhereElement
+      a sp:Element, sp:NamedGraph ;
+   sp:graphNameNode ?mainGraph ;
+   spx:element ?mainElement .
+   ?innerNamedGraph sp:graphNameNode ?innerGraph .
+}
+WHERE {
+   
+   ?s ?p ?o .
+
+   OPTIONAL {
+      
+      ?updatableGraph
+      a df:UpdatableGraph ;
+      df:trigger ?trigger.
+      
+      ?trigger
+#      a df:Trigger ;
+      df:config ?importedGraph .
+
+      OPTIONAL {
+         ?trigger df:input ?inputDataset .
+         ?inputDataset a df:InlineDataset .
+         {
+            ?inputDataset df:input ?mainGraph .
+            BIND ( sp:default AS ?mainGraphName ) .
+         } UNION {
+            ?inputDataset df:namedInput ?mainGraphInput .
+            ?mainGraphInput df:input ?mainGraph .
+            {
+               ?mainGraphInput df:id ?mainGraphName .
+            } UNION {
+               BIND ( ?mainGraph AS ?mainGraphName ) .
+               FILTER ( NOT EXISTS { ?mainGraphInput df:id ?namedInputAnyName } ) .
+            }
+         }
+         OPTIONAL {
+            ?inputDataset df:namedInput ?innerGraphInput .
+            ?innerGraphInput df:input ?innerGraph .
+            {
+               ?innerGraphInput df:id ?innerGraphName .
+            } UNION {
+               BIND ( ?innerGraph AS ?innerGraphName ) .
+               FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
+            }
+         }
+      }
+
+      ?importedGraph
+      a df:ImportedGraph ;
+      df:uri ?graphName .
+      GRAPH ?graphName {
+    
+         ?sG ?pG ?oG .
+#         FILTER (?sG != swi:GraphRoot && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode)) .
+      
+#         swi:GraphRoot rdfs:member ?updateQuery .
+          swi:GraphRoot ?memberP ?updateQuery .
+#         FILTER (?pR != sp:where) .
+      
+#         {
+#            swi:GraphRoot sp:where ?whereElement .
+#            FILTER (NOT EXISTS{?whereElement a sp:NamedGraph}) .
+#            BIND( URI( CONCAT( STR(bn:where_), MD5( STR(?whereElement) ) ) ) AS ?newWhereElement ) .
+#            BIND( sp:default AS ?mainGraphName ) .
+#            BIND( ?whereElement AS ?mainElement ) .
+#         } UNION {
+#            swi:GraphRoot sp:where ?newWhereElement .
+#            ?newWhereElement
+#            a sp:NamedGraph ;
+#            sp:graphNameNode ?mainGraphName ;
+#            spx:element ?mainElement .
+#         }
+#         OPTIONAL {
+#            ?innerNamedGraph
+#            a sp:NamedGraph ;
+#            sp:graphNameNode ?innerGraphName ;
+#            spx:element ?innerElement .
+#         }
+      }
+   }
+}

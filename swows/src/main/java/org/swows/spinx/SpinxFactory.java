@@ -428,6 +428,7 @@ public class SpinxFactory {
 	
 	private Node fromTemplateTriple(Triple triple) {
 		Node tripleRootNode = createNode();
+		graph.add(new Triple( tripleRootNode, RDF.type.asNode(), SP.TripleTemplate.asNode()));
 		Node subjNode = fromNode(triple.getSubject());
 		graph.add(new Triple(tripleRootNode, SP.subject.asNode(), subjNode));
 		Node predNode = fromNode(triple.getPredicate());
@@ -440,6 +441,7 @@ public class SpinxFactory {
 	private Node fromTemplate(Template template) {
 		Iterator<Triple> templateTriples = template.getTriples().iterator();
 		Node templateRootNode = createNode();
+		graph.add(new Triple( templateRootNode, RDF.type.asNode(), SPINX.TripleTemplateSet.asNode()));
 		while (templateTriples.hasNext()) {
 			Node tripleNode = fromTemplateTriple(templateTriples.next());
 			graph.add(new Triple(templateRootNode, SPINX.triple.asNode(), tripleNode));

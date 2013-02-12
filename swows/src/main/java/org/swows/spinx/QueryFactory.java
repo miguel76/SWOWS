@@ -1269,9 +1269,12 @@ public class QueryFactory {
 	
 	public Update toUpdate() {
 		Update update = null;
-		Node typeNode = GraphUtils.getSingleValueProperty(graph, queryRootNode, RDF.type.asNode() );
-		if (typeNode.equals(SP.Modify.asNode()))
-			update = toModify();
+		ExtendedIterator<Node> typeNodes = getObjects(queryRootNode, RDF.type.asNode());
+		while (update == null && typeNodes.hasNext()) {
+			Node typeNode = typeNodes.next();
+			if (typeNode.equals(SP.Modify.asNode()))
+				update = toModify();
+		}
 		return update;
 	}
 	
@@ -1286,6 +1289,27 @@ public class QueryFactory {
 	public static Query toQuery(Graph graph, Node queryRootNode) {
 //		return new QueryFactory(graph).toQuery(queryRootNode);
 		return new QueryFactory(graph, queryRootNode, new HashMap<Node, Var>()).toQuery();
+	}
+	
+	public static void addTextualQueries(final Graph graph) {
+		Set<Triple> triplesToBeAdded =
+				graph.find(Node.ANY, RDF.type.asNode(), SP.Query.asNode())
+//				.filterDrop(new Filter<Triple>() {
+//					@Override
+//					public boolean accept(Triple triple) {
+//						Node queryNode = triple.getSubject();
+//						return graph.find(Node.ANY, SP.query.asNode(), queryNode).hasNext();
+//					}
+//				})
+				.mapWith(new Map1<Triple, Triple>() {
+					@Override
+					public Triple map1(Triple triple) {
+						Node queryNode = triple.getSubject();
+						String queryString = toQuery(graph, queryNode).toString();
+						return new Triple(queryNode, SP.text.asNode(), Node.createLiteral(queryString));
+					}
+				}).toSet();
+		graph.getBulkUpdateHandler().add(triplesToBeAdded.iterator());
 	}
 	
 	public static Query toQuery(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {

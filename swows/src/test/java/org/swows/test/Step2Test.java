@@ -108,17 +108,32 @@ public class Step2Test {
 				QueryExecutionFactory.create(query, wfDataset);
 		Model newWfModel = queryExecution.execConstruct();
 
-    	Query query2 = QueryFactory.read("resources/sparql/includeQueries.sparql");
+//		query = QueryFactory.read("resources/sparql/includeQueries.sparql");
+//    	wfDataset.setDefaultModel(newWfModel);
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+		
+		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
     	wfDataset.setDefaultModel(newWfModel);
-		QueryExecution queryExecution2 =
-				QueryExecutionFactory.create(query2, wfDataset);
-		newWfModel = queryExecution2.execConstruct();
+		queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		newWfModel = queryExecution.execConstruct();
+		
+		Graph newWfGraph = newWfModel.getGraph();
+        org.swows.spinx.QueryFactory.addTextualQueries(newWfGraph);
+
+//		query = QueryFactory.read("resources/sparql/excludeSpinx.sparql");
+//    	wfDataset.setDefaultModel(newWfModel);
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
 		
 //		System.out.println("*** Workflow graph in N3 ***");
 //		newWfModel.write(System.out,"N3");
 //		System.out.println("***************************************");
 
-		Graph newWfGraph = newWfModel.getGraph();
+		newWfGraph = newWfModel.getGraph();
 		
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://www.swows.org/spinx");
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://spinrdf.org/sp");

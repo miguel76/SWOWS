@@ -152,6 +152,8 @@ public class SPINX {
     public final static Resource ElementGroup = resource("ElementGroup");
     public final static Resource EmptyElement = resource("EmptyElement");
 
+    public final static Resource TripleTemplateSet = resource("TripleTemplateSet");
+
     public final static Resource FunctionCall = resource("FunctionCall");
     public final static Resource OpCall = resource("FunctionCall");
 
