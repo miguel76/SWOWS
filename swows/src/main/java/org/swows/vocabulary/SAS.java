@@ -69,9 +69,31 @@ public class SAS {
     public final static Resource Union = resource("Union");
     public final static Resource Join = resource("Join");
     public final static Resource TriplePattern = resource("TriplePattern");
+    public final static Resource QuadPattern = resource("QuadPattern");
+    public final static Resource FromTable = resource("FromTable");
+    public final static Resource Table = resource("Table");
+    public final static Resource Column = resource("Column");
+    public final static Resource Row = resource("Row");
+    public final static Property Binding = property("Binding");
+    public final static Property VarName = property("VarName");
+    public final static Property Null = property("Null");
 
     public final static Property op = property("op");
     public final static Property name = property("name");
     public final static Property triplePattern = property("triplePattern");
+    public final static Property quadPattern = property("quadPattern");
+    public final static Property table = property("table");
+    public final static Property firstColumn = property("firstColumn");
+    public final static Property firstRow = property("firstRow");
+    public final static Property nextColumn = property("nextColumn");
+    public final static Property nextRow = property("nextRow");
+    public final static Property prevColumn = property("prevColumn");
+    public final static Property prevRow = property("prevRow");
+    public final static Property lastColumn = property("lastColumn");
+    public final static Property lastRow = property("lastRow");
+    public final static Property binding = property("binding");
+    public final static Property value = property("value");
+    public final static Property variable = property("variable");
+    public final static Property varName = property("varName");
 
 }

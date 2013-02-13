@@ -67,7 +67,8 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "colorsTest.sparql");
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/svg.sparql");
+//    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/svg.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/children2descendants.sparql");
     	
     	Factory.getInstance();
     	
@@ -75,6 +76,7 @@ public class QueryFactoryTest {
     	
     	Op op = Algebra.compile(inputQuery);
     	SSE.write(op);
+    	System.exit(0);
     	
 //    	Node queryRootNode = Node.createURI("#defaultQuery");
     	

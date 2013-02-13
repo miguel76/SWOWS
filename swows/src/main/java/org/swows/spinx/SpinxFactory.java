@@ -36,10 +36,13 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.sparql.algebra.Algebra;
 import com.hp.hpl.jena.sparql.algebra.AlgebraGenerator;
 import com.hp.hpl.jena.sparql.algebra.Op;
 import com.hp.hpl.jena.sparql.algebra.OpVisitor;
+import com.hp.hpl.jena.sparql.algebra.Table;
 import com.hp.hpl.jena.sparql.algebra.op.OpAssign;
 import com.hp.hpl.jena.sparql.algebra.op.OpBGP;
 import com.hp.hpl.jena.sparql.algebra.op.OpConditional;
@@ -77,6 +80,8 @@ import com.hp.hpl.jena.sparql.core.Quad;
 import com.hp.hpl.jena.sparql.core.TriplePath;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.core.VarExprList;
+import com.hp.hpl.jena.sparql.engine.QueryIterator;
+import com.hp.hpl.jena.sparql.engine.binding.Binding;
 import com.hp.hpl.jena.sparql.expr.Expr;
 import com.hp.hpl.jena.sparql.expr.ExprAggregator;
 import com.hp.hpl.jena.sparql.expr.ExprFunction;
@@ -621,8 +626,108 @@ public class SpinxFactory {
 	private Node fromTriplePattern(Triple triplePattern) {
 		Node triplePatternNode = createNode();
 		graph.add(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
-		
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.subject.asNode(),
+				fromNode(triplePattern.getSubject()) ) );
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.predicate.asNode(),
+				fromNode(triplePattern.getPredicate()) ) );
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.object.asNode(),
+				fromNode(triplePattern.getObject()) ) );
 		return triplePatternNode;
+	}
+	
+	private Node fromTriplePattern(TriplePath triplePattern) {
+		if (triplePattern.isTriple())
+			return fromTriplePattern(triplePattern.asTriple());
+		Node triplePatternNode = createNode();
+		graph.add(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
+
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.subject.asNode(),
+				fromNode(triplePattern.getSubject()) ) );
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.path.asNode(),
+				fromPath(triplePattern.getPath()) ) );
+		graph.add( new Triple(
+				triplePatternNode,
+				SP.object.asNode(),
+				fromNode(triplePattern.getObject()) ) );
+		return triplePatternNode;
+	}
+	
+	private Node fromQuadPattern(Quad quadPattern) {
+		Node quadPatternNode = createNode();
+		graph.add(new Triple(quadPatternNode, RDF.type.asNode(), SAS.QuadPattern.asNode()));
+		graph.add( new Triple(
+				quadPatternNode,
+				SP.graphNameNode.asNode(),
+				fromNode(quadPattern.getGraph()) ) );
+		graph.add( new Triple(
+				quadPatternNode,
+				SP.subject.asNode(),
+				fromNode(quadPattern.getSubject()) ) );
+		graph.add( new Triple(
+				quadPatternNode,
+				SP.predicate.asNode(),
+				fromNode(quadPattern.getPredicate()) ) );
+		graph.add( new Triple(
+				quadPatternNode,
+				SP.object.asNode(),
+				fromNode(quadPattern.getObject()) ) );
+		return quadPatternNode;
+	}
+	
+	private Node fromTable(Table table) {
+		Node tableNode = createNode();
+		graph.add(new Triple(tableNode, RDF.type.asNode(), SAS.Table.asNode()));
+		ResultSet resultSet = table.toResultSet();
+
+//		Node prevColNode = null;
+		for (String varName : resultSet.getResultVars()) {
+			graph.add(new Triple(tableNode, SAS.varName.asNode(), Node.createLiteral(varName)));
+		}
+		
+//		QueryIterator rows = table.
+		Node prevRowNode = null;
+		while (resultSet.hasNext()) {
+			Binding row = resultSet.nextBinding();
+			Node rowNode = createNode();
+			graph.add(new Triple(rowNode, RDF.type.asNode(), SAS.Row.asNode()));
+			
+			Iterator<Var> vars = row.vars();
+			while (vars.hasNext()) {
+				Var var = vars.next();
+				Node bindingNode = createNode();
+				graph.add(new Triple(bindingNode, RDF.type.asNode(), SAS.Binding.asNode()));
+				graph.add(new Triple(rowNode, SAS.binding.asNode(), bindingNode));
+				graph.add(new Triple(
+						bindingNode,
+						SAS.variable.asNode(),
+						fromVar(var)));
+				graph.add(new Triple(
+						bindingNode,
+						SAS.value.asNode(),
+						fromNode(row.get(var))));
+			}
+			
+			if (prevRowNode != null) {
+				graph.add(new Triple(prevRowNode, SAS.nextRow.asNode(), rowNode));
+				graph.add(new Triple(rowNode, SAS.prevRow.asNode(), prevRowNode));
+			} else
+				graph.add(new Triple(tableNode, SAS.firstRow.asNode(), rowNode));
+			prevRowNode = rowNode;
+		}
+		if (prevRowNode != null)
+			graph.add(new Triple(tableNode, SAS.lastRow.asNode(), prevRowNode));
+		
+		return tableNode;
 	}
 	
 	private class OpVisitorToSas implements OpVisitor {
@@ -644,55 +749,71 @@ public class SpinxFactory {
 		}
 
 		@Override
-		public void visit(OpQuadPattern arg0) {
+		public void visit(OpQuadPattern op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			for (Quad quadPattern : op.getPattern()) {
+				graph.add( new Triple(
+						opNode,
+						SAS.quadPattern.asNode(),
+						fromQuadPattern(quadPattern) ) );
+			}
+		}
+
+		@Override
+		public void visit(OpTriple op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			graph.add( new Triple(
+					opNode,
+					SAS.triplePattern.asNode(),
+					fromTriplePattern(op.getTriple()) ) );
+		}
+
+		@Override
+		public void visit(OpQuad op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			graph.add( new Triple(
+					opNode,
+					SAS.quadPattern.asNode(),
+					fromQuadPattern(op.getQuad()) ) );
+		}
+
+		@Override
+		public void visit(OpPath op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			graph.add( new Triple(
+					opNode,
+					SAS.triplePattern.asNode(),
+					fromTriplePattern(op.getTriplePath()) ) );
+		}
+
+		@Override
+		public void visit(OpTable op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.FromTable.asNode()));
+			graph.add( new Triple(
+					opNode,
+					SAS.table.asNode(),
+					fromTable(op.getTable()) ) );
+		}
+
+		@Override
+		public void visit(OpNull op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Null.asNode()));
+		}
+
+		@Override
+		public void visit(OpProcedure op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpTriple arg0) {
+		public void visit(OpPropFunc op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpQuad arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpPath arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpTable arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpNull arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpProcedure arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpPropFunc arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpFilter arg0) {
+		public void visit(OpFilter op) {
 			// TODO Auto-generated method stub
 			
 		}
