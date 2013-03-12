@@ -25,26 +25,21 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Reifier;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
 import com.hp.hpl.jena.graph.impl.SimpleEventManager;
 import com.hp.hpl.jena.graph.impl.SimpleTransactionHandler;
 import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.graph.query.QueryHandler;
-import com.hp.hpl.jena.graph.query.SimpleQueryHandler;
 import com.hp.hpl.jena.shared.AddDeniedException;
 import com.hp.hpl.jena.shared.DeleteDeniedException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-import com.hp.hpl.jena.sparql.graph.Reifier2;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 public class SpinxFromQuery implements Graph {
 	
 //	private Query query;
-	private QueryHandler queryHandler = new SimpleQueryHandler(this);
 	private TransactionHandler transactionHandler = new SimpleTransactionHandler();
 	private GraphEventManager eventManager = new SimpleEventManager(this);
 	private GraphStatisticsHandler graphStatisticsHandler =
@@ -54,7 +49,6 @@ public class SpinxFromQuery implements Graph {
 					return -1;
 				}
 			};
-	private Reifier reifier = new Reifier2(this);
 	private PrefixMapping prefixMapping = new PrefixMappingImpl();
 	private boolean closed = false;
 	
@@ -70,11 +64,6 @@ public class SpinxFromQuery implements Graph {
 	@Override
 	public boolean dependsOn(Graph other) {
 		return false;
-	}
-
-	@Override
-	public QueryHandler queryHandler() {
-		return queryHandler;
 	}
 
 	@Override
@@ -154,11 +143,6 @@ public class SpinxFromQuery implements Graph {
 	}
 
 	@Override
-	public Reifier getReifier() {
-		return reifier;
-	}
-
-	@Override
 	public PrefixMapping getPrefixMapping() {
 		return prefixMapping;
 	}
@@ -221,6 +205,16 @@ public class SpinxFromQuery implements Graph {
 	@Override
 	public boolean isClosed() {
 		return closed;
+	}
+
+	@Override
+	public void clear() {
+		throw new DeleteDeniedException("Read-Only Query-based Graph");
+	}
+
+	@Override
+	public void remove(Node s, Node p, Node o) {
+		throw new DeleteDeniedException("Read-Only Query-based Graph");
 	}
 
 }

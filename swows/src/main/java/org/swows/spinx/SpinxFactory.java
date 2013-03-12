@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.jena.atlas.lib.Sink;
 import org.swows.node.Skolemizer;
 import org.swows.vocabulary.SAS;
 import org.swows.vocabulary.SP;
@@ -1061,6 +1062,18 @@ public class SpinxFactory {
 			public void visit(UpdateDrop update) {
 				// TODO Auto-generated method stub
 				
+			}
+
+			@Override
+			public Sink<Quad> createDeleteDataSink() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Sink<Quad> createInsertDataSink() {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		});
 	}

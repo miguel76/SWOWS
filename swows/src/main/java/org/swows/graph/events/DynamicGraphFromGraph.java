@@ -28,11 +28,9 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Reifier;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.graph.query.QueryHandler;
 import com.hp.hpl.jena.shared.AddDeniedException;
 import com.hp.hpl.jena.shared.DeleteDeniedException;
 import com.hp.hpl.jena.shared.PrefixMapping;
@@ -63,11 +61,6 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	@Override
 	public boolean dependsOn(Graph other) {
 		return baseGraph.dependsOn(other);
-	}
-
-	@Override
-	public QueryHandler queryHandler() {
-		return baseGraph.queryHandler();
 	}
 
 	@Override
@@ -169,11 +162,6 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	}
 
 	@Override
-	public Reifier getReifier() {
-		return baseGraph.getReifier();
-	}
-
-	@Override
 	public PrefixMapping getPrefixMapping() {
 		return baseGraph.getPrefixMapping();
 	}
@@ -249,6 +237,18 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		if (currGraphUpdate != null && !currGraphUpdate.isEmpty())
 			eventManager.notifyUpdate(currGraphUpdate);
 		currGraphUpdate = null;
+	}
+
+	@Override
+	public void clear() {
+		getCurrGraphUpdate().putDeletedTriples(baseGraph);
+		baseGraph.clear();
+	}
+
+	@Override
+	public void remove(Node s, Node p, Node o) {
+		getCurrGraphUpdate().putDeletedTriples(find(s,p,o));
+		baseGraph.remove(s, p, o);
 	}
 	
 }

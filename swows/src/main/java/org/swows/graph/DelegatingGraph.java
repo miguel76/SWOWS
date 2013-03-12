@@ -25,11 +25,9 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Reifier;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.graph.query.QueryHandler;
 import com.hp.hpl.jena.shared.AddDeniedException;
 import com.hp.hpl.jena.shared.DeleteDeniedException;
 import com.hp.hpl.jena.shared.PrefixMapping;
@@ -132,6 +130,7 @@ public abstract class DelegatingGraph implements Graph {
 	 * @see com.hp.hpl.jena.graph.Graph#getBulkUpdateHandler()
 	 */
 	@Override
+	@Deprecated
 	public BulkUpdateHandler getBulkUpdateHandler() {
 		return getLocalBaseGraph().getBulkUpdateHandler();
 	}
@@ -158,14 +157,6 @@ public abstract class DelegatingGraph implements Graph {
 	@Override
 	public PrefixMapping getPrefixMapping() {
 		return getLocalBaseGraph().getPrefixMapping();
-	}
-
-	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.graph.Graph#getReifier()
-	 */
-	@Override
-	public Reifier getReifier() {
-		return getLocalBaseGraph().getReifier();
 	}
 
 	/* (non-Javadoc)
@@ -206,14 +197,6 @@ public abstract class DelegatingGraph implements Graph {
 	@Override
 	public boolean isIsomorphicWith(Graph graph) {
 		return getLocalBaseGraph().isIsomorphicWith(graph);
-	}
-
-	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.graph.Graph#queryHandler()
-	 */
-	@Override
-	public QueryHandler queryHandler() {
-		return getLocalBaseGraph().queryHandler();
 	}
 
 	/* (non-Javadoc)

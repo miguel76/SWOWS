@@ -47,14 +47,11 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Reifier;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
 import com.hp.hpl.jena.graph.impl.SimpleEventManager;
 import com.hp.hpl.jena.graph.impl.SimpleTransactionHandler;
-import com.hp.hpl.jena.graph.query.QueryHandler;
-import com.hp.hpl.jena.graph.query.SimpleQueryHandler;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -65,7 +62,6 @@ import com.hp.hpl.jena.shared.AddDeniedException;
 import com.hp.hpl.jena.shared.DeleteDeniedException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-import com.hp.hpl.jena.sparql.graph.Reifier2;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
@@ -694,13 +690,6 @@ public class DomEncoder {
 			return prefixMapping;
 		}
 		
-		Reifier reifier = new Reifier2(this);
-
-		@Override
-		public Reifier getReifier() {
-			return reifier;
-		}
-
 		GraphStatisticsHandler graphStatisticsHandler =
 				new GraphStatisticsHandler() {
 					@Override
@@ -748,13 +737,6 @@ public class DomEncoder {
 			return true;
 		}
 
-		QueryHandler queryHandler = new SimpleQueryHandler(this);
-		
-		@Override
-		public QueryHandler queryHandler() {
-			return queryHandler;
-		}
-
 		@Override
 		public int size() {
 			/* By graph interface contract, implementors are
@@ -766,6 +748,16 @@ public class DomEncoder {
 
 		@Override
 		public void add(Triple t) throws AddDeniedException {
+			throw new AddDeniedException("XML DOM derived read only graph");
+		}
+
+		@Override
+		public void clear() {
+			throw new AddDeniedException("XML DOM derived read only graph");
+		}
+
+		@Override
+		public void remove(Node s, Node p, Node o) {
 			throw new AddDeniedException("XML DOM derived read only graph");
 		}
 	};

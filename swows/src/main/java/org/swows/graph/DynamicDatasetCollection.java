@@ -22,9 +22,9 @@ package org.swows.graph;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openjena.atlas.io.IndentedLineBuffer;
-import org.openjena.atlas.iterator.Iter;
-import org.openjena.atlas.iterator.Transform;
+import org.apache.jena.atlas.io.IndentedLineBuffer;
+import org.apache.jena.atlas.iterator.Iter;
+import org.apache.jena.atlas.iterator.Transform;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 
@@ -142,7 +142,7 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
 
     protected static Iter<Quad> triples2quads(final Node graphNode, Iterator<Triple> iter)
     {
-        Transform<Triple, Quad> transformNamedGraph = new Transform<Triple, Quad> () {
+        Transform<Triple, Quad> transformNamedGraph = new Transform<Triple, Quad>() {
             @Override
             public Quad convert(Triple triple)
             {
