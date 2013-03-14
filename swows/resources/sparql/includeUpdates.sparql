@@ -7,7 +7,7 @@ PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 
 CONSTRUCT {
    ?s ?p ?o .
-   ?trigger sp:query ?updateQuery .
+   ?updatableGraph sp:query ?updateQuery .
    ?sG ?pG ?oG .
    
    ?updateQuery sp:where ?newWhereElement .
@@ -25,14 +25,10 @@ WHERE {
       
       ?updatableGraph
       a df:UpdatableGraph ;
-      df:trigger ?trigger.
-      
-      ?trigger
-#      a df:Trigger ;
       df:config ?importedGraph .
 
       OPTIONAL {
-         ?trigger df:input ?inputDataset .
+         ?updatableGraph df:input ?inputDataset .
          ?inputDataset a df:InlineDataset .
          {
             ?inputDataset df:input ?mainGraph .

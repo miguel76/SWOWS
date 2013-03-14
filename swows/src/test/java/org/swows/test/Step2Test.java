@@ -22,6 +22,8 @@ package org.swows.test;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
@@ -58,8 +60,42 @@ public class Step2Test {
 	static JSVGCanvas svgCanvas = new JSVGCanvas();
 	static final String SCREEN = ":0.1";
 	//static final String SCREEN = ":0.0";
+	
+	private static void include(Dataset wfDataset) {
+		
+    	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
+		QueryExecution queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		Model newWfModel = queryExecution.execConstruct();
 
-    public static void main(final String[] args) throws TransformerException {
+		query = QueryFactory.read("resources/sparql/includeQueries.sparql");
+    	wfDataset.setDefaultModel(newWfModel);
+		queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		newWfModel = queryExecution.execConstruct();
+		
+		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
+    	wfDataset.setDefaultModel(newWfModel);
+		queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		newWfModel = queryExecution.execConstruct();
+		
+    	wfDataset.setDefaultModel(newWfModel);
+		//return newWfModel;
+		
+	}
+
+	private static void concat(Dataset wfDataset) {
+		
+    	Query query = QueryFactory.read("resources/sparql/concatQueries.sparql");
+		QueryExecution queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		Model newWfModel = queryExecution.execConstruct();
+		wfDataset.setDefaultModel(newWfModel);
+		
+	}
+
+    public static void main(final String[] args) throws TransformerException, FileNotFoundException {
     	
     	//BasicConfigurator.configure();
         PropertyConfigurator.configure("/home/miguel/git/WorldInfo/log4j.properties");
@@ -80,9 +116,8 @@ public class Step2Test {
 		String baseUri = "/home/miguel/git/WorldInfo/dataflow/";
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
-//		String mainGraphUrl = baseUri + "test-circles.n3";
 		String mainGraphUrl = baseUri + "main.n3";
-
+		
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
 		final Graph wfGraph = wfDatasetGraph.getDefaultGraph();
@@ -102,26 +137,17 @@ public class Step2Test {
 //			System.out.println();
 //		}
 		
-//    	Query query = QueryFactory.read("resources/sparql/includeQueries.sparql");
-    	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
-		QueryExecution queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		Model newWfModel = queryExecution.execConstruct();
+//		include(wfDataset);
+//		Model newWfModel = wfDataset.getDefaultModel();
+//		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
+		mainGraphUrl = "/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3";
+		Dataset wfDataset2 = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Model newWfModel = wfDataset2.getDefaultModel();
+		wfDataset.setDefaultModel(newWfModel);
 
-//		query = QueryFactory.read("resources/sparql/includeQueries.sparql");
-//    	wfDataset.setDefaultModel(newWfModel);
-//		queryExecution =
-//				QueryExecutionFactory.create(query, wfDataset);
-//		newWfModel = queryExecution.execConstruct();
-		
-		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
-    	wfDataset.setDefaultModel(newWfModel);
-		queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		newWfModel = queryExecution.execConstruct();
-		
 		Graph newWfGraph = newWfModel.getGraph();
-        org.swows.spinx.QueryFactory.addTextualQueries(newWfGraph);
+
+//		org.swows.spinx.QueryFactory.addTextualQueries(newWfGraph);
 
 //		query = QueryFactory.read("resources/sparql/excludeSpinx.sparql");
 //    	wfDataset.setDefaultModel(newWfModel);
@@ -133,7 +159,7 @@ public class Step2Test {
 //		newWfModel.write(System.out,"N3");
 //		System.out.println("***************************************");
 
-		newWfGraph = newWfModel.getGraph();
+//		newWfGraph = newWfModel.getGraph();
 		
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://www.swows.org/spinx");
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://spinrdf.org/sp");
