@@ -151,6 +151,7 @@ public class SPINX {
     public final static Resource Assign = resource("Assign");
     public final static Resource ElementGroup = resource("ElementGroup");
     public final static Resource EmptyElement = resource("EmptyElement");
+    public final static Resource Values = resource("Values");
 
     public final static Resource TripleTemplateSet = resource("TripleTemplateSet");
 
@@ -171,6 +172,7 @@ public class SPINX {
     public final static Property scalarval = property("scalarval");
     public final static Property key = property("key");
     public final static Property value = property("value");
+    public final static Property values = property("values");
 
 //    public final static Property intervalStart = property("intervalStart");
 //    public final static Property intervalEnd = property("intervalEnd");

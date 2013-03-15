@@ -571,7 +571,8 @@ public class QueryFactory {
 								|| node.equals(SP.TriplePath.asNode())
 								|| node.equals(SP.Service.asNode())
 								|| node.equals(SP.SubQuery.asNode())
-								|| node.equals(SP.Union.asNode());
+								|| node.equals(SP.Union.asNode())
+								|| node.equals(SPINX.Values.asNode());	
 					}
 				}).next();
 	}

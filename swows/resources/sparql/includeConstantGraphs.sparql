@@ -1,0 +1,80 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX :        <http://www.swows.org/instance#>
+
+CONSTRUCT {
+    ?s ?p ?o .
+    ?sI df:input ?newConstruct .
+    ?newConstruct
+      a sp:Construct , df:ConstructGraph , sp:Query ;
+      sp:templates ?newTripleTemplateSet ;
+      sp:where ?newWhere .
+    ?newTripleTemplateSet
+      a df:TripleTemplateSet ;
+      spx:triple ?newTriple .
+    ?newTriple
+      a sp:TripleTemplate ;
+      sp:subject ?newSubjectVar ;
+      sp:predicate ?newPredicateVar ;
+      sp:object ?newObjectVar .
+    ?newSubjectVar
+      a sp:Variable ;
+      sp:varName "s" .
+    ?newPredicateVar
+      a sp:Variable ;
+      sp:varName "p" .
+    ?newObjectVar
+      a sp:Variable ;
+      sp:varName "o" .
+    ?newWhere
+      a sp:Element, spx:Values ;
+      sp:resultVariable ?newSubjectVar, ?newPredicateVar, ?newObjectVar ;
+      sp:row ?newRow .
+    ?newRow
+      spx:value ?newSubjectCell, ?newPredicateCell, ?newObjectCell .
+    ?newSubjectCell
+      sp:variable ?newSubjectVar ;
+      spx:value ?sG .
+    ?newPredicateCell
+      sp:variable ?newPredicateVar ;
+      spx:value ?pG .
+    ?newObjectCell
+      sp:variable ?newObjectVar ;
+      spx:value ?oG .
+  }
+  WHERE {
+    ?s ?p ?o .
+    FILTER NOT EXISTS {
+      FILTER(?p = df:input) .
+      ?o a df:ImportedGraph .
+    } .
+    
+    OPTIONAL {
+      ?sI df:input ?importedGraph .
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+      GRAPH ?graphName {
+        ?sG ?pG ?oG .
+      }
+
+      BIND( URI( CONCAT( STR(:newConstruct_), MD5( STR(?importedGraph) ) ) ) AS ?newConstruct) .
+      BIND( URI( CONCAT( STR(:newTripleTemplateSet_), MD5( STR(?importedGraph) ) ) ) AS ?newTripleTemplateSet) .
+      BIND( URI( CONCAT( STR(:newTriple_), MD5( STR(?importedGraph) ) ) ) AS ?newTriple) .
+      BIND( URI( CONCAT( STR(:newSubjectVar_), MD5( STR(?importedGraph) ) ) ) AS ?newSubjectVar) .
+      BIND( URI( CONCAT( STR(:newPredicateVar_), MD5( STR(?importedGraph) ) ) ) AS ?newPredicateVar) .
+      BIND( URI( CONCAT( STR(:newObjectVar_), MD5( STR(?importedGraph) ) ) ) AS ?newObjectVar) .
+      BIND( URI( CONCAT( STR(:newWhere_), MD5( STR(?importedGraph) ) ) ) AS ?newWhere) .
+
+      BIND( URI( CONCAT( STR(:newRow_), MD5( STR(?sG) ) ) ) AS ?newRow) .
+      BIND( URI( CONCAT( STR(:newSubjectCell_), MD5( STR(?sG) ) ) ) AS ?newSubjectCell) .
+      BIND( URI( CONCAT( STR(:newPredicateCell_), MD5( STR(?sG) ) ) ) AS ?newPredicateCell) .
+      BIND( URI( CONCAT( STR(:newObjectCell_), MD5( STR(?sG) ) ) ) AS ?newObjectCell) .
+    
+    }
+    
+  }
+  

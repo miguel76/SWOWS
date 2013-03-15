@@ -17,6 +17,11 @@ CONSTRUCT {
   }
   WHERE {
     ?s ?p ?o .
+    FILTER NOT EXISTS {
+      ?s a df:ConstructGraph .
+      FILTER(?p = df:config) .
+      ?o a df:ImportedGraph .
+    } .
     OPTIONAL {
       ?constructGraph
         a df:ConstructGraph ;
@@ -29,22 +34,22 @@ CONSTRUCT {
       } UNION {
         ?inputDataset df:namedInput ?mainGraphInput .
         ?mainGraphInput df:input ?mainGraph .
-        {
+#        {
           ?mainGraphInput df:id ?mainGraphName .
-        } UNION {
-          BIND ( ?mainGraph AS ?mainGraphName ) .
-          FILTER ( NOT EXISTS { ?mainGraphInput df:id ?namedInputAnyName } ) .
-        }
+#        } UNION {
+#          BIND ( ?mainGraph AS ?mainGraphName ) .
+#          FILTER ( NOT EXISTS { ?mainGraphInput df:id ?namedInputAnyName } ) .
+#        }
       }
       OPTIONAL {
         ?inputDataset df:namedInput ?innerGraphInput .
         ?innerGraphInput df:input ?innerGraph .
-        {
+#        {
           ?innerGraphInput df:id ?innerGraphName .
-        } UNION {
-          BIND ( ?innerGraph AS ?innerGraphName ) .
-          FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
-        }
+#        } UNION {
+#          BIND ( ?innerGraph AS ?innerGraphName ) .
+#          FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
+#        }
       }
     
       ?importedGraph
