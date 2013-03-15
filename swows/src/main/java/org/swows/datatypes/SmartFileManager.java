@@ -22,7 +22,19 @@ package org.swows.datatypes;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
+import org.openrdf.OpenRDFException;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.query.TupleQuery;
+import org.openrdf.query.TupleQueryResultHandler;
+import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.rio.RDFFormat;
 import org.swows.graph.LoadGraph;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
@@ -64,19 +76,41 @@ public class SmartFileManager extends FileManager {
     	DomEncoder.developInRDF(newGraph);
     }
     
-    public static void includeAllInAGraph(final Graph graph, final DatasetGraph ds) {
-    	List<Node> includedGraphNodes =
-    			graph.find(Node.ANY, RDF.type.asNode(), DF.IncludedGraph.asNode()).mapWith(new Map1<Triple, Node>() {
-    				@Override
-    				public Node map1(Triple t) {
-    					Node graphNode = t.getSubject();
-    					return graphNode;
-    				}
-    			}).toList();
-    	for (Node graphNode : includedGraphNodes) includeGraph(graph,graphNode,ds);
+    public static void includeAllInAGraph(final Repository repository) {
+    	
+		try {
+			final List<URI> includedGraphNodes = new Vector<URI>();
+			RepositoryConnection con = repository.getConnection();
+			try {
+				TupleQuery tupleQuery =  con.prepareTupleQuery(
+						QueryLanguage.SPARQL,
+						"SELECT ?includedGraph WHERE { ?includedGraph a <http://www.swows.org/dataflow#IncludedGraph> }");
+				tupleQuery.evaluate(new TupleQueryResultHandler() {
+					@Override
+					public void startQueryResult(List<String> arg0)
+							throws TupleQueryResultHandlerException {}
+					@Override
+					public void handleSolution(BindingSet bindingSet)
+							throws TupleQueryResultHandlerException {
+						Value includedGraphValue = bindingSet.getValue("includedGraph");
+						if (includedGraphValue instanceof URI)
+							includedGraphNodes.add((URI) includedGraphValue);
+					}
+					@Override
+					public void endQueryResult() throws TupleQueryResultHandlerException {}
+				});
+			} finally {
+				con.close();
+			}
+			for (URI graphNode : includedGraphNodes) includeGraph(graphNode,repository);
+		} catch (OpenRDFException e) {
+			throw new RuntimeException(e);
+		} catch (java.io.IOException e) {
+			throw new RuntimeException(e);
+		}
     }
 
-    private static void includeGraph(final Graph graph, Node graphNode, DatasetGraph ds) {
+    private static void includeGraph(URI graphNode, Repository repository) {
 		Node urlNode = GraphUtils.getSingleValueProperty( graph, graphNode, DF.url.asNode() );
 		String filenameOrURI = null, baseURI = null, rdfSyntax = null;
 		if (urlNode != null)

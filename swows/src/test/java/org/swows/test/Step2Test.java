@@ -22,6 +22,7 @@ package org.swows.test;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Iterator;
@@ -32,24 +33,20 @@ import javax.xml.transform.TransformerException;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.RunnableQueue;
 import org.apache.log4j.PropertyConfigurator;
+import org.openrdf.OpenRDFException;
+import org.openrdf.query.Dataset;
+import org.openrdf.query.Query;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.rio.RDFFormat;
+import org.openrdf.sail.config.SailRegistry;
+import org.openrdf.sail.memory.MemoryStore;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
 import org.swows.util.GraphUtils;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.function.FunctionRegistry;
-import com.hp.hpl.jena.tdb.TDBFactory;
 
 public class Step2Test {
 
@@ -65,8 +62,7 @@ public class Step2Test {
 	private static void include(Dataset wfDataset) {
 		
     	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
-		QueryExecution queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
+    	query.setDataset(wfDataset);
 		Model newWfModel = queryExecution.execConstruct();
 //    	wfDataset.setDefaultModel(newWfModel);
     	wfDataset.getDefaultModel().removeAll();
@@ -113,8 +109,6 @@ public class Step2Test {
     	//BasicConfigurator.configure();
         PropertyConfigurator.configure("/home/miguel/git/WorldInfo/log4j.properties");
     	
-		FunctionRegistry registry = FunctionRegistry.get();
-		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
@@ -130,6 +124,7 @@ public class Step2Test {
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 		String mainGraphUrl = baseUri + "main.n3";
+		File mainFile = new File(mainGraphUrl);
 		
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 
@@ -142,9 +137,27 @@ public class Step2Test {
 //			wfDataset.addNamedModel(name,wfDatasetTemp.getNamedModel(name));
 //		}
 		
-		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
-		final Graph wfGraph = wfDatasetGraph.getDefaultGraph();
-		SmartFileManager.includeAllInAGraph(wfGraph, wfDatasetGraph);
+		Repository myRepository = new SailRepository(new MemoryStore());
+		myRepository.initialize();
+		
+
+		try {
+			RepositoryConnection con = myRepository.getConnection();
+			try {
+				con.add(mainFile, baseUri, RDFFormat.N3);
+			} finally {
+				con.close();
+			}
+		} catch (OpenRDFException e) {
+			throw new RuntimeException(e);
+		} catch (java.io.IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+//		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
+//		final Graph wfGraph = wfDatasetGraph.getDefaultGraph();
+		SmartFileManager.includeAllInAGraph(myRepository);
+		myRepository.
 
 		System.out.println("*** Workflow graph  ***");
 		wfDataset.getDefaultModel().write(System.out,"N3");
