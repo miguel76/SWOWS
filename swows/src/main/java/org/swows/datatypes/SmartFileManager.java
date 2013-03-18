@@ -20,24 +20,41 @@
 package org.swows.datatypes;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.MalformedQueryException;
+import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResultHandler;
 import org.openrdf.query.TupleQueryResultHandlerException;
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.Rio;
 import org.swows.graph.LoadGraph;
+import org.swows.node.Skolemizer2;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
@@ -65,78 +82,232 @@ public class SmartFileManager {
 //    }
     
 	private static class IncludedGraphData {
-		URI node;
-		String url, baseUri, syntax;
-		public IncludedGraphData(URI Node, URI Url, URI baseUri, URI syntax) {
-			this.node = Node;
-			this.url = Url.stringValue();
+		Resource node;
+//		String url;
+		URI url;
+		String  baseUri;
+		RDFFormat syntax;
+		public IncludedGraphData(Resource node, URI url, URI baseUri, URI syntax) {
+			this.node = node;
+			this.url = url;//Url.stringValue();
 			this.baseUri = (baseUri != null) ? baseUri.stringValue() : null;
-			this.syntax = (syntax != null) ? syntax.stringValue() : LoadGraph.guessLang(this.url);
+			this.syntax = (syntax != null) ? convertSyntax(syntax.stringValue()) : RDFFormat.forFileName(url.stringValue());
 		}
 	}
 	
-    public static void includeAllInAGraph(final Repository repository, final String contextUri) {
-    	
-		try {
-			final List<IncludedGraphData> includedGraphsData = new Vector<IncludedGraphData>();
-			RepositoryConnection con = repository.getConnection();
-			try {
-				TupleQuery tupleQuery =  con.prepareTupleQuery(
-						QueryLanguage.SPARQL,
-						"SELECT ?includedGraph ?url ?baseUri ?syntax FROM <" + contextUri + "> "
-						+ "WHERE { ?includedGraph a <http://www.swows.org/dataflow#IncludedGraph>; df:url ?url. OPTIONAL{?includedGraph df:baseUri ?baseUri}. OPTIONAL{?includedGraph df:syntax ?syntax} }");
-				tupleQuery.evaluate(new TupleQueryResultHandler() {
-					@Override
-					public void startQueryResult(List<String> arg0)
-							throws TupleQueryResultHandlerException {}
-					@Override
-					public void handleSolution(BindingSet bindingSet)
-							throws TupleQueryResultHandlerException {
-						Value includedGraphValue = bindingSet.getValue("includedGraph");
-						Value urlValue = bindingSet.getValue("url");
-						Value baseUriValue = bindingSet.getValue("baseUri");
-						Value syntaxValue = bindingSet.getValue("syntax");
-//						if (includedGraphValue instanceof URI
-//								&& urlValue instanceof URI
-//								)
-						includedGraphsData.add(new IncludedGraphData((URI) includedGraphValue, (URI) urlValue, (URI) baseUriValue, (URI) syntaxValue));
-					}
-					@Override
-					public void endQueryResult() throws TupleQueryResultHandlerException {}
-				});
-			} finally {
-				con.close();
-			}
-			for (IncludedGraphData includedGraphData : includedGraphsData) includeGraph(includedGraphData,repository,contextUri);
-		} catch (OpenRDFException e) {
-			throw new RuntimeException(e);
-//		} catch (java.io.IOException e) {
-//			throw new RuntimeException(e);
-		}
+    public static void includeAllInAGraph(final RepositoryConnection con, final Resource context) throws RepositoryException, MalformedQueryException, QueryEvaluationException, TupleQueryResultHandlerException, RDFParseException, RDFHandlerException, MalformedURLException, UpdateExecutionException, IOException {
+    	final List<IncludedGraphData> includedGraphsData = new Vector<SmartFileManager.IncludedGraphData>();
+		TupleQuery tupleQuery =  con.prepareTupleQuery(
+				QueryLanguage.SPARQL,
+				"SELECT ?includedGraph ?url ?baseUri ?syntax "
+				+ "WHERE { ?includedGraph a <http://www.swows.org/dataflow#IncludedGraph>; <http://www.swows.org/dataflow#url> ?url. OPTIONAL{?includedGraph <http://www.swows.org/dataflow#baseUri> ?baseUri}. OPTIONAL{?includedGraph <http://www.swows.org/dataflow#syntax> ?syntax} }");
+		DatasetImpl dataset = new DatasetImpl();
+		dataset.addDefaultGraph((URI) context);
+		tupleQuery.setDataset(dataset);
+		tupleQuery.evaluate(new TupleQueryResultHandler() {
+				@Override
+				public void startQueryResult(List<String> arg0)
+						throws TupleQueryResultHandlerException {}
+				@Override
+				public void handleSolution(BindingSet bindingSet)
+						throws TupleQueryResultHandlerException {
+					Value includedGraphValue = bindingSet.getValue("includedGraph");
+					Value urlValue = bindingSet.getValue("url");
+					Value baseUriValue = bindingSet.getValue("baseUri");
+					Value syntaxValue = bindingSet.getValue("syntax");
+//					if (includedGraphValue instanceof URI
+//							&& urlValue instanceof URI
+//							)
+					includedGraphsData.add(new IncludedGraphData((Resource) includedGraphValue, (URI) urlValue, (URI) baseUriValue, (URI) syntaxValue));
+				}
+				@Override
+				public void endQueryResult() throws TupleQueryResultHandlerException {}
+			});
+		for (IncludedGraphData includedGraphData : includedGraphsData) includeGraph(con, includedGraphData, context);
     }
+    
+//    public static void includeAllInAGraph(final Repository repository, final String contextUri) {
+//    	
+//		try {
+//			final List<IncludedGraphData> includedGraphsData = new Vector<IncludedGraphData>();
+//			RepositoryConnection con = repository.getConnection();
+//			try {
+////				con.setNamespace("df", "http://www.swows.org/dataflow#");
+////				TupleQuery tupleQuery =  con.prepareTupleQuery(
+////						QueryLanguage.SPARQL,
+////						"SELECT ?includedGraph ?url ?baseUri ?syntax FROM <" + contextUri + "> "
+////						+ "WHERE { ?includedGraph a df:IncludedGraph; df:url ?url. OPTIONAL{?includedGraph df:baseUri ?baseUri}. OPTIONAL{?includedGraph df:syntax ?syntax} }");
+//				TupleQuery tupleQuery =  con.prepareTupleQuery(
+//						QueryLanguage.SPARQL,
+//						"SELECT ?includedGraph ?url ?baseUri ?syntax FROM <" + contextUri + "> "
+//						+ "WHERE { ?includedGraph a <http://www.swows.org/dataflow#IncludedGraph>; <http://www.swows.org/dataflow#url> ?url. OPTIONAL{?includedGraph <http://www.swows.org/dataflow#baseUri> ?baseUri}. OPTIONAL{?includedGraph <http://www.swows.org/dataflow#syntax> ?syntax} }");
+//				tupleQuery.evaluate(new TupleQueryResultHandler() {
+//					@Override
+//					public void startQueryResult(List<String> arg0)
+//							throws TupleQueryResultHandlerException {}
+//					@Override
+//					public void handleSolution(BindingSet bindingSet)
+//							throws TupleQueryResultHandlerException {
+//						Value includedGraphValue = bindingSet.getValue("includedGraph");
+//						Value urlValue = bindingSet.getValue("url");
+//						Value baseUriValue = bindingSet.getValue("baseUri");
+//						Value syntaxValue = bindingSet.getValue("syntax");
+////						if (includedGraphValue instanceof URI
+////								&& urlValue instanceof URI
+////								)
+//						includedGraphsData.add(new IncludedGraphData((Resource) includedGraphValue, (URI) urlValue, (URI) baseUriValue, (URI) syntaxValue));
+//					}
+//					@Override
+//					public void endQueryResult() throws TupleQueryResultHandlerException {}
+//				});
+//			} finally {
+//				con.close();
+//			}
+//			for (IncludedGraphData includedGraphData : includedGraphsData) includeGraph(includedGraphData,repository,contextUri);
+//		} catch (OpenRDFException e) {
+//			throw new RuntimeException(e);
+////		} catch (java.io.IOException e) {
+////			throw new RuntimeException(e);
+//		}
+//    }
+    
+    private static void includeGraph(RepositoryConnection con, IncludedGraphData includedGraphData, final Resource parentContext) throws RepositoryException, MalformedQueryException, RDFParseException, RDFHandlerException, MalformedURLException, IOException, QueryEvaluationException, TupleQueryResultHandlerException, UpdateExecutionException {
+    	if (includedGraphData.syntax == null) {
+    		System.out.println("Unknown Syntax for graph " + includedGraphData.url);
+    		return;
+    	}
+   		ValueFactory valueFactory = con.getValueFactory();
+		Resource context = includedGraphData.url;
+		loadGraph(includedGraphData.url.stringValue(), includedGraphData.syntax, con, context);
 
-    private static void includeGraph(IncludedGraphData includedGraphData, Repository repository, final String parentContextUri) {
-		try {
-			Resource context = repository.getValueFactory().createURI(includedGraphData.url);
-			RepositoryConnection con = repository.getConnection();
-			try {
-				con.add(new FileInputStream(includedGraphData.url), includedGraphData.baseUri, RDFFormat.N3, context);
+		{ // for test purposes only
+			TupleQuery tupleQuery =
+					con.prepareTupleQuery(
+							QueryLanguage.SPARQL, 
+							"SELECT ?node ?p ?o ?url "
+									+ "WHERE { ?node ?p ?o. ?node <http://www.swows.org/dataflow#url> ?url }");
+			DatasetImpl dataset = new DatasetImpl();
+			dataset.addDefaultGraph((URI) parentContext);
+			tupleQuery.setDataset(dataset);
+			tupleQuery.setBinding("node", includedGraphData.node);
+//			tupleQuery.setBinding("url", includedGraphData.url);
+			tupleQuery.evaluate(new TupleQueryResultHandler() {
+				@Override
+				public void startQueryResult(List<String> arg0)
+						throws TupleQueryResultHandlerException {
+					System.out.println("*** START RESULTS ***");
+				}
+				@Override
+				public void handleSolution(BindingSet bindingSet)
+						throws TupleQueryResultHandlerException {
+					System.out.println(bindingSet);
+				}
+				@Override
+				public void endQueryResult() throws TupleQueryResultHandlerException {
+					System.out.println("*** END RESULTS ***");
+				}
+			});
+		}
+		
+		Update update =
 				con.prepareUpdate(
 						QueryLanguage.SPARQL, 
-						"WITH <" + parentContextUri + "> "
-								+ "DELETE {<" + includedGraphData.node + "> ?p ?o} "
-								+ "INSERT {<" + includedGraphData.node + "> a <http://www.swows.org/dataflow#ImportedGraph>. "
-								+ "<" + includedGraphData.node + "> <http://www.swows.org/dataflow#uri> <" + includedGraphData.url + ">.} "
-								+ "WHERE { <" + includedGraphData.node + "> ?p ?o}");
-			} finally {
-				con.close();
-			}
-			includeAllInAGraph(repository, includedGraphData.url);
-		} catch (OpenRDFException e) {
-			throw new RuntimeException(e);
-		} catch (java.io.IOException e) {
-			throw new RuntimeException(e);
-		}
+//						"WITH <" + parentContext.stringValue() + "> " +
+						"DELETE {?node ?p ?o} "
+								+ "INSERT {?node a <http://www.swows.org/dataflow#ImportedGraph>. "
+								+ "?node <http://www.swows.org/dataflow#uri> ?url.} "
+								+ "WHERE { ?node ?p ?o. ?node <http://www.swows.org/dataflow#url> ?url }");
+		DatasetImpl dataset = new DatasetImpl();
+		dataset.addDefaultGraph((URI) parentContext);
+		update.setDataset(dataset);
+		update.setBinding("node", includedGraphData.node);
+//		update.setBinding("url", includedGraphData.url);
+		update.execute();
+		includeAllInAGraph(con, context);
+    }
+
+//    private static void includeGraph(IncludedGraphData includedGraphData, Repository repository, final String parentContextUri) {
+//    	if (includedGraphData.syntax == null) {
+//    		System.out.println("Unknown Syntax for graph " + includedGraphData.url);
+//    		return;
+//    	}
+//    	try {
+//    		ValueFactory valueFactory = repository.getValueFactory();
+//			Resource context = valueFactory.createURI(includedGraphData.url);
+//			RepositoryConnection con = repository.getConnection();
+//			try {
+//				
+//				loadGraph(includedGraphData.url, includedGraphData.syntax, con, context);
+//				
+//				con.prepareUpdate(
+//						QueryLanguage.SPARQL, 
+//						"WITH <" + parentContextUri + "> "
+//								+ "DELETE {<" + includedGraphData.node + "> ?p ?o} "
+//								+ "INSERT {<" + includedGraphData.node + "> a <http://www.swows.org/dataflow#ImportedGraph>. "
+//								+ "<" + includedGraphData.node + "> <http://www.swows.org/dataflow#uri> <" + includedGraphData.url + ">.} "
+//								+ "WHERE { <" + includedGraphData.node + "> ?p ?o}");
+//			} finally {
+//				con.close();
+//			}
+//			includeAllInAGraph(repository, includedGraphData.url);
+//		} catch (OpenRDFException e) {
+//			throw new RuntimeException(e);
+//		} catch (java.io.IOException e) {
+//			throw new RuntimeException(e);
+//		}
+//    }
+
+    private static RDFFormat convertSyntax(String syntaxUri) {
+    	if (syntaxUri == null)
+    		return null;
+    	else
+    		return null; //change to support syntax uris
+    }
+    
+    public static void loadGraph(
+    		String url, RDFFormat format,
+    		ValueFactory valueFactory, RDFHandler outputHandler) throws RDFParseException, RDFHandlerException, MalformedURLException, IOException {
+		RDFParser parser = Rio.createParser(format, valueFactory);
+		parser.setRDFHandler(Skolemizer2.getInstance().skolemizerHandler(outputHandler, valueFactory));
+		parser.parse(new URL(url).openStream(), url);
+    }
+
+    public static void loadGraph(
+    		String url, RDFFormat format,
+    		final RepositoryConnection con, final Resource context) throws RDFParseException, RDFHandlerException, MalformedURLException, IOException {
+		loadGraph(
+				url,
+				format,
+				con.getValueFactory(),
+				new RDFHandler() {
+					@Override
+					public void startRDF() throws RDFHandlerException {
+					}
+					@Override
+					public void handleStatement(Statement st) throws RDFHandlerException {
+						try {
+							con.add(st, context);
+						} catch (RepositoryException e) {
+							throw new RDFHandlerException(e);
+						}
+					}
+					@Override
+					public void handleNamespace(String prefix, String uri)
+							throws RDFHandlerException {
+						try {
+							if (con.getNamespace(prefix) == null)
+								con.setNamespace(prefix, uri);
+						} catch (RepositoryException e) {
+							throw new RDFHandlerException(e);
+						}
+					}
+					@Override
+					public void handleComment(String comment) throws RDFHandlerException {
+					}
+					@Override
+					public void endRDF() throws RDFHandlerException {
+					}
+				});
     }
 
 //    private FileManager baseFileManager;

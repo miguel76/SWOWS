@@ -30,7 +30,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -45,6 +47,7 @@ import org.openrdf.OpenRDFException;
 import org.openrdf.model.Graph;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.query.Dataset;
 import org.openrdf.query.GraphQuery;
@@ -54,17 +57,21 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.impl.DatasetImpl;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.RDFWriter;
+import org.openrdf.rio.Rio;
 import org.openrdf.sail.config.SailRegistry;
 import org.openrdf.sail.memory.MemoryStore;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
+import org.swows.node.Skolemizer2;
 import org.swows.util.GraphUtils;
 
 public class Step2Test {
@@ -105,6 +112,10 @@ public class Step2Test {
 					public void handleStatement(Statement stat) throws RDFHandlerException {
 //						stats.add(stat);
 						resultGraph.add(stat);
+//						System.out.println(
+//								"S: " + stat.getSubject() + " - " +
+//								"P: " + stat.getPredicate() + " - " +
+//								"O: " + stat.getObject() );
 					}
 					@Override
 					public void handleNamespace(String arg0, String arg1)
@@ -182,9 +193,9 @@ public class Step2Test {
 		}
 			
 		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeDataflows.sparql"), mainUri );
-		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeQueries.sparql"), mainUri );
-		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeUpdates.sparql"), mainUri );
-		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeConstantGraphs.sparql"), mainUri );
+//		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeQueries.sparql"), mainUri );
+//		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeUpdates.sparql"), mainUri );
+//		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeConstantGraphs.sparql"), mainUri );
 		
 	}
 
@@ -198,7 +209,7 @@ public class Step2Test {
 			try {
 				RepositoryResult<Resource> contexts = con.getContextIDs();
 				while (contexts.hasNext())
-					dataset.addNamedGraph(repository.getValueFactory().createURI(contexts.next().stringValue()));
+					dataset.addNamedGraph((URI) contexts.next());
 			} finally {
 				con.close();
 			}
@@ -209,7 +220,90 @@ public class Step2Test {
 		execQueryAndPut( repository, dataset, readFile("resources/sparql/concatQueries.sparql"), mainUri );
 	}
 
-    public static void main(final String[] args) throws TransformerException, FileNotFoundException {
+//	private static void print(Repository repository, Writer writer, RDFFormat format) throws IOException {
+//		try {
+//			RepositoryConnection con = repository.getConnection();
+//			try {
+//				RepositoryResult<Resource> contexts = con.getContextIDs();
+//				while (contexts.hasNext()) {
+//					Resource context = contexts.next();
+//					RepositoryResult<Statement> stats = con.getStatements(null, null, null, true, context);
+//					RDFWriter rdfWriter = Rio.createWriter(format, writer);
+//					rdfWriter.startRDF();
+//					while (stats.hasNext())
+//						rdfWriter.handleStatement(stats.next());
+//					rdfWriter.endRDF();
+//				}
+//			} finally {
+//				con.close();
+//			}
+//		} catch (OpenRDFException e) {
+//			throw new RuntimeException(e);
+//		}
+//	}
+
+	private static void print(
+			Repository repository, Resource context,
+			Writer writer, RDFFormat format) throws IOException {
+		try {
+			RepositoryConnection con = repository.getConnection();
+			try {
+				RepositoryResult<Statement> stats = con.getStatements(null, null, null, true, context);
+				RDFHandler rdfWriter =
+						Skolemizer2.deskolemizerHandler(
+								Rio.createWriter(format, writer),
+								con.getValueFactory()) ;
+				rdfWriter.startRDF();
+				while (stats.hasNext())
+					rdfWriter.handleStatement(stats.next());
+				rdfWriter.endRDF();
+			} finally {
+				con.close();
+			}
+		} catch (OpenRDFException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void print(
+			Repository repository, String context,
+			Writer writer, RDFFormat format) throws IOException {
+		print(repository, repository.getValueFactory().createURI(context), writer, format);
+	}
+
+	private static void print(
+			Repository repository, Resource context,
+			Writer writer) throws IOException {
+		print(repository, context, writer, RDFFormat.N3);
+	}
+
+	private static void print(
+			Repository repository, String context,
+			Writer writer) throws IOException {
+		print(repository, repository.getValueFactory().createURI(context), writer, RDFFormat.N3);
+	}
+
+	private static void print(
+			Repository repository, Resource context,
+			RDFFormat format) throws IOException {
+		print(repository, context, new OutputStreamWriter(System.out), format);
+	}
+	
+	private static void print(
+			Repository repository, String context,
+			RDFFormat format) throws IOException {
+		print(repository, repository.getValueFactory().createURI(context), new OutputStreamWriter(System.out), format);
+	}
+	
+	private static void print(Repository repository, Resource context) throws IOException {
+		print(repository, context, new OutputStreamWriter(System.out));
+	}
+
+	private static void print(Repository repository, String context) throws IOException {
+		print(repository, repository.getValueFactory().createURI(context));
+	}
+
+	public static void main(final String[] args) throws TransformerException, IOException, RepositoryException {
     	
     	//BasicConfigurator.configure();
         PropertyConfigurator.configure("/home/miguel/git/WorldInfo/log4j.properties");
@@ -225,11 +319,14 @@ public class Step2Test {
         device = ge.getDefaultScreenDevice(); // TODO: remove this workaround for test without screen
         GraphicsConfiguration conf = device.getDefaultConfiguration();
         
-		String baseUri = "/home/miguel/git/WorldInfo/dataflow/";
+//		String baseUri = "file:///home/miguel/git/WorldInfo/dataflow/";
+		String baseDir = "/home/miguel/git/WorldInfo/dataflow/";
+		String baseUri = "file://" + baseDir;
 //		String baseUri = "/home/dario/NetBeansProjects/provaTavolo/test/pampersoriginal/dataflow/";
 
 		String mainGraphUrl = baseUri + "main.n3";
-		File mainFile = new File(mainGraphUrl);
+		String mainGraphPath = baseDir + "main.n3";
+		File mainFile = new File(mainGraphPath);
 		
 //		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 
@@ -245,12 +342,14 @@ public class Step2Test {
 		Repository myRepository = new SailRepository(new MemoryStore());
 		myRepository.initialize();
 		
-		String mainUri = "<http://www.swows.org/dataflow#test>";
+		String mainUri = mainGraphUrl;
 		Resource mainContext = myRepository.getValueFactory().createURI(mainUri); 
 		try {
 			RepositoryConnection con = myRepository.getConnection();
 			try {
-				con.add(mainFile, baseUri, RDFFormat.N3, mainContext);
+				SmartFileManager.loadGraph(mainGraphUrl, RDFFormat.N3, con, mainContext);
+//				con.add(mainFile, baseUri, RDFFormat.N3, mainContext);
+				SmartFileManager.includeAllInAGraph(con, mainContext);
 			} finally {
 				con.close();
 			}
@@ -260,35 +359,49 @@ public class Step2Test {
 			throw new RuntimeException(e);
 		}
 		
-//		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
-//		final Graph wfGraph = wfDatasetGraph.getDefaultGraph();
-		SmartFileManager.includeAllInAGraph(myRepository, mainUri);
 
-		System.out.println("*** Workflow graph  ***");
-//		myRepository.
-		wfDataset.getDefaultModel().write(System.out,"N3");
-		System.out.println("***************************************");
-
-//		Iterator<String> names = wfDataset.listNames();
-//		while (names.hasNext()) {
-//			String name = names.next();
+		
+//		System.out.println("*** Workflow graph  ***");
+//		print(myRepository, mainUri);
+//		System.out.println("***************************************");
+		
+//		System.out.println("*** SubDataflow graph  ***");
+//		print(myRepository, baseUri + "svg.n3");
+//		System.out.println("***************************************");
+		
+//		DatasetImpl dataset = new DatasetImpl();
+//		try {
+//			RepositoryConnection con = myRepository.getConnection();
+//			try {
+//				RepositoryResult<Resource> contexts = con.getContextIDs();
+//				while (contexts.hasNext())
+//					dataset.addNamedGraph((URI) contexts.next());
+//			} finally {
+//				con.close();
+//			}
+//		} catch (OpenRDFException e) {
+//			throw new RuntimeException(e);
+//		}
+//
+//		for (URI uri : dataset.getNamedGraphs()) {
 //			System.out.println();
-//			System.out.println("*** Graph: " + name + " ***");
-//			wfDataset.getNamedModel(name).write(System.out,"N3");
+//			System.out.println("*** Graph: " + uri.stringValue() + " ***");
+//			print(myRepository, uri);
 //			System.out.println("***************************************");
 //			System.out.println();
 //		}
 		
-		include(myRepository, mainUri);
-		Model newWfModel = wfDataset.getDefaultModel();
-		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
+//		include(myRepository, mainUri);
+		
+//		Model newWfModel = wfDataset.getDefaultModel();
+//		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
 
 //		mainGraphUrl = "/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3";
 //		Dataset wfDataset2 = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 //		Model newWfModel = wfDataset2.getDefaultModel();
 //		wfDataset.setDefaultModel(newWfModel);
 
-    	Graph newWfGraph = newWfModel.getGraph();
+//    	Graph newWfGraph = newWfModel.getGraph();
 
 //		org.swows.spinx.QueryFactory.addTextualQueries(newWfGraph);
 
@@ -298,18 +411,19 @@ public class Step2Test {
 //				QueryExecutionFactory.create(query, wfDataset);
 //		newWfModel = queryExecution.execConstruct();
 		
-//		System.out.println("*** Workflow graph in N3 ***");
+		System.out.println("*** Workflow graph in N3 ***");
 //		newWfModel.write(System.out,"N3");
-//		System.out.println("***************************************");
+		print(myRepository, mainUri);
+		System.out.println("***************************************");
 
 //		newWfGraph = newWfModel.getGraph();
 		
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://www.swows.org/spinx");
 //		GraphUtils.deletePropertyBasedOn(newWfGraph, "http://spinrdf.org/sp");
 
-		System.out.println("*** Workflow graph in N3 ***");
-		ModelFactory.createModelForGraph(Skolemizer.deSkolemize(newWfGraph)).write(System.out,"N3");
-		System.out.println("***************************************");
+//		System.out.println("*** Workflow graph in N3 ***");
+//		ModelFactory.createModelForGraph(Skolemizer.deSkolemize(newWfGraph)).write(System.out,"N3");
+//		System.out.println("***************************************");
 
 		
 		//MouseApp tuioApp = 
