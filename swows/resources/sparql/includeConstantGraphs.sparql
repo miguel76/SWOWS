@@ -69,10 +69,10 @@ CONSTRUCT {
       BIND( URI( CONCAT( STR(:newObjectVar_), MD5( STR(?importedGraph) ) ) ) AS ?newObjectVar) .
       BIND( URI( CONCAT( STR(:newWhere_), MD5( STR(?importedGraph) ) ) ) AS ?newWhere) .
 
-      BIND( URI( CONCAT( STR(:newRow_), MD5( STR(?sG) ) ) ) AS ?newRow) .
-      BIND( URI( CONCAT( STR(:newSubjectCell_), MD5( STR(?sG) ) ) ) AS ?newSubjectCell) .
-      BIND( URI( CONCAT( STR(:newPredicateCell_), MD5( STR(?sG) ) ) ) AS ?newPredicateCell) .
-      BIND( URI( CONCAT( STR(:newObjectCell_), MD5( STR(?sG) ) ) ) AS ?newObjectCell) .
+      BIND( URI( CONCAT( STR(:newRow_), MD5( STR(?sG) ), MD5( STR(?pG) ), MD5( STR(?oG) ) ) ) AS ?newRow) .
+      BIND( URI( CONCAT( STR(:newSubjectCell_), MD5( STR(?sG) ), MD5( STR(?pG) ), MD5( STR(?oG) ) ) ) AS ?newSubjectCell) .
+      BIND( URI( CONCAT( STR(:newPredicateCell_), MD5( STR(?sG) ), MD5( STR(?pG) ), MD5( STR(?oG) ) ) ) AS ?newPredicateCell) .
+      BIND( URI( CONCAT( STR(:newObjectCell_), MD5( STR(?sG) ), MD5( STR(?pG) ), MD5( STR(?oG) ) ) ) AS ?newObjectCell) .
     
     }
     

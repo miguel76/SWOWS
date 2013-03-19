@@ -34,6 +34,7 @@ import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -171,6 +172,14 @@ public class SmartFileManager {
 //		}
 //    }
     
+    private static final String DF_NS = "http://www.swows.org/dataflow#";
+    private static URI dfImportedGraph(ValueFactory valueFactory) {
+    	return valueFactory.createURI(DF_NS, "ImportedGraph");
+    }
+    private static URI dfuri(ValueFactory valueFactory) {
+    	return valueFactory.createURI(DF_NS, "uri");
+    }
+    
     private static void includeGraph(RepositoryConnection con, IncludedGraphData includedGraphData, final Resource parentContext) throws RepositoryException, MalformedQueryException, RDFParseException, RDFHandlerException, MalformedURLException, IOException, QueryEvaluationException, TupleQueryResultHandlerException, UpdateExecutionException {
     	if (includedGraphData.syntax == null) {
     		System.out.println("Unknown Syntax for graph " + includedGraphData.url);
@@ -185,12 +194,12 @@ public class SmartFileManager {
 					con.prepareTupleQuery(
 							QueryLanguage.SPARQL, 
 							"SELECT ?node ?p ?o ?url "
-									+ "WHERE { ?node ?p ?o. ?node <http://www.swows.org/dataflow#url> ?url }");
+									+ "WHERE { ?node ?p ?o }");
 			DatasetImpl dataset = new DatasetImpl();
 			dataset.addDefaultGraph((URI) parentContext);
 			tupleQuery.setDataset(dataset);
 			tupleQuery.setBinding("node", includedGraphData.node);
-//			tupleQuery.setBinding("url", includedGraphData.url);
+			tupleQuery.setBinding("url", includedGraphData.url);
 			tupleQuery.evaluate(new TupleQueryResultHandler() {
 				@Override
 				public void startQueryResult(List<String> arg0)
@@ -216,13 +225,18 @@ public class SmartFileManager {
 						"DELETE {?node ?p ?o} "
 								+ "INSERT {?node a <http://www.swows.org/dataflow#ImportedGraph>. "
 								+ "?node <http://www.swows.org/dataflow#uri> ?url.} "
-								+ "WHERE { ?node ?p ?o. ?node <http://www.swows.org/dataflow#url> ?url }");
+								+ "WHERE { ?node ?p ?o }");
+//								+ "WHERE { ?node ?p ?o. ?node <http://www.swows.org/dataflow#url> ?url }");
 		DatasetImpl dataset = new DatasetImpl();
 		dataset.addDefaultGraph((URI) parentContext);
 		update.setDataset(dataset);
 		update.setBinding("node", includedGraphData.node);
-//		update.setBinding("url", includedGraphData.url);
+		update.setBinding("url", includedGraphData.url);
 		update.execute();
+		
+		con.add(valueFactory.createStatement(includedGraphData.node, RDF.TYPE, dfImportedGraph(valueFactory) ), parentContext);
+		con.add(valueFactory.createStatement(includedGraphData.node, dfuri(valueFactory), includedGraphData.url ), parentContext);
+		
 		includeAllInAGraph(con, context);
     }
 

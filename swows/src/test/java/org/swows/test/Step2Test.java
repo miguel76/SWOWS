@@ -65,6 +65,9 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
+import org.openrdf.rio.helpers.BufferedGroupingRDFHandler;
+import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriter;
+import org.openrdf.rio.rdfxml.util.RDFXMLPrettyWriterFactory;
 import org.openrdf.sail.config.SailRegistry;
 import org.openrdf.sail.memory.MemoryStore;
 import org.swows.datatypes.SmartFileManager;
@@ -72,6 +75,7 @@ import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
 import org.swows.node.Skolemizer2;
+import org.swows.rio.BufferedGroupStripingRDFHandler;
 import org.swows.util.GraphUtils;
 
 public class Step2Test {
@@ -195,7 +199,7 @@ public class Step2Test {
 		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeDataflows.sparql"), mainUri );
 //		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeQueries.sparql"), mainUri );
 //		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeUpdates.sparql"), mainUri );
-//		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeConstantGraphs.sparql"), mainUri );
+		execQueryAndPut( repository, dataset, readFile("resources/sparql/includeConstantGraphs.sparql"), mainUri );
 		
 	}
 
@@ -251,8 +255,10 @@ public class Step2Test {
 				RepositoryResult<Statement> stats = con.getStatements(null, null, null, true, context);
 				RDFHandler rdfWriter =
 						Skolemizer2.deskolemizerHandler(
-								Rio.createWriter(format, writer),
-								con.getValueFactory()) ;
+								new BufferedGroupStripingRDFHandler(
+//										Rio.createWriter(format, writer)),
+										new RDFXMLPrettyWriter(writer)),
+								con.getValueFactory() );
 				rdfWriter.startRDF();
 				while (stats.hasNext())
 					rdfWriter.handleStatement(stats.next());
@@ -391,7 +397,7 @@ public class Step2Test {
 //			System.out.println();
 //		}
 		
-//		include(myRepository, mainUri);
+		include(myRepository, mainUri);
 		
 //		Model newWfModel = wfDataset.getDefaultModel();
 //		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
@@ -411,9 +417,13 @@ public class Step2Test {
 //				QueryExecutionFactory.create(query, wfDataset);
 //		newWfModel = queryExecution.execConstruct();
 		
+//		System.out.println("*** Workflow graph in N3 ***");
+////		newWfModel.write(System.out,"N3");
+//		print(myRepository, mainUri);
+//		System.out.println("***************************************");
+		
 		System.out.println("*** Workflow graph in N3 ***");
-//		newWfModel.write(System.out,"N3");
-		print(myRepository, mainUri);
+		print(myRepository, mainUri, RDFFormat.RDFXML);
 		System.out.println("***************************************");
 
 //		newWfGraph = newWfModel.getGraph();
