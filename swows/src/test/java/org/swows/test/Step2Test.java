@@ -88,13 +88,21 @@ public class Step2Test {
     	wfDataset.getDefaultModel().removeAll();
     	wfDataset.getDefaultModel().add(newWfModel);
 		
-		query = QueryFactory.read("resources/sparql/includeConstantGraphs.sparql");
+		query = QueryFactory.read("resources/sparql/toQuads.sparql");
 		queryExecution =
 				QueryExecutionFactory.create(query, wfDataset);
 		newWfModel = queryExecution.execConstruct();
 //		wfDataset.setDefaultModel(newWfModel);
     	wfDataset.getDefaultModel().removeAll();
     	wfDataset.getDefaultModel().add(newWfModel);
+		
+//		query = QueryFactory.read("resources/sparql/includeConstantGraphs.sparql");
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////		wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
 		
 	}
 
@@ -162,8 +170,12 @@ public class Step2Test {
 		
 		include(wfDataset);
 		Model newWfModel = wfDataset.getDefaultModel();
-		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
-
+		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.sk.n3"),"N3");
+		ModelFactory
+			.createModelForGraph(
+					Skolemizer.deSkolemize(newWfModel.getGraph()) )
+					.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
+		
 //		mainGraphUrl = "/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3";
 //		Dataset wfDataset2 = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 //		Model newWfModel = wfDataset2.getDefaultModel();

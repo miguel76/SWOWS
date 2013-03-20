@@ -209,6 +209,39 @@ public class Skolemizer {
 		return newGraph;
 	}
 	
+	@SuppressWarnings("deprecation")
+	public Graph skolemize(Graph inputGraph) {
+		Graph newGraph = GraphFactory.createDefaultGraph();
+		newGraph.getBulkUpdateHandler().add(
+				inputGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(new Map1<Triple, Triple>() {
+//					Map<Integer, Node> bnodes = new HashMap<Integer, Node>();
+					Map<Node, Node> bnodeIds = new HashMap<Node, Node>();
+					private Node convert(Node inNode) {
+//						int id = getSkolemizedId(inNode);
+//						int id = getSkolemizedId(inNode);
+//						if (id == -1)
+						if (!inNode.isBlank())
+							return inNode;
+						else {
+							Node id = bnodeIds.get(inNode);
+							if (id == null) {
+								id = getNode();
+								bnodeIds.put(inNode, id);
+							}
+							return id;
+						}
+					}
+					@Override
+					public Triple map1(Triple inTriple) {
+						return new Triple(
+								convert(inTriple.getSubject()),
+								convert(inTriple.getPredicate()),
+								convert(inTriple.getObject()));
+					}
+		}));
+		return newGraph;
+	}
+	
 //	public synchronized Node getNode(Node var) {
 //		Node resNode = singleNodesMap.get(var);
 //		if (resNode == null) {

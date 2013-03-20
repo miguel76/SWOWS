@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.swows.graph.LoadGraph;
+import org.swows.node.Skolemizer;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
@@ -89,7 +90,9 @@ public class SmartFileManager extends FileManager {
 			rdfSyntax = syntaxNode.getURI();
 		else
 			rdfSyntax = LoadGraph.guessLang(filenameOrURI);
-		Graph loadedGraph = SmartFileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
+		Graph loadedGraph =
+				Skolemizer.getInstance().skolemize(
+						SmartFileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph());
 		includeAllInAGraph(loadedGraph, ds);
 		ds.addGraph(urlNode, loadedGraph);
     	List<Triple> triplesToDelete =
