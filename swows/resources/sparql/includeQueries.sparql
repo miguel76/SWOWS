@@ -17,11 +17,14 @@ CONSTRUCT {
   }
   WHERE {
     ?s ?p ?o .
-    FILTER NOT EXISTS {
-      ?s a df:ConstructGraph .
-      FILTER(?p = df:config) .
-      ?o a df:ImportedGraph .
-    } .
+    FILTER (
+      ( NOT EXISTS { ?s a df:ConstructGraph }
+        || (?p NOT IN (df:config, df:input)) )
+      && NOT EXISTS { 
+          ?sP
+            a df:ConstructGraph ;
+            df:input ?s }
+    ) .
     OPTIONAL {
       ?constructGraph
         a df:ConstructGraph ;
@@ -58,14 +61,16 @@ CONSTRUCT {
       GRAPH ?graphName {
     
         ?sG ?pG ?oG .
-        FILTER (?sG != swi:GraphRoot && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode)) .
+        FILTER (
+            ?sG != swi:GraphRoot
+            && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode) ) .
       
         swi:GraphRoot ?pR ?oR .
-        FILTER (?pR != sp:where) .
+        FILTER (?pR != sp:where || EXISTS {?oR a sp:NamedGraph} ) .
       
         {
           swi:GraphRoot sp:where ?whereElement .
-          FILTER (NOT EXISTS{?whereElement a sp:NamedGraph}) .
+          FILTER (NOT EXISTS {?whereElement a sp:NamedGraph}) .
           BIND( URI( CONCAT( STR(bn:where_), MD5( STR(?whereElement) ) ) ) AS ?newWhereElement ) .
           BIND( sp:default AS ?mainGraphName ) .
           BIND( ?whereElement AS ?mainElement ) .

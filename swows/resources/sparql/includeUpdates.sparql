@@ -20,11 +20,20 @@ CONSTRUCT {
 WHERE {
    
    ?s ?p ?o .
-    FILTER NOT EXISTS {
-      ?s a df:UpdatableGraph .
-      FILTER(?p = df:config) .
-      ?o a df:ImportedGraph .
-    } .
+#    FILTER NOT EXISTS {
+#      ?s a df:UpdatableGraph .
+#      FILTER(?p = df:config) .
+#      ?o a df:ImportedGraph .
+#    } .
+
+    FILTER (
+      ( NOT EXISTS { ?s a df:UpdatableGraph }
+        || (?p NOT IN (df:config, df:input)) )
+      && NOT EXISTS { 
+          ?sP
+            a df:UpdatableGraph ;
+            df:input ?s }
+    ) .
 
    OPTIONAL {
       
@@ -68,13 +77,14 @@ WHERE {
          ?sG ?pG ?oG .
          FILTER (
              ?sG != swi:GraphRoot
-             && !( EXISTS{?sG a sp:NamedGraph}
-                   && ?pG = sp:graphNameNode )
-             && !( EXISTS{ swi:GraphRoot ?anyP ?sG }
-                   && ?pG = sp:where ) ) .
+             && ( !EXISTS{?sG a sp:NamedGraph}
+                   || ?pG != sp:graphNameNode )
+             && ( !EXISTS{ swi:GraphRoot rdfs:member ?sG }
+                   || ?pG != sp:where
+                   || EXISTS {?oR a sp:NamedGraph} ) ) .
       
-#         swi:GraphRoot rdfs:member ?updateQuery .
-          swi:GraphRoot ?memberP ?updateQuery .
+         swi:GraphRoot rdfs:member ?updateQuery .
+#          swi:GraphRoot ?memberP ?updateQuery .
       
          {
             ?updateQuery sp:where ?whereElement .
