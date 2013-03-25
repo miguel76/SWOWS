@@ -23,7 +23,7 @@ CONSTRUCT {
       && NOT EXISTS { 
           ?sP
             a df:ConstructGraph ;
-            df:input ?s }
+            df:input/(df:input|df:namedInput)? ?s }
     ) .
     OPTIONAL {
       ?constructGraph

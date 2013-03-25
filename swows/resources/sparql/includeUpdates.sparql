@@ -32,7 +32,7 @@ WHERE {
       && NOT EXISTS { 
           ?sP
             a df:UpdatableGraph ;
-            df:input ?s }
+            df:input/(df:input|df:namedInput)? ?s }
     ) .
 
    OPTIONAL {
@@ -79,12 +79,12 @@ WHERE {
              ?sG != swi:GraphRoot
              && ( !EXISTS{?sG a sp:NamedGraph}
                    || ?pG != sp:graphNameNode )
-             && ( !EXISTS{ swi:GraphRoot rdfs:member ?sG }
+             && ( !EXISTS{ swi:GraphRoot ?memberP2 ?sG }
                    || ?pG != sp:where
                    || EXISTS {?oR a sp:NamedGraph} ) ) .
       
-         swi:GraphRoot rdfs:member ?updateQuery .
-#          swi:GraphRoot ?memberP ?updateQuery .
+#         swi:GraphRoot rdfs:member ?updateQuery .
+          swi:GraphRoot ?memberP ?updateQuery .
       
          {
             ?updateQuery sp:where ?whereElement .
