@@ -170,11 +170,15 @@ public class Step2Test {
 		
 		include(wfDataset);
 		Model newWfModel = wfDataset.getDefaultModel();
-		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.sk.n3"),"N3");
+		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.sk.n3"),"N3");
 		ModelFactory
 			.createModelForGraph(
 					Skolemizer.deSkolemize(newWfModel.getGraph()) )
-					.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3"),"N3");
+					.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.n3"),"N3");
+		ModelFactory
+		.createModelForGraph(
+				Skolemizer.deSkolemize(newWfModel.getGraph()) )
+				.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.rdf"));
 		
 //		mainGraphUrl = "/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3";
 //		Dataset wfDataset2 = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
