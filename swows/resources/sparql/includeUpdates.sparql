@@ -32,7 +32,8 @@ WHERE {
       && NOT EXISTS { 
           ?sP
             a df:UpdatableGraph ;
-            df:input/(df:input|df:namedInput)? ?s }
+#            df:input/(df:input|df:namedInput)? ?s }
+            df:input/df:namedInput? ?s }
     ) .
 
    OPTIONAL {

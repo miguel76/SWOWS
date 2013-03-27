@@ -1,0 +1,37 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?s ?p ?o .
+    ?parentElement spx:element ?item.
+  }
+  WHERE {
+    ?s ?p ?o .
+    
+    FILTER (
+      ?p != spx:element
+      || NOT EXISTS { ?o a spx:ElementGroup }
+      || ( NOT EXISTS { ?s a spx:ElementGroup }
+           && NOT EXISTS {
+               ?o spx:element ?itemA .
+               ?o spx:element ?itemB .
+               FILTER(?itemA != ?itemB) .
+              } ) ) .
+      
+    ?parentElement spx:element ?innerGroup .
+    ?innerGroup
+      a spx:ElementGroup ;
+      spx:element ?item .
+    FILTER (
+      EXISTS { ?parentElement a spx:ElementGroup }
+      || NOT EXISTS {
+           ?innerGroup spx:element ?otherItem2 .
+           FILTER(?otherItem2 != ?item) .
+         } ).
+    
+  }
+    

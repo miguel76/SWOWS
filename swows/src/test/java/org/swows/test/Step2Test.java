@@ -24,6 +24,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
@@ -37,6 +38,9 @@ import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
 import org.swows.util.GraphUtils;
+import org.swows.vocabulary.DF;
+import org.swows.vocabulary.SP;
+import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -80,11 +84,27 @@ public class Step2Test {
     	wfDataset.getDefaultModel().removeAll();
     	wfDataset.getDefaultModel().add(newWfModel);
 		
-		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
- 		queryExecution =
+//		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
+// 		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////		wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
+		
+		query = QueryFactory.read("resources/sparql/normalizeGroups.sparql");
+		queryExecution =
 				QueryExecutionFactory.create(query, wfDataset);
 		newWfModel = queryExecution.execConstruct();
-//		wfDataset.setDefaultModel(newWfModel);
+//	   	wfDataset.setDefaultModel(newWfModel);
+    	wfDataset.getDefaultModel().removeAll();
+    	wfDataset.getDefaultModel().add(newWfModel);
+		
+		query = QueryFactory.read("resources/sparql/avoidUnconnectedElements.sparql");
+		queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		newWfModel = queryExecution.execConstruct();
+//	   	wfDataset.setDefaultModel(newWfModel);
     	wfDataset.getDefaultModel().removeAll();
     	wfDataset.getDefaultModel().add(newWfModel);
 		
@@ -114,6 +134,13 @@ public class Step2Test {
 		Model newWfModel = queryExecution.execConstruct();
 		wfDataset.setDefaultModel(newWfModel);
 		
+	}
+	
+	private static void print(Model model, OutputStream outputStream) {
+		model.setNsPrefix(SP.PREFIX, SP.BASE_URI);
+		model.setNsPrefix("spx", SPINX.getURI());
+		model.setNsPrefix("df", DF.getURI());
+		model.write(outputStream,"N3");
 	}
 
     public static void main(final String[] args) throws TransformerException, FileNotFoundException {
@@ -170,15 +197,16 @@ public class Step2Test {
 		
 		include(wfDataset);
 		Model newWfModel = wfDataset.getDefaultModel();
-		newWfModel.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.sk.n3"),"N3");
-		ModelFactory
-			.createModelForGraph(
-					Skolemizer.deSkolemize(newWfModel.getGraph()) )
-					.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.n3"),"N3");
-		ModelFactory
-		.createModelForGraph(
-				Skolemizer.deSkolemize(newWfModel.getGraph()) )
-				.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude2.rdf"));
+		print( 
+				newWfModel,
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude3.sk.n3") );
+		print( 
+				ModelFactory.createModelForGraph( Skolemizer.deSkolemize(newWfModel.getGraph()) ),
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude3.n3") );
+//		ModelFactory
+//		.createModelForGraph(
+//				Skolemizer.deSkolemize(newWfModel.getGraph()) )
+//				.write(new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude3.rdf"));
 		
 //		mainGraphUrl = "/home/miguel/git/WorldInfo/tmp/mainAfterInclude.n3";
 //		Dataset wfDataset2 = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
