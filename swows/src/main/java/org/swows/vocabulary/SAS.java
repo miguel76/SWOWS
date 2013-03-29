@@ -74,11 +74,21 @@ public class SAS {
     public final static Resource Table = resource("Table");
     public final static Resource Column = resource("Column");
     public final static Resource Row = resource("Row");
-    public final static Property Binding = property("Binding");
-    public final static Property VarName = property("VarName");
-    public final static Property Null = property("Null");
+    public final static Resource Binding = resource("Binding");
+    public final static Resource VarName = resource("VarName");
+    public final static Resource Null = resource("Null");
+    public final static Resource Procedure = resource("Procedure");
+    public final static Resource PropertyFunction = resource("PropertyFunction");
+    public final static Resource Filter = resource("Filter");
+    public final static Resource Graph = resource("Graph");
+    public final static Resource Service = resource("Service");
+    public final static Resource DatasetNames = resource("DatasetNames");
+    public final static Resource Labelled = resource("Labelled");
+    public final static Resource Assign = resource("Assign");
+    public final static Resource Assignment = resource("Assign");
 
     public final static Property op = property("op");
+    public final static Property subOp = property("subOp");
     public final static Property name = property("name");
     public final static Property triplePattern = property("triplePattern");
     public final static Property quadPattern = property("quadPattern");
@@ -95,5 +105,14 @@ public class SAS {
     public final static Property value = property("value");
     public final static Property variable = property("variable");
     public final static Property varName = property("varName");
+    public final static Property procedureName = property("procedureName");
+    public final static Property propertyFunctionName = property("propertyFunctionName");
+    public final static Property subjectArg = property("subjectArg");
+    public final static Property objectArg = property("objectArg");
+    public final static Property expr = property("expr");
+    public final static Property graphNameNode = property("graphNameNode");
+    public final static Property serviceNode = property("serviceNode");
+    public final static Property label = property("label");
+    public final static Property assignment = property("assignment");
 
 }

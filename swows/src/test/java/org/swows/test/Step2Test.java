@@ -92,6 +92,14 @@ public class Step2Test {
 //    	wfDataset.getDefaultModel().removeAll();
 //    	wfDataset.getDefaultModel().add(newWfModel);
 		
+		query = QueryFactory.read("resources/sparql/normalizeNamedGraphs.sparql");
+		queryExecution =
+				QueryExecutionFactory.create(query, wfDataset);
+		newWfModel = queryExecution.execConstruct();
+//	   	wfDataset.setDefaultModel(newWfModel);
+    	wfDataset.getDefaultModel().removeAll();
+    	wfDataset.getDefaultModel().add(newWfModel);
+		
 		query = QueryFactory.read("resources/sparql/normalizeGroups.sparql");
 		queryExecution =
 				QueryExecutionFactory.create(query, wfDataset);

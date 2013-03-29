@@ -12,7 +12,8 @@ CONSTRUCT {
     ?newWhereElement
       a sp:Element, sp:NamedGraph ;
       sp:graphNameNode ?mainGraph ;
-      spx:element ?mainElement .
+#      spx:element ?mainElement .
+      spx:element ?whereElement .
     ?innerNamedGraph sp:graphNameNode ?innerGraph .
   }
   WHERE {
@@ -23,7 +24,6 @@ CONSTRUCT {
       && NOT EXISTS { 
           ?sP
             a df:ConstructGraph ;
-#            df:input/(df:input|df:namedInput)? ?s }
             df:input/df:namedInput? ?s }
     ) .
     OPTIONAL {
@@ -32,28 +32,18 @@ CONSTRUCT {
         df:config ?importedGraph ;
         df:input ?inputDataset .
       ?inputDataset a df:InlineDataset .
-      {
+#      {
         ?inputDataset df:input ?mainGraph .
-        BIND ( sp:default AS ?mainGraphName ) .
-      } UNION {
-        ?inputDataset df:namedInput ?mainGraphInput .
-        ?mainGraphInput df:input ?mainGraph .
-#        {
-          ?mainGraphInput df:id ?mainGraphName .
-#        } UNION {
-#          BIND ( ?mainGraph AS ?mainGraphName ) .
-#          FILTER ( NOT EXISTS { ?mainGraphInput df:id ?namedInputAnyName } ) .
-#        }
-      }
+#        BIND ( sp:default AS ?mainGraphName ) .
+#      } UNION {
+#        ?inputDataset df:namedInput ?mainGraphInput .
+#        ?mainGraphInput df:input ?mainGraph .
+#        ?mainGraphInput df:id ?mainGraphName .
+#      }
       OPTIONAL {
         ?inputDataset df:namedInput ?innerGraphInput .
         ?innerGraphInput df:input ?innerGraph .
-#        {
-          ?innerGraphInput df:id ?innerGraphName .
-#        } UNION {
-#          BIND ( ?innerGraph AS ?innerGraphName ) .
-#          FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
-#        }
+        ?innerGraphInput df:id ?innerGraphName .
       }
     
       ?importedGraph
@@ -67,21 +57,22 @@ CONSTRUCT {
             && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode) ) .
       
         swi:GraphRoot ?pR ?oR .
-        FILTER (?pR != sp:where || EXISTS {?oR a sp:NamedGraph} ) .
+#        FILTER (?pR != sp:where || EXISTS {?oR a sp:NamedGraph} ) .
+        FILTER (?pR != sp:where ) .
       
-        {
+#        {
           swi:GraphRoot sp:where ?whereElement .
-          FILTER (NOT EXISTS {?whereElement a sp:NamedGraph}) .
+#          FILTER (NOT EXISTS {?whereElement a sp:NamedGraph}) .
           BIND( URI( CONCAT( STR(bn:where_), MD5( STR(?whereElement) ) ) ) AS ?newWhereElement ) .
-          BIND( sp:default AS ?mainGraphName ) .
-          BIND( ?whereElement AS ?mainElement ) .
-        } UNION {
-          swi:GraphRoot sp:where ?newWhereElement .
-          ?newWhereElement
-            a sp:NamedGraph ;
-            sp:graphNameNode ?mainGraphName ;
-            spx:element ?mainElement .
-        }
+#          BIND( sp:default AS ?mainGraphName ) .
+#          BIND( ?whereElement AS ?mainElement ) .
+#        } UNION {
+#          swi:GraphRoot sp:where ?newWhereElement .
+#          ?newWhereElement
+#            a sp:NamedGraph ;
+#            sp:graphNameNode ?mainGraphName ;
+#            spx:element ?mainElement .
+#        }
         OPTIONAL {
           ?innerNamedGraph
             a sp:NamedGraph ;

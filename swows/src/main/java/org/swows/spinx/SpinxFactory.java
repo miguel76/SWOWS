@@ -803,90 +803,115 @@ public class SpinxFactory {
 
 		@Override
 		public void visit(OpProcedure op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Procedure.asNode()));
+			graph.add(new Triple(opNode, SAS.procedureName.asNode(), fromNode(op.getProcId())));
+			int argCount = 0;
+			for (Expr e : op.getArgs()) {
+				Node exprNode = fromExpr(e);
+				Node argPredNode = Node.createURI( SP.getURI() + "arg" + ++argCount );
+				graph.add(new Triple( opNode, argPredNode, exprNode ));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
 		public void visit(OpPropFunc op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.PropertyFunction.asNode()));
+			graph.add(new Triple(opNode, SAS.propertyFunctionName.asNode(), fromNode(op.getProperty())));
+			graph.add(new Triple(opNode, SAS.subjectArg.asNode(), fromNode(op.getSubjectArgs().getArg())));
+			graph.add(new Triple(opNode, SAS.objectArg.asNode(), fromNode(op.getObjectArgs().getArg())));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
 		public void visit(OpFilter op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Filter.asNode()));
+			for (Expr e : op.getExprs()) {
+				Node exprNode = fromExpr(e);
+				graph.add(new Triple( opNode, SAS.expr.asNode(), exprNode ));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+		}
+
+		@Override
+		public void visit(OpGraph op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
+			graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), fromNode(op.getNode())));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+		}
+
+		@Override
+		public void visit(OpService op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Service.asNode()));
+			graph.add(new Triple(opNode, SAS.serviceNode.asNode(), fromNode(op.getService())));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+		}
+
+		@Override
+		public void visit(OpDatasetNames op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.DatasetNames.asNode()));
+			graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), fromNode(op.getGraphNode())));
+		}
+
+		@Override
+		public void visit(OpLabel op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Labelled.asNode()));
+			graph.add(new Triple(opNode, SAS.label.asNode(), Node.createLiteral(op.getObject().toString())));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+		}
+
+		@Override
+		public void visit(OpAssign op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Assign.asNode()));
+			VarExprList varExprList = op.getVarExprList();
+			for (Var var : varExprList.getVars()) {
+				Node assignmentNode = createNode();
+				graph.add(new Triple(opNode, SAS.assignment.asNode(), assignmentNode));
+				graph.add(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
+				graph.add(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
+				graph.add(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+		}
+
+		@Override
+		public void visit(OpExtend op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpGraph arg0) {
+		public void visit(OpJoin op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpService arg0) {
+		public void visit(OpLeftJoin op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpDatasetNames arg0) {
+		public void visit(OpUnion op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpLabel arg0) {
+		public void visit(OpDiff op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpAssign arg0) {
+		public void visit(OpMinus op) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void visit(OpExtend arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpJoin arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpLeftJoin arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpUnion arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpDiff arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpMinus arg0) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void visit(OpConditional arg0) {
+		public void visit(OpConditional op) {
 			// TODO Auto-generated method stub
 			
 		}

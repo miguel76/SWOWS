@@ -16,11 +16,12 @@ CONSTRUCT {
       ?p != spx:element
       || NOT EXISTS { ?o a spx:ElementGroup }
       || ( NOT EXISTS { ?s a spx:ElementGroup }
-           && NOT EXISTS {
-               ?o spx:element ?itemA .
-               ?o spx:element ?itemB .
-               FILTER(?itemA != ?itemB) .
-              } ) ) .
+#           && NOT EXISTS {
+#               ?o spx:element ?itemA .
+#               ?o spx:element ?itemB .
+#               FILTER(?itemA != ?itemB) .
+#              }
+         ) ) .
       
     ?parentElement spx:element ?innerGroup .
     ?innerGroup
@@ -28,10 +29,11 @@ CONSTRUCT {
       spx:element ?item .
     FILTER (
       EXISTS { ?parentElement a spx:ElementGroup }
-      || NOT EXISTS {
-           ?innerGroup spx:element ?otherItem2 .
-           FILTER(?otherItem2 != ?item) .
-         } ).
+#      || NOT EXISTS {
+#           ?innerGroup spx:element ?otherItem2 .
+#           FILTER(?otherItem2 != ?item) .
+#         }
+    ).
     
   }
     

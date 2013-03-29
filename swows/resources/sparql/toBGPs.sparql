@@ -1,0 +1,63 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+CONSTRUCT {
+    ?s ?p ?o .
+    ?sPNG ?pPNG ?namedGraphElement .
+    ?triplePattern
+      a spx:QuadPattern ;
+      sp:graphNameNode ?graphNameNode .
+    ?triplePath
+      a spx:QuadPath ;
+      sp:graphNameNode ?graphNameNode .
+  }
+  WHERE {
+    ?s ?p ?o .
+    FILTER (?p != rdf:type || (?o NOT IN (sp:TriplePattern,sp:TriplePath) ) ) .
+    FILTER NOT EXISTS {
+      ?s a sp:NamedGraph .
+      ?o a sp:NamedGraph .
+    } .
+    OPTIONAL {
+      ?sPNG ?pPNG ?namedGraph .
+      ?namedGraph
+        a sp:NamedGraph ;
+        sp:graphNameNode ?graphNameNode ;
+        spx:element ?namedGraphElement .
+      ?parentElement
+        a sp:Element .
+      ?namedGraph (spx:element/(spx:element|spx:expr)*)? ?parentElement .
+        FILTER NOT EXISTS {
+          ?namedGraph spx:element/(spx:element|spx:expr)* ?otherNamedGraph .
+          ?otherNamedGraph
+            a sp:NamedGraph ;
+            spx:element/(spx:element|spx:expr)* ?triplePattern .
+        }
+      OPTIONAL {
+        ?triplePattern
+          a sp:TriplePattern .
+        ?namedGraph spx:element/(spx:element|spx:expr)* ?triplePattern .
+        FILTER NOT EXISTS {
+          ?namedGraph spx:element/(spx:element|spx:expr)* ?otherNamedGraph .
+          ?otherNamedGraph
+            a sp:NamedGraph ;
+            spx:element/(spx:element|spx:expr)* ?triplePattern .
+        }
+      }
+      OPTIONAL {
+        ?triplePath a sp:TriplePath .
+        ?namedGraph spx:element/(spx:element|spx:expr)* ?triplePath .
+        FILTER NOT EXISTS {
+          ?namedGraph spx:element/(spx:element|spx:expr)* ?otherNamedGraph .
+          ?otherNamedGraph
+            a sp:NamedGraph ;
+            spx:element/(spx:element|spx:expr)* ?triplePath .
+        }
+      }
+    }
+  }
+  

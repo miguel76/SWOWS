@@ -13,18 +13,13 @@ CONSTRUCT {
    ?updateQuery sp:where ?newWhereElement .
    ?newWhereElement
       a sp:Element, sp:NamedGraph ;
-   sp:graphNameNode ?mainGraph ;
-   spx:element ?mainElement .
+      sp:graphNameNode ?mainGraph ;
+      spx:element ?mainElement .
    ?innerNamedGraph sp:graphNameNode ?innerGraph .
 }
 WHERE {
    
    ?s ?p ?o .
-#    FILTER NOT EXISTS {
-#      ?s a df:UpdatableGraph .
-#      FILTER(?p = df:config) .
-#      ?o a df:ImportedGraph .
-#    } .
 
     FILTER (
       ( NOT EXISTS { ?s a df:UpdatableGraph }
@@ -32,7 +27,6 @@ WHERE {
       && NOT EXISTS { 
           ?sP
             a df:UpdatableGraph ;
-#            df:input/(df:input|df:namedInput)? ?s }
             df:input/df:namedInput? ?s }
     ) .
 
@@ -51,22 +45,12 @@ WHERE {
          } UNION {
             ?inputDataset df:namedInput ?mainGraphInput .
             ?mainGraphInput df:input ?mainGraph .
-#            {
                ?mainGraphInput df:id ?mainGraphName .
-#            } UNION {
-#               BIND ( ?mainGraph AS ?mainGraphName ) .
-#               FILTER ( NOT EXISTS { ?mainGraphInput df:id ?namedInputAnyName } ) .
-#            }
          }
          OPTIONAL {
             ?inputDataset df:namedInput ?innerGraphInput .
             ?innerGraphInput df:input ?innerGraph .
-#            {
                ?innerGraphInput df:id ?innerGraphName .
-#            } UNION {
-#               BIND ( ?innerGraph AS ?innerGraphName ) .
-#               FILTER ( NOT EXISTS { ?innerGraphInput df:id ?namedInputAnyName } ) .
-#            }
          }
       }
 
@@ -84,7 +68,6 @@ WHERE {
                    || ?pG != sp:where
                    || EXISTS {?oR a sp:NamedGraph} ) ) .
       
-#         swi:GraphRoot rdfs:member ?updateQuery .
           swi:GraphRoot ?memberP ?updateQuery .
       
          {

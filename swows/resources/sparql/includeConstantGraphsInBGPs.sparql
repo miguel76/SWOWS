@@ -46,20 +46,37 @@ CONSTRUCT {
       spx:value ?oG .
   }
   WHERE {
+  
     ?s ?p ?o .
     FILTER NOT EXISTS {
-      FILTER(?p = df:input) .
-      ?o a df:ImportedGraph .
+      ?anyNamedGraph
+        a sp:NamedGraph
+        sp:graphNameNode ?s .
+      ?s a df:ImportedGraph .
     } .
     
+  df:namedInput
+    [ a       df:NamedGraph ;
+      df:id   <http://www.cattid.uniroma1.it/2012/pampers#startingOption> ;
+      df:input
+        [ a       df:ImportedGraph ;
+          df:uri  <file:///home/miguel/git/WorldInfo/dataflow/startingOption.n3>
+        ]
+      ]
+    ]
+
     OPTIONAL {
-      ?sI df:input ?importedGraph .
+      ?namedGraph
+        a sp:NamedGraph
+        sp:graphNameNode ?importedGraph .
       ?importedGraph
         a df:ImportedGraph ;
         df:uri ?graphName .
       GRAPH ?graphName {
         ?sG ?pG ?oG .
       }
+      
+      
 
       BIND( URI( CONCAT( STR(:newConstruct_), MD5( STR(?importedGraph) ) ) ) AS ?newConstruct) .
       BIND( URI( CONCAT( STR(:newTripleTemplateSet_), MD5( STR(?importedGraph) ) ) ) AS ?newTripleTemplateSet) .
