@@ -67,6 +67,8 @@ public class SAS {
     public final static Resource Op = resource("Op");
     public final static Resource BGP = resource("BGP");
     public final static Resource Union = resource("Union");
+    public final static Resource Diff = resource("Diff");
+    public final static Resource Minus = resource("Minus");
     public final static Resource Join = resource("Join");
     public final static Resource TriplePattern = resource("TriplePattern");
     public final static Resource QuadPattern = resource("QuadPattern");
@@ -85,7 +87,21 @@ public class SAS {
     public final static Resource DatasetNames = resource("DatasetNames");
     public final static Resource Labelled = resource("Labelled");
     public final static Resource Assign = resource("Assign");
-    public final static Resource Assignment = resource("Assign");
+    public final static Resource Assignment = resource("Assignment");
+    public final static Resource Extend = resource("Extend");
+    public final static Resource Extension = resource("Extension");
+    public final static Resource LeftJoin = resource("LeftJoin");
+    public final static Resource Disjunction = resource("Disjunction");
+    public final static Resource Sequence = resource("Sequence");
+    public final static Resource Conditional = resource("Conditional");
+    public final static Resource List = resource("List");
+    public final static Resource Order = resource("Order");
+    public final static Resource Project = resource("Project");
+    public final static Resource Reduced = resource("Reduced");
+    public final static Resource Distinct = resource("Distinct");
+    public final static Resource Slice = resource("Slice");
+    public final static Resource Group = resource("Group");
+    public final static Resource TopN = resource("TopN");
 
     public final static Property op = property("op");
     public final static Property subOp = property("subOp");
@@ -114,5 +130,10 @@ public class SAS {
     public final static Property serviceNode = property("serviceNode");
     public final static Property label = property("label");
     public final static Property assignment = property("assignment");
+    public final static Property extension = property("extension");
+    public final static Property leftOp = property("leftOp");
+    public final static Property rightOp = property("rightOp");
+    public final static Property start = property("start");
+    public final static Property length = property("length");
 
 }

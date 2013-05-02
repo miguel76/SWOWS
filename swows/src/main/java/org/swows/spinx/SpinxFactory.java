@@ -26,12 +26,15 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.jena.atlas.lib.Sink;
+import org.apache.jena.riot.RDFDataMgr;
 import org.swows.node.Skolemizer;
+import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SAS;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 import org.swows.vocabulary.SWI;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -144,6 +147,7 @@ import com.hp.hpl.jena.update.Update;
 import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.hp.hpl.jena.vocabulary.XSD;
 
 public class SpinxFactory {
 	
@@ -876,110 +880,146 @@ public class SpinxFactory {
 
 		@Override
 		public void visit(OpExtend op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Extend.asNode()));
+			VarExprList varExprList = op.getVarExprList();
+			for (Var var : varExprList.getVars()) {
+				Node assignmentNode = createNode();
+				graph.add(new Triple(opNode, SAS.extension.asNode(), assignmentNode));
+				graph.add(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
+				graph.add(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
+				graph.add(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
 		public void visit(OpJoin op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Join.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
 		public void visit(OpLeftJoin op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.LeftJoin.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
 		public void visit(OpUnion op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Union.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
 		public void visit(OpDiff op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Diff.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
 		public void visit(OpMinus op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Minus.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
 		public void visit(OpConditional op) {
-			// TODO Auto-generated method stub
-			
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Conditional.asNode()));
+			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		@Override
-		public void visit(OpSequence arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpSequence op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Sequence.asNode()));
+//			graph.add(new Triple(opNode, SAS.subOpList, SAS.Sequence.asNode()));
+			Iterator<Op> it = op.iterator();
+			while (it.hasNext()) {
+				graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
+			}
 		}
 
 		@Override
-		public void visit(OpDisjunction arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpDisjunction op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Disjunction.asNode()));
+			Iterator<Op> it = op.iterator();
+			while (it.hasNext()) {
+				graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
+			}
 		}
 
 		@Override
-		public void visit(OpExt arg0) {
+		public void visit(OpExt op) {
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
-		public void visit(OpList arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpList op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.List.asNode()));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpOrder arg0) {
+		public void visit(OpOrder op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Order.asNode()));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
-		public void visit(OpProject arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpProject op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Project.asNode()));
+			for (Var var : op.getVars()) {
+				graph.add(new Triple(opNode, SAS.variable.asNode(), fromVar(var)));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpReduced arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpReduced op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Reduced.asNode()));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpDistinct arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpDistinct op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Distinct.asNode()));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpSlice arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpSlice op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Slice.asNode()));
+			graph.add(new Triple(opNode, SAS.start.asNode(), Node.createLiteral(Long.toString(op.getStart()), XSDDatatype.XSDinteger)));
+			graph.add(new Triple(opNode, SAS.length.asNode(), Node.createLiteral(Long.toString(op.getLength()), XSDDatatype.XSDinteger)));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpGroup arg0) {
-			// TODO Auto-generated method stub
-			
+		public void visit(OpGroup op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Group.asNode()));
+			VarExprList groupByExprList = op.getGroupVars();
+			for (Var groupByVar : groupByExprList.getVars() ) {
+				Node groupByNode = createNode();
+				graph.add(new Triple(opNode, SP.groupBy.asNode(), groupByNode));
+				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
+				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
+				if (groupByExpr != null)
+					graph.add(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
+			}
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		@Override
-		public void visit(OpTopN arg0) {
+		public void visit(OpTopN op) {
+			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.TopN.asNode()));
+			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 			// TODO Auto-generated method stub
-			
 		}
 			
 	}
