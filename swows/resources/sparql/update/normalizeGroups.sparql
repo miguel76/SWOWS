@@ -1,0 +1,25 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+  DELETE {
+    ?parentElement spx:element ?innerGroup .
+    ?innerGroup
+      a spx:ElementGroup ;
+      spx:element ?item .
+  }
+  INSERT {
+    ?parentElement spx:element ?item.
+  }
+  WHERE {
+    ?parentElement
+      a spx:ElementGroup ;
+      spx:element ?innerGroup .
+    ?innerGroup
+      a spx:ElementGroup ;
+      spx:element ?item .
+  }
+    

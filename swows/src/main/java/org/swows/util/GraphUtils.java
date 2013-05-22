@@ -34,33 +34,53 @@ import com.hp.hpl.jena.util.iterator.Map1;
 
 public class GraphUtils {
 	
-	public static Node getSingleValueOptProperty(Graph graph, Node subject, Node predicate) {
+	public static Node getSingleValueOptProperty(Graph graph, Node subject, Node predicate, Set<Triple> tripleSet) {
 		Iterator<Triple> triples = graph.find(subject, predicate, Node.ANY);
 		if (!triples.hasNext())
 			return null;
-		Node object = triples.next().getObject();
+		Triple firstTriple = triples.next();
+		Node object = firstTriple.getObject();
+		if (tripleSet != null)
+			tripleSet.add(firstTriple);
 		if (triples.hasNext())
 			throw new RuntimeException("Too much values of property " + predicate + " found for node " + subject);
 		return object;
 	}
 	
-	public static Node getSingleValueProperty(Graph graph, Node subject, Node predicate) {
+	public static Node getSingleValueProperty(Graph graph, Node subject, Node predicate, Set<Triple> tripleSet) {
 		Iterator<Triple> triples = graph.find(subject, predicate, Node.ANY);
 		if (!triples.hasNext())
 			throw new RuntimeException("Property " + predicate + " not found for node " + subject);
-		Node object = triples.next().getObject();
+		Triple firstTriple = triples.next();
+		Node object = firstTriple.getObject();
+		if (tripleSet != null)
+			tripleSet.add(firstTriple);
 		if (triples.hasNext())
 			throw new RuntimeException("Too much values of property " + predicate + " found for node " + subject);
 		return object;
 	}
 	
-	public static ExtendedIterator<Node> getPropertyValues(Graph graph, Node subject, Node predicate) {
+	public static ExtendedIterator<Node> getPropertyValues(Graph graph, Node subject, Node predicate, final Set<Triple> tripleSet) {
 		return graph.find(subject, predicate, Node.ANY).mapWith(new Map1<Triple, Node>() {
 			@Override
 			public Node map1(Triple t) {
+				if (tripleSet != null)
+					tripleSet.add(t);
 				return t.getObject();
 			}
 		});
+	}
+
+	public static Node getSingleValueOptProperty(Graph graph, Node subject, Node predicate) {
+		return getSingleValueOptProperty(graph, subject, predicate, null);
+	}
+	
+	public static Node getSingleValueProperty(Graph graph, Node subject, Node predicate) {
+		return getSingleValueProperty(graph, subject, predicate, null);
+	}
+	
+	public static ExtendedIterator<Node> getPropertyValues(Graph graph, Node subject, Node predicate) {
+		return getPropertyValues(graph, subject, predicate, null);
 	}
 
 	public static void addBooleanProperty(Graph graph, Node subject, Node predicate, boolean value) {

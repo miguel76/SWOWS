@@ -1,0 +1,65 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sas:     <http://www.swows.org/sas#>
+
+CONSTRUCT {
+    ?s ?p ?o .
+    ?sPNG ?pPNG ?namedGraphElement .
+    ?triplePattern
+      a spx:QuadPattern ;
+      sp:graphNameNode ?graphNameNode .
+    ?triplePath
+      a spx:QuadPath ;
+      sp:graphNameNode ?graphNameNode .
+  }
+  WHERE {
+
+    ?graphOp
+      a sas:Graph ;
+      sas:graphNameNode ?graphNameNode ;
+      sas:subOp ?subOp .
+      
+    ?bgp
+      a sas:BGP .
+
+    FILTER NOT EXISTS {
+      ?graphOp sas:subOp/(sas:subOp|sas:leftOp|sas:rightOp)* ?otherGraphOp .
+      ?otherGraphOp
+        a sas:Graph ;
+        sas:subOp/(sas:subOp|sas:leftOp|sas:rightOp)* ?bgp .
+    }
+
+    OPTIONAL {
+    
+      ?bgp sas:triplePattern/(sp:subject|sp:predicate|sp:object) ?variable .
+      ?variable
+        a sp:Variable ;
+        sp:varName ?varName .
+
+      GRAPH ?graphNameNode {
+        { ?constant ?p1 ?o1 }
+        UNION { ?s2 ?constant ?o2 }
+        UNION { ?s3 ?p3 ?constant }
+      }
+            
+
+      ?bgp sas:triplePattern ?triplePattern .
+      ?triplePattern
+        a sas:TriplePattern ;
+        sp:subject ?patternSubject ;
+        sp:predicate ?patternPredicate ;
+        sp:object ?patternObject .
+    }
+    
+    GRAPH ?graphNameNode {
+    }
+      
+    OPTIONAL {
+      ?triplePath a sp:TriplePath .
+    }
+  }
+  

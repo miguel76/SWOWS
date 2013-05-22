@@ -1,0 +1,88 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:   <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX sas:     <http://www.swows.org/sas#>
+
+  DELETE {
+      ?constructGraph
+        a df:ConstructGraph ;
+        df:config ?importedGraph ;
+        df:input ?inputDataset .
+      ?inputDataset
+        a df:InlineDataset ;
+        df:input ?mainGraph ;
+        df:namedInput ?innerGraphInput .
+      ?innerGraphInput
+        df:input ?innerGraph ;
+        df:id ?innerGraphName .
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+  }
+  INSERT {
+    ?sG ?pG ?oG .
+    ?constructGraph
+      ?pR ?oR ;
+      sp:where ?newWhereElement ;
+      sp:op ?newMainOp .
+    ?newWhereElement
+      a sp:Element, sp:NamedGraph ;
+      sp:graphNameNode ?mainGraph ;
+      spx:element ?whereElement .
+    ?newMainOp
+      a sas:Op, sas:Graph ;
+      sas:graphNameNode ?mainGraph ;
+      sas:subOp ?mainOp .
+    ?innerNamedGraph sp:graphNameNode ?innerGraph .
+    ?innerNamedGraphOp sas:graphNameNode ?innerGraph .
+  }
+  WHERE {
+      ?constructGraph
+        a df:ConstructGraph ;
+        df:config ?importedGraph ;
+        df:input ?inputDataset .
+      ?inputDataset
+        a df:InlineDataset ;
+        df:input ?mainGraph .
+      OPTIONAL {
+        ?inputDataset df:namedInput ?innerGraphInput .
+        ?innerGraphInput df:input ?innerGraph .
+        ?innerGraphInput df:id ?innerGraphName .
+      }
+    
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+      GRAPH ?graphName {
+    
+        ?sG ?pG ?oG .
+        FILTER (
+            ?sG != swi:GraphRoot
+            && !(EXISTS{?sG a sp:NamedGraph} && ?pG = sp:graphNameNode) ) .
+      
+        swi:GraphRoot ?pR ?oR .
+        FILTER (?pR NOT IN (sp:where,sas:op) ) .
+      
+        swi:GraphRoot sp:where ?whereElement .
+        BIND( URI( CONCAT( STR(bn:where_), MD5( STR(?whereElement) ) ) ) AS ?newWhereElement ) .
+        
+        swi:GraphRoot sas:op ?mainOp .
+        BIND( URI( CONCAT( STR(bn:mainOp_), MD5( STR(?mainOp) ) ) ) AS ?newMainOp ) .
+        
+        OPTIONAL {
+          ?innerNamedGraph
+            a sp:NamedGraph ;
+            sp:graphNameNode ?innerGraphName ;
+            spx:element ?innerElement .
+        }
+        OPTIONAL {
+          ?innerNamedGraphOp
+            a sas:Graph ;
+            sas:graphNameNode ?innerGraphName ;
+            sas:subOp ?subOp .
+        }
+      }
+  }
+  

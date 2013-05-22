@@ -1,0 +1,130 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:   <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+
+  DELETE {
+      ?dataflowDataset
+        a df:DataflowDataset ;
+        df:config ?importedGraph ;
+        df:input ?inputDataset .
+      ?inputDataset
+        a df:InlineDataset ;
+        df:input ?outerDefaultInput ;
+        df:namedInput ?outerNamedInputNode .
+      ?outerNamedInputNode
+        df:input ?outerNamedInput ;
+        df:id ?namedInputName .
+      ?outerDefaultOutputS ?outerDefaultOutputP ?outerDefaultOutput .
+      ?outerDefaultOutput
+        a df:SelectGraph ;
+        df:input ?dataflowDataset .
+      ?outerNamedOutputS ?outerNamedOutputP ?outerNamedOutput .
+      ?outerNamedOutput
+        a df:SelectGraph ;
+        df:id ?namedOutputName ;
+        df:input ?dataflowDataset .
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+  }
+  INSERT {
+    ?sG ?pG ?oG .
+
+    ?outerDefaultOutputS ?outerDefaultOutputP ?defaultOutput .
+    ?outerNamedOutputS ?outerNamedOutputP ?namedOutput .
+
+    ?defaultInputS ?defaultInputP ?outerDefaultInput .
+    ?namedInputS ?namedInputP ?outerNamedInput .
+  }
+  WHERE {
+  
+      ?dataflowDataset
+        a df:DataflowDataset ;
+        df:config ?importedGraph .
+
+      OPTIONAL {
+        ?dataflowDataset df:input ?inputDataset .
+        ?inputDataset a df:InlineDataset .
+
+        OPTIONAL {
+          ?inputDataset df:input ?outerDefaultInput .
+        }
+        OPTIONAL {
+          ?inputDataset df:namedInput ?outerNamedInputNode .
+          ?outerNamedInputNode df:input ?outerNamedInput .
+#          {
+            ?outerNamedInputNode df:id ?namedInputName .
+#          } UNION {
+#            BIND ( ?outerNamedInput AS ?namedInputName ) .
+#            FILTER ( NOT EXISTS { ?outerNamedInputNode df:id ?namedInputAnyName } ) .
+#          }
+        }
+      }
+    
+      OPTIONAL {
+        ?outerDefaultOutputS ?outerDefaultOutputP ?outerDefaultOutput .
+        ?outerDefaultOutput
+          a df:SelectGraph ;
+          df:input ?dataflowDataset .
+        FILTER ( NOT EXISTS { ?outerDefaultOutput df:id ?namedOutputAnyName } ) .
+      }
+        
+      OPTIONAL {
+        ?outerNamedOutputS ?outerNamedOutputP ?outerNamedOutput .
+        ?outerNamedOutput
+          a df:SelectGraph ;
+          df:id ?namedOutputName ;
+          df:input ?dataflowDataset .
+      }
+    
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+      GRAPH ?graphName {
+    
+        ?sG ?pG ?oG .
+        FILTER (   ?oG != swi:InputDataset
+                && ?sG != swi:OutputDataset
+                && NOT EXISTS{
+                     ?oG a df:SelectGraph ;
+                         df:input swi:InputDataset .
+                   }
+                && NOT EXISTS{
+                     ?sG a df:SelectGraph ;
+                         df:input swi:InputDataset .
+                   } ) .
+      
+        swi:OutputDataset
+          a df:InlineDataset ;
+          df:input ?defaultOutput .
+        OPTIONAL {
+          swi:OutputDataset df:namedInput ?namedOutputNode .
+          ?namedOutputNode
+            a df:NamedGraph ;
+            df:id ?namedOutputName ;
+            df:input ?namedOutput .
+        }
+      
+        OPTIONAL {
+          ?defaultInputS ?defaultInputP ?defaultInput .
+          ?defaultInput
+            a df:SelectGraph ;
+            df:input swi:InputDataset .
+          FILTER( NOT EXISTS {
+            ?defaultInput df:id ?anyId .
+          } ) .
+        }
+        OPTIONAL {
+          ?namedInputS ?namedInputP ?namedInput .
+          ?namedInput
+            a df:SelectGraph ;
+            df:input swi:InputDataset ;
+            df:id ?namedInputName .
+        }
+    
+      }
+      
+  }
+  

@@ -53,7 +53,14 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.GraphStoreFactory;
+import com.hp.hpl.jena.update.UpdateExecutionFactory;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateProcessor;
+import com.hp.hpl.jena.update.UpdateRequest;
 
 public class Step2Test {
 
@@ -66,23 +73,38 @@ public class Step2Test {
 	static final String SCREEN = ":0.1";
 	//static final String SCREEN = ":0.0";
 	
-	private static void include(Dataset wfDataset) {
+//	private static void include(Dataset wfDataset) {
+	private static void include(GraphStore wfGraphStore) {
 		
-    	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
-		QueryExecution queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		Model newWfModel = queryExecution.execConstruct();
-//    	wfDataset.setDefaultModel(newWfModel);
-    	wfDataset.getDefaultModel().removeAll();
-    	wfDataset.getDefaultModel().add(newWfModel);
+		Dataset wfDataset = DatasetFactory.create(wfGraphStore);
+			
+    	Query query;
+		QueryExecution queryExecution;
+		Model newWfModel;
 
-		query = QueryFactory.read("resources/sparql/includeQueries.sparql");
-		queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		newWfModel = queryExecution.execConstruct();
-//	   	wfDataset.setDefaultModel(newWfModel);
-    	wfDataset.getDefaultModel().removeAll();
-    	wfDataset.getDefaultModel().add(newWfModel);
+//    	Query query = QueryFactory.read("resources/sparql/includeDataflows.sparql");
+//		QueryExecution queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		Model newWfModel = queryExecution.execConstruct();
+////    	wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
+
+    	UpdateRequest updateRequest = UpdateFactory.read("resources/sparql/update/includeDataflows.sparql");
+    	UpdateProcessor processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
+
+    	//		query = QueryFactory.read("resources/sparql/includeQueries.sparql");
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////	   	wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
+    	
+    	updateRequest = UpdateFactory.read("resources/sparql/update/includeQueries.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/includeUpdates.sparql");
 // 		queryExecution =
@@ -92,29 +114,49 @@ public class Step2Test {
 //    	wfDataset.getDefaultModel().removeAll();
 //    	wfDataset.getDefaultModel().add(newWfModel);
 		
-		query = QueryFactory.read("resources/sparql/normalizeNamedGraphs.sparql");
-		queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		newWfModel = queryExecution.execConstruct();
-//	   	wfDataset.setDefaultModel(newWfModel);
-    	wfDataset.getDefaultModel().removeAll();
-    	wfDataset.getDefaultModel().add(newWfModel);
+    	updateRequest = UpdateFactory.read("resources/sparql/update/includeUpdates.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
 		
-		query = QueryFactory.read("resources/sparql/normalizeGroups.sparql");
-		queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		newWfModel = queryExecution.execConstruct();
-//	   	wfDataset.setDefaultModel(newWfModel);
-    	wfDataset.getDefaultModel().removeAll();
-    	wfDataset.getDefaultModel().add(newWfModel);
+//		query = QueryFactory.read("resources/sparql/normalizeNamedGraphs.sparql");
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////	   	wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
 		
-		query = QueryFactory.read("resources/sparql/avoidUnconnectedElements.sparql");
-		queryExecution =
-				QueryExecutionFactory.create(query, wfDataset);
-		newWfModel = queryExecution.execConstruct();
-//	   	wfDataset.setDefaultModel(newWfModel);
-    	wfDataset.getDefaultModel().removeAll();
-    	wfDataset.getDefaultModel().add(newWfModel);
+    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeNamedGraphs.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
+		
+//		query = QueryFactory.read("resources/sparql/normalizeGroups.sparql");
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////	   	wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
+		
+    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeGroups.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
+		
+//		query = QueryFactory.read("resources/sparql/avoidUnconnectedElements.sparql");
+//		queryExecution =
+//				QueryExecutionFactory.create(query, wfDataset);
+//		newWfModel = queryExecution.execConstruct();
+////	   	wfDataset.setDefaultModel(newWfModel);
+//    	wfDataset.getDefaultModel().removeAll();
+//    	wfDataset.getDefaultModel().add(newWfModel);
+		
+    	updateRequest = UpdateFactory.read("resources/sparql/update/avoidUnconnectedElements.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
+		
+    	updateRequest = UpdateFactory.read("resources/sparql/update/constGraphsInBGPs.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/toQuads.sparql");
 //		queryExecution =
@@ -174,7 +216,9 @@ public class Step2Test {
 
 		String mainGraphUrl = baseUri + "main.n3";
 		
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+//		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+//		GraphStore wfGraphStore = GraphStoreFactory.create(DatasetFactory.create(mainGraphUrl, SmartFileManager.get()));
+		GraphStore wfDatasetGraph = GraphStoreFactory.create(DatasetFactory.create(mainGraphUrl, SmartFileManager.get()));
 
 //		Dataset wfDatasetTemp = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 //		Dataset wfDataset = TDBFactory.createDataset("/home/miguel/git/WorldInfo/tdb/");
@@ -185,13 +229,14 @@ public class Step2Test {
 //			wfDataset.addNamedModel(name,wfDatasetTemp.getNamedModel(name));
 //		}
 		
-		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
+//		DatasetGraph wfDatasetGraph = wfDataset.asDatasetGraph();
 		final Graph wfGraph = wfDatasetGraph.getDefaultGraph();
 		SmartFileManager.includeAllInAGraph(wfGraph, wfDatasetGraph);
+//		SmartFileManager.includeAllInAGraphSingle(wfGraph);
 
-		System.out.println("*** Workflow graph  ***");
-		wfDataset.getDefaultModel().write(System.out,"N3");
-		System.out.println("***************************************");
+//		System.out.println("*** Workflow graph  ***");
+//		wfDataset.getDefaultModel().write(System.out,"N3");
+//		System.out.println("***************************************");
 
 //		Iterator<String> names = wfDataset.listNames();
 //		while (names.hasNext()) {
@@ -203,14 +248,14 @@ public class Step2Test {
 //			System.out.println();
 //		}
 		
-		include(wfDataset);
-		Model newWfModel = wfDataset.getDefaultModel();
+		include(wfDatasetGraph);
+		Model newWfModel = ModelFactory.createModelForGraph(wfDatasetGraph.getDefaultGraph());
 		print( 
 				newWfModel,
-				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude3.sk.n3") );
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude4.sk.n3") );
 		print( 
 				ModelFactory.createModelForGraph( Skolemizer.deSkolemize(newWfModel.getGraph()) ),
-				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude3.n3") );
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude4.n3") );
 //		ModelFactory
 //		.createModelForGraph(
 //				Skolemizer.deSkolemize(newWfModel.getGraph()) )

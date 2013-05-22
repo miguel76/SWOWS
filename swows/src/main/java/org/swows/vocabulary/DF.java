@@ -147,7 +147,11 @@ public class DF {
 
     public final static Property user = property("user");
     public final static Property password = property("password");
+    
     public final static Property subject = property("subject");
+    public final static Property object = property("object");
+    public final static Property predicate = property("predicate");
+    public final static Property triple = property("triple");
 
     /** Constants for inner sparql elements. */
 //    public final static Resource Exists = resource("Exists");

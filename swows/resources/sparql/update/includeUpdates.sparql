@@ -1,0 +1,98 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:   <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX sas:     <http://www.swows.org/sas#>
+
+  DELETE {
+    ?updatableGraph
+      a df:UpdatableGraph ;
+      df:config ?importedGraph ;
+      df:input ?inputDataset .
+    ?inputDataset
+      a df:InlineDataset ;
+      df:input ?mainGraph ;
+      df:namedInput ?mainGraphInput ;
+      df:namedInput ?innerGraphInput .
+    ?mainGraphInput
+      df:input ?mainGraph ;
+      df:id ?mainGraphName .
+    ?innerGraphInput
+      df:input ?innerGraph ;
+      df:id ?innerGraphName .
+    ?importedGraph
+      a df:ImportedGraph ;
+      df:uri ?graphName .
+  }
+  INSERT {
+   ?updatableGraph sp:query ?updateQuery .
+   ?sG ?pG ?oG .
+   
+   ?updateQuery
+     sp:where ?newWhereElement ;
+     sas:op ?newMainOp .
+   ?newWhereElement
+      a sp:Element, sp:NamedGraph ;
+      sp:graphNameNode ?mainGraph ;
+      spx:element ?mainElement .
+    ?newMainOp
+      a sas:Op, sas:Graph ;
+      sas:graphNameNode ?mainGraph ;
+      sas:subOp ?mainOp .
+   ?innerNamedGraph sp:graphNameNode ?innerGraph .
+   ?innerNamedGraphOp sas:graphNameNode ?innerGraph .
+  }
+  WHERE {
+      ?updatableGraph
+        a df:UpdatableGraph ;
+        df:config ?importedGraph .
+
+      OPTIONAL {
+         ?updatableGraph df:input ?inputDataset .
+         ?inputDataset
+           a df:InlineDataset ;
+           df:input ?mainGraph .
+         OPTIONAL {
+            ?inputDataset df:namedInput ?innerGraphInput .
+            ?innerGraphInput df:input ?innerGraph .
+               ?innerGraphInput df:id ?innerGraphName .
+         }
+      }
+
+      ?importedGraph
+        a df:ImportedGraph ;
+        df:uri ?graphName .
+      GRAPH ?graphName {
+    
+        ?sG ?pG ?oG .
+        FILTER (
+            ?sG != swi:GraphRoot
+            && ( !EXISTS{?sG a sp:NamedGraph}
+                  || ?pG != sp:graphNameNode )
+            && ( !EXISTS{ swi:GraphRoot ?memberP2 ?sG }
+                  || ?pG != sp:where ) ) .
+      
+        swi:GraphRoot ?memberP ?updateQuery .
+      
+        ?updateQuery sp:where ?whereElement .
+        BIND( URI( CONCAT( STR(bn:where_), MD5( STR(?whereElement) ) ) ) AS ?newWhereElement ) .
+
+        ?updateQuery sas:op ?mainOp .
+        BIND( URI( CONCAT( STR(bn:mainOp_), MD5( STR(?mainOp) ) ) ) AS ?newMainOp ) .
+         
+        OPTIONAL {
+          ?innerNamedGraph
+            a sp:NamedGraph ;
+            sp:graphNameNode ?innerGraphName ;
+            spx:element ?innerElement .
+        }
+        OPTIONAL {
+          ?innerNamedGraphOp
+            a sas:Graph ;
+            sas:graphNameNode ?innerGraphName ;
+            sas:subOp ?subOp .
+        }
+      }
+  }

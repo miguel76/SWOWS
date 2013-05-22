@@ -20,23 +20,34 @@
 package org.swows.datatypes;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.swows.graph.LoadGraph;
 import org.swows.node.Skolemizer;
 import org.swows.reader.ReaderFactory;
+import org.swows.spinx.SpinxFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SPINX;
+import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DomEncoder;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.LocationMapper;
 import com.hp.hpl.jena.util.Locator;
@@ -67,13 +78,17 @@ public class SmartFileManager extends FileManager {
     
     public static void includeAllInAGraph(final Graph graph, final DatasetGraph ds) {
     	List<Node> includedGraphNodes =
-    			graph.find(Node.ANY, RDF.type.asNode(), DF.IncludedGraph.asNode()).mapWith(new Map1<Triple, Node>() {
-    				@Override
-    				public Node map1(Triple t) {
-    					Node graphNode = t.getSubject();
-    					return graphNode;
-    				}
-    			}).toList();
+    			graph.find(
+    					Node.ANY,
+    					RDF.type.asNode(),
+    					DF.IncludedGraph.asNode()).mapWith(
+    							new Map1<Triple, Node>() {
+    								@Override
+    								public Node map1(Triple t) {
+    									Node graphNode = t.getSubject();
+    									return graphNode;
+    								}
+    							}).toList();
     	for (Node graphNode : includedGraphNodes) includeGraph(graph,graphNode,ds);
     }
 
@@ -100,6 +115,173 @@ public class SmartFileManager extends FileManager {
     	for (Triple t : triplesToDelete) graph.delete(t);
 		graph.add(new Triple(graphNode, RDF.type.asNode(), DF.ImportedGraph.asNode()));
 		graph.add(new Triple(graphNode, DF.uri.asNode(), urlNode));
+    }
+    
+    private static void addReifiedGraph(
+    		final Graph graph, final Node graphNode,
+    		Graph includedGraph) {
+    	graph.add(new Triple (graphNode, RDF.type.asNode(), DF.InlineGraph.asNode()));
+    	Iterator<Node> iter = includedGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(
+    			new Map1<Triple, Node>() {
+					@Override
+					public Node map1(Triple t) {
+						Node tripleNode = Skolemizer.getInstance().getNode();
+				    	graph.add(new Triple (graphNode, DF.triple.asNode(), tripleNode));
+				    	graph.add(new Triple (tripleNode, DF.subject.asNode(), t.getSubject()));
+				    	graph.add(new Triple (tripleNode, DF.predicate.asNode(), t.getPredicate()));
+				    	graph.add(new Triple (tripleNode, DF.object.asNode(), t.getObject()));
+						return tripleNode;
+					}
+    			});
+    	while (iter.hasNext());
+//    	List<Node> nodesConfiguredBy =
+//    			graph.find(Node.ANY, DF.config.asNode(), graphNode)
+//    			.mapWith(new Map1<Triple, Node>() {
+//					@Override
+//					public Node map1(Triple t) { return t.getSubject(); }
+//				}).toList();
+//    	for (Node opNode : nodesConfiguredBy) {
+//        	Node inputDataset =
+//        			GraphUtils.getSingleValueOptProperty(graph, opNode, DF.input.asNode());
+//    		if (graph.contains(opNode, RDF.type.asNode(), DF.ConstructGraph.asNode())) {
+//    			// TODO: load query
+//    		} else if (graph.contains(opNode, RDF.type.asNode(), DF.UpdatableGraph.asNode())) {
+//    			// TODO: load update request
+//    			
+//    		} else if (graph.contains(opNode, RDF.type.asNode(), DF.DataflowGraph.asNode())) {
+//    			// TODO: load dataflow
+//    			
+//    		}
+//    	}
+//    	if (graph.contains(Node.ANY, DF.input.asNode(), graphNode)) {
+//    		// TODO: load reified
+//    	}
+    }
+
+    public static void includeAllInAGraphSingle(final Graph graph) {
+    	final Set<Triple> triplesToDelete = new HashSet<Triple>();
+    	List<Node> includedGraphNodes =
+    			graph.find(
+    					Node.ANY,
+    					RDF.type.asNode(),
+    					DF.IncludedGraph.asNode()).mapWith(
+    							new Map1<Triple, Node>() {
+    								@Override
+    								public Node map1(Triple t) {
+    									triplesToDelete.add(t);
+    									Node graphNode = t.getSubject();
+    									return graphNode;
+    								}
+    							}).toList();
+    	for (Node graphNode : includedGraphNodes) includeGraphSingle(graph,graphNode);
+    	for (Triple t : triplesToDelete) graph.delete(t);
+    }
+
+    private static void includeGraphSingle(final Graph graph, Node graphNode) {
+    	final Set<Triple> triplesToDelete = new HashSet<Triple>();
+		Node urlNode = GraphUtils.getSingleValueProperty( graph, graphNode, DF.url.asNode(), triplesToDelete );
+		String filenameOrURI = null, baseURI = null, syntaxURI = null;
+		if (urlNode != null)
+			filenameOrURI = urlNode.getURI();
+		Node baseURINode = GraphUtils.getSingleValueOptProperty( graph, graphNode, DF.baseUri.asNode(), triplesToDelete );
+		if (baseURINode != null)
+			baseURI = baseURINode.getURI();
+		Node syntaxNode = GraphUtils.getSingleValueOptProperty( graph, graphNode, DF.syntax.asNode(), triplesToDelete );
+		
+		if (syntaxNode != null)
+			syntaxURI = syntaxNode.getURI();
+		else
+			syntaxURI = LoadGraph.guessLang(filenameOrURI);
+		
+    	List<Node> nodesConfiguredBy =
+    			graph.find(Node.ANY, DF.config.asNode(), graphNode)
+    			.mapWith(new Map1<Triple, Node>() {
+					@Override
+					public Node map1(Triple t) {
+						triplesToDelete.add(t);
+						return t.getSubject();
+					}
+				}).toList();
+    	for (Node opNode : nodesConfiguredBy) {
+    		
+        	Node inputDataset =
+        			GraphUtils.getSingleValueOptProperty(graph, opNode, DF.input.asNode(), triplesToDelete );
+        	Node defaultGraphNode = null;
+        	Map<Node,Node> namedGraphs = null;
+        	if (inputDataset != null) {
+            	defaultGraphNode =
+            			GraphUtils.getSingleValueOptProperty(graph, inputDataset, DF.input.asNode(), triplesToDelete);
+            	Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(graph, inputDataset, DF.namedInput.asNode(), triplesToDelete);
+            	namedGraphs = new HashMap<Node, Node>();
+            	while (namedInputNodes.hasNext()) {
+            		Node namedInputNode = namedInputNodes.next();
+                	Node namedGraphNode =
+                			GraphUtils.getSingleValueOptProperty(graph, namedInputNode, DF.input.asNode(), triplesToDelete);
+//                	String graphName =
+//                			GraphUtils.getSingleValueOptProperty(graph, namedInputNode, DF.id.asNode()).getURI();
+                	Node graphNameNode =
+                			GraphUtils.getSingleValueOptProperty(graph, namedInputNode, DF.id.asNode(), triplesToDelete);
+                	namedGraphs.put(graphNameNode, namedGraphNode);
+            	}
+        	}
+        	
+        	if (graph.contains(opNode, RDF.type.asNode(), DF.ConstructGraph.asNode())) {
+        		Iterator<Syntax> syntaxesIter = Syntax.querySyntaxNames.values();
+        		Syntax syntax = null; 
+        		System.out.println("syntaxURI: " + syntaxURI);
+        		while (syntaxesIter.hasNext()) {
+        			Syntax currSyntax = syntaxesIter.next();
+        			System.out.println("currSyntax: " + currSyntax + " (" + currSyntax.getSymbol() + ")");
+        			if (syntaxURI.equals(currSyntax.getSymbol())) {
+        				syntax = currSyntax;
+        				break;
+        			}
+        		}
+        		if (syntax == null) throw new RuntimeException("Unexpected Null Syntax!");
+    			com.hp.hpl.jena.query.Query query = QueryFactory.read(filenameOrURI, baseURI, syntax);
+    			SpinxFactory.fromQuery(query, graph, opNode, defaultGraphNode, namedGraphs);
+    	    	for (Triple t : triplesToDelete) graph.delete(t);
+    		} else if (graph.contains(opNode, RDF.type.asNode(), DF.UpdatableGraph.asNode())) {
+    			Iterator<Syntax> syntaxesIter = Syntax.querySyntaxNames.values();
+    			Syntax syntax = null; 
+    			System.out.println("syntaxURI: " + syntaxURI);
+    			while (syntaxesIter.hasNext()) {
+    				Syntax currSyntax = syntaxesIter.next();
+    				System.out.println("currSyntax: " + currSyntax + " (" + currSyntax.getSymbol() + ")");
+    				if (syntaxURI.equals(currSyntax.getSymbol()) || syntaxURI.equals(currSyntax.getSymbol() + "/Update")) {
+    					syntax = currSyntax;
+    					break;
+    				}
+    			}
+    			if (syntax == null) throw new RuntimeException("Unexpected Null Syntax!");
+    			UpdateRequest updateRequest = UpdateFactory.read(filenameOrURI, baseURI, syntax);
+    			SpinxFactory.fromUpdateRequest(updateRequest, graph, opNode, defaultGraphNode, namedGraphs);
+    	    	for (Triple t : triplesToDelete) graph.delete(t);
+    		} else if (graph.contains(opNode, RDF.type.asNode(), DF.DataflowGraph.asNode())) {
+    			// TODO: load dataflow
+//    			Graph loadedGraph =
+//    					Skolemizer.getInstance().skolemize(
+//    							SmartFileManager.get().loadModel(filenameOrURI,baseURI,syntaxURI).getGraph());
+//    			includeAllInAGraphSingle(loadedGraph);
+        		Graph loadedGraph =
+        				Skolemizer.getInstance().skolemize(
+        						SmartFileManager.get().loadModel(filenameOrURI,baseURI,syntaxURI).getGraph());
+        		includeAllInAGraphSingle(loadedGraph);
+        		addReifiedGraph(graph, graphNode, loadedGraph);
+    			
+    		}
+    	}
+    	if (graph.contains(Node.ANY, DF.input.asNode(), graphNode)) {
+    		Graph loadedGraph =
+    				Skolemizer.getInstance().skolemize(
+    						SmartFileManager.get().loadModel(filenameOrURI,baseURI,syntaxURI).getGraph());
+    		//includeAllInAGraphSingle(loadedGraph);
+    		addReifiedGraph(graph, graphNode, loadedGraph);
+    	}
+		
+//    	List<Triple> triplesToDelete =
+//    			graph.find(graphNode, Node.ANY, Node.ANY).toList();
+    	
     }
 
     private FileManager baseFileManager;
