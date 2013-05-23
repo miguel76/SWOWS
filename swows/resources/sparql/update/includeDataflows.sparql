@@ -14,6 +14,7 @@ PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
         df:input ?outerDefaultInput ;
         df:namedInput ?outerNamedInputNode .
       ?outerNamedInputNode
+        a df:NamedGraph ;
         df:input ?outerNamedInput ;
         df:id ?namedInputName .
       ?outerDefaultOutputS ?outerDefaultOutputP ?outerDefaultOutput .
@@ -53,7 +54,9 @@ PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
         }
         OPTIONAL {
           ?inputDataset df:namedInput ?outerNamedInputNode .
-          ?outerNamedInputNode df:input ?outerNamedInput .
+          ?outerNamedInputNode
+            a df:NamedGraph ;
+            df:input ?outerNamedInput .
 #          {
             ?outerNamedInputNode df:id ?namedInputName .
 #          } UNION {

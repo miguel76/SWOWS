@@ -43,6 +43,7 @@ import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
@@ -54,6 +55,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.sparql.util.NodeFactory;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.update.GraphStore;
 import com.hp.hpl.jena.update.GraphStoreFactory;
@@ -126,9 +128,9 @@ public class Step2Test {
 //    	wfDataset.getDefaultModel().removeAll();
 //    	wfDataset.getDefaultModel().add(newWfModel);
 		
-    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeNamedGraphs.sparql");
-    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
-    	processor.execute();
+//    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeNamedGraphs.sparql");
+//    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+//    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/normalizeGroups.sparql");
 //		queryExecution =
@@ -138,9 +140,9 @@ public class Step2Test {
 //    	wfDataset.getDefaultModel().removeAll();
 //    	wfDataset.getDefaultModel().add(newWfModel);
 		
-    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeGroups.sparql");
-    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
-    	processor.execute();
+//    	updateRequest = UpdateFactory.read("resources/sparql/update/normalizeGroups.sparql");
+//    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+//    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/avoidUnconnectedElements.sparql");
 //		queryExecution =
@@ -150,13 +152,16 @@ public class Step2Test {
 //    	wfDataset.getDefaultModel().removeAll();
 //    	wfDataset.getDefaultModel().add(newWfModel);
 		
-    	updateRequest = UpdateFactory.read("resources/sparql/update/avoidUnconnectedElements.sparql");
-    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
-    	processor.execute();
+//    	updateRequest = UpdateFactory.read("resources/sparql/update/avoidUnconnectedElements.sparql");
+//    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+//    	processor.execute();
 		
-    	updateRequest = UpdateFactory.read("resources/sparql/update/constGraphsInBGPs.sparql");
-    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
-    	processor.execute();
+//    	wfGraphStore.
+//    	"http://www.swows.org/transform#Assignments"
+    	
+//    	updateRequest = UpdateFactory.read("resources/sparql/update/constGraphsInBGPs.sparql");
+//    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+//    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/toQuads.sparql");
 //		queryExecution =
@@ -256,6 +261,18 @@ public class Step2Test {
 		print( 
 				ModelFactory.createModelForGraph( Skolemizer.deSkolemize(newWfModel.getGraph()) ),
 				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/mainAfterInclude4.n3") );
+
+		newWfModel =
+				ModelFactory.createModelForGraph(
+						wfDatasetGraph.getGraph(
+								Node.createURI("http://www.swows.org/transform#Assignments")));
+		print( 
+				newWfModel,
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/assignments.sk.n3") );
+		print( 
+				ModelFactory.createModelForGraph( Skolemizer.deSkolemize(newWfModel.getGraph()) ),
+				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/assignments.n3") );
+		
 //		ModelFactory
 //		.createModelForGraph(
 //				Skolemizer.deSkolemize(newWfModel.getGraph()) )

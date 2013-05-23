@@ -14,12 +14,9 @@ PREFIX sas:     <http://www.swows.org/sas#>
     ?inputDataset
       a df:InlineDataset ;
       df:input ?mainGraph ;
-      df:namedInput ?mainGraphInput ;
       df:namedInput ?innerGraphInput .
-    ?mainGraphInput
-      df:input ?mainGraph ;
-      df:id ?mainGraphName .
     ?innerGraphInput
+      a df:NamedGraph ;
       df:input ?innerGraph ;
       df:id ?innerGraphName .
     ?importedGraph
@@ -36,7 +33,7 @@ PREFIX sas:     <http://www.swows.org/sas#>
    ?newWhereElement
       a sp:Element, sp:NamedGraph ;
       sp:graphNameNode ?mainGraph ;
-      spx:element ?mainElement .
+      spx:element ?whereElement .
     ?newMainOp
       a sas:Op, sas:Graph ;
       sas:graphNameNode ?mainGraph ;
@@ -56,8 +53,10 @@ PREFIX sas:     <http://www.swows.org/sas#>
            df:input ?mainGraph .
          OPTIONAL {
             ?inputDataset df:namedInput ?innerGraphInput .
-            ?innerGraphInput df:input ?innerGraph .
-               ?innerGraphInput df:id ?innerGraphName .
+            ?innerGraphInput
+               a df:NamedGraph ;
+               df:input ?innerGraph ;
+               df:id ?innerGraphName .
          }
       }
 
@@ -72,7 +71,9 @@ PREFIX sas:     <http://www.swows.org/sas#>
             && ( !EXISTS{?sG a sp:NamedGraph}
                   || ?pG != sp:graphNameNode )
             && ( !EXISTS{ swi:GraphRoot ?memberP2 ?sG }
-                  || ?pG != sp:where ) ) .
+                  || ?pG != sp:where )
+            && ( !EXISTS{ swi:GraphRoot ?memberP2 ?sG }
+                  || ?pG != sas:op ) ) .
       
         swi:GraphRoot ?memberP ?updateQuery .
       

@@ -15,6 +15,7 @@ PREFIX sas:     <http://www.swows.org/sas#>
         df:input ?mainGraph ;
         df:namedInput ?innerGraphInput .
       ?innerGraphInput
+        a df:NamedGraph ;
         df:input ?innerGraph ;
         df:id ?innerGraphName .
       ?importedGraph
@@ -48,8 +49,10 @@ PREFIX sas:     <http://www.swows.org/sas#>
         df:input ?mainGraph .
       OPTIONAL {
         ?inputDataset df:namedInput ?innerGraphInput .
-        ?innerGraphInput df:input ?innerGraph .
-        ?innerGraphInput df:id ?innerGraphName .
+        ?innerGraphInput
+          a df:NamedGraph ;
+          df:input ?innerGraph ;
+          df:id ?innerGraphName .
       }
     
       ?importedGraph
