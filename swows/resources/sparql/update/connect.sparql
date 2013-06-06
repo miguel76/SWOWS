@@ -1,0 +1,95 @@
+PREFIX df:      <http://www.swows.org/dataflow#>
+PREFIX swi:     <http://www.swows.org/instance#>
+PREFIX sp:      <http://spinrdf.org/sp#>
+PREFIX spx:     <http://www.swows.org/spinx#>
+PREFIX bn:      <http://www.swows.org/instance/.well-known/genid/>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sas:     <http://www.swows.org/sas#>
+PREFIX tr:     <http://www.swows.org/transform#>
+
+CREATE GRAPH tr:Assignments;
+
+INSERT {
+    GRAPH tr:Assignments {
+      ?connection
+        a tr:Connection ;
+        tr:graph ?graphNameNode ;
+        tr:bgp ?bgp . # ;
+#        tr:assignmentSet ?assignmentSet .
+#      ?assignmentSet
+#        a tr:AssignmentSet ;
+#        tr:assignment ?assignment .
+#      ?assignment
+#        a tr:Assignment ;
+#        tr:variable ?variable ;
+#        tr:value ?constant .
+    }
+  }
+  WHERE {
+
+    ?graphOp
+      a sas:Graph ;
+      sas:graphNameNode ?graphNameNode ;
+      sas:subOp/(sas:subOp|sas:leftOp|sas:rightOp)* ?bgp .
+      
+    ?graphNameNode
+      a df:ConstructGraph ;
+      sp:where ?where .
+      
+    ?bgp
+      a sas:BGP .
+      
+    BIND( URI( CONCAT( STR(bn:connection_), MD5( STR(?bgp) ) ) ) AS ?connection ) .
+
+    FILTER NOT EXISTS {
+      ?graphOp sas:subOp/(sas:subOp|sas:leftOp|sas:rightOp)* ?otherGraphOp .
+      ?otherGraphOp
+        a sas:Graph ;
+        sas:subOp/(sas:subOp|sas:leftOp|sas:rightOp)* ?bgp .
+    }
+
+#    GRAPH ?graphURI {
+#      { ?constant ?p1 ?o1 }
+#      UNION { ?s2 ?constant ?o2 }
+#      UNION { ?s3 ?p3 ?constant }
+#    }
+
+#    {
+      ?bgp sas:triplePattern/(sp:subject|sp:predicate|sp:object) ?variable .
+      ?variable
+        a sp:Variable ;
+        sp:varName ?varName .
+#    } UNION {
+#      ?triplePath a sp:TriplePath .
+#    }
+    
+#    FILTER (
+#      NOT EXISTS {
+#        ?bgp sas:triplePattern ?triplePattern .
+#        ?triplePattern
+#          sp:subject ?patternSubject ;
+#          sp:predicate ?patternPredicate ;
+#          sp:object ?patternObject .
+        
+#        NOT EXISTS {
+#          GRAPH ?graphNameNode {
+#            { ?constantSubject ?constantPredicate ?constantObject } .
+#            FILTER ( ( EXISTS{?patternSubject a sp:Variable}
+#                       && (?patternSubject != ?variable || ?constantSubject = ?constant) )
+#                     || ?patternSubject = ?constantSubject ) .
+#            FILTER ( ( EXISTS{?patternPredicate a sp:Variable}
+#                       && (?patternPredicate != ?variable || ?constantPredicate = ?constant) )
+#                     || ?patternPredicate = ?constantPredicate ) .
+#            FILTER ( ( EXISTS{?patternObject a sp:Variable}
+#                       && (?patternObject != ?variable || ?constantObject = ?constant) )
+#                     || ?patternObject = ?constantObject ) .
+#          }
+#        }
+#      }
+#    )
+    
+#    BIND( URI( CONCAT( STR(bn:assignmentSet_), MD5( STR(?variable) ), MD5( STR(?constant) ) ) ) AS ?assignmentSet ) .
+#    BIND( URI( CONCAT( STR(bn:assignment_), MD5( STR(?variable) ), MD5( STR(?constant) ) ) ) AS ?assignment ) .
+    
+  };
+  

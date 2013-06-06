@@ -159,9 +159,9 @@ public class Step2Test {
 //    	wfGraphStore.
 //    	"http://www.swows.org/transform#Assignments"
     	
-//    	updateRequest = UpdateFactory.read("resources/sparql/update/constGraphsInBGPs.sparql");
-//    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
-//    	processor.execute();
+    	updateRequest = UpdateFactory.read("resources/sparql/update/constGraphsInBGPs.sparql");
+    	processor = UpdateExecutionFactory.create(updateRequest, wfGraphStore);
+    	processor.execute();
 		
 //		query = QueryFactory.read("resources/sparql/toQuads.sparql");
 //		queryExecution =

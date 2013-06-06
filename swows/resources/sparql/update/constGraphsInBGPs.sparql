@@ -64,30 +64,30 @@ INSERT {
 #      ?triplePath a sp:TriplePath .
 #    }
     
-#    FILTER (
-#      NOT EXISTS {
-#        ?bgp sas:triplePattern ?triplePattern .
-#        ?triplePattern
-#          sp:subject ?patternSubject ;
-#          sp:predicate ?patternPredicate ;
-#          sp:object ?patternObject .
+    FILTER (
+      NOT EXISTS {
+        ?bgp sas:triplePattern ?triplePattern .
+        ?triplePattern
+          sp:subject ?patternSubject ;
+          sp:predicate ?patternPredicate ;
+          sp:object ?patternObject .
         
-#        NOT EXISTS {
-#          GRAPH ?graphNameNode {
-#            { ?constantSubject ?constantPredicate ?constantObject } .
-#            FILTER ( ( EXISTS{?patternSubject a sp:Variable}
-#                       && (?patternSubject != ?variable || ?constantSubject = ?constant) )
-#                     || ?patternSubject = ?constantSubject ) .
-#            FILTER ( ( EXISTS{?patternPredicate a sp:Variable}
-#                       && (?patternPredicate != ?variable || ?constantPredicate = ?constant) )
-#                     || ?patternPredicate = ?constantPredicate ) .
-#            FILTER ( ( EXISTS{?patternObject a sp:Variable}
-#                       && (?patternObject != ?variable || ?constantObject = ?constant) )
-#                     || ?patternObject = ?constantObject ) .
-#          }
-#        }
-#      }
-#    )
+        FILTER ( NOT EXISTS {
+          GRAPH ?graphURI {
+            { ?constantSubject ?constantPredicate ?constantObject } .
+            FILTER ( ( EXISTS{?patternSubject a sp:Variable}
+                       && (?patternSubject != ?variable || ?constantSubject = ?constant) )
+                     || ?patternSubject = ?constantSubject ) .
+            FILTER ( ( EXISTS{?patternPredicate a sp:Variable}
+                       && (?patternPredicate != ?variable || ?constantPredicate = ?constant) )
+                     || ?patternPredicate = ?constantPredicate ) .
+            FILTER ( ( EXISTS{?patternObject a sp:Variable}
+                       && (?patternObject != ?variable || ?constantObject = ?constant) )
+                     || ?patternObject = ?constantObject ) .
+          }
+        } )
+      }
+    )
     
     BIND( URI( CONCAT( STR(bn:assignmentSet_), MD5( STR(?variable) ), MD5( STR(?constant) ) ) ) AS ?assignmentSet ) .
     BIND( URI( CONCAT( STR(bn:assignment_), MD5( STR(?variable) ), MD5( STR(?constant) ) ) ) AS ?assignment ) .
