@@ -83,6 +83,7 @@ public class DF {
     public final static Resource SelectGraph = resource("SelectGraph");
     public final static Resource IntegerRangeFromGraph = resource("IntegerRangeFromGraph");
     public final static Resource DataflowGraph = resource("DataflowGraph");
+    public final static Resource DataflowDataset = resource("DataflowDataset");
 
     public final static Resource IncludedGraph = resource("IncludedGraph");
     public final static Resource ImportedGraph = resource("ImportedGraph");

@@ -52,7 +52,7 @@ public class MouseTest {
     public static void main(final String[] args) throws TransformerException {
     	
     	//BasicConfigurator.configure();
-        PropertyConfigurator.configure("/home/miguel/prova/log4j.properties");
+        PropertyConfigurator.configure("/home/miguel/git/WorldInfo/log4j.properties");
     	
 		FunctionRegistry registry = FunctionRegistry.get();
 		registry.put(Factory.getBaseURI() + "to", Factory.getInstance());

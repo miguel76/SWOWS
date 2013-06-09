@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.swows.mouse;
+package org.swows.file;
 
 import java.awt.Color;
 import java.awt.GraphicsConfiguration;
@@ -25,9 +25,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -70,7 +67,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 
-public class MouseApp extends JFrame {
+public class FileApp extends JFrame {
 
 	/**
 	 * 
@@ -82,29 +79,29 @@ public class MouseApp extends JFrame {
 	private Document newDocument = null;
 	private JSVGCanvas svgCanvas = null;
 
-	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
+	public FileApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
 		this(title, gc, dataflowGraph, true);
 	}
 		
-	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, Color bgColor) {
+	public FileApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, Color bgColor) {
 		this(title, gc, dataflowGraph, true, bgColor);
 	}
 		
-	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen) {
+	public FileApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen) {
 		this(title, gc, dataflowGraph, fullscreen, gc.getBounds().width, gc.getBounds().height, null);
 	}
 	
-	public MouseApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen, Color bgColor) {
+	public FileApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph, final boolean fullscreen, Color bgColor) {
 		this(title, gc, dataflowGraph, fullscreen, gc.getBounds().width, gc.getBounds().height, bgColor);
 	}
 	
-	public MouseApp(
+	public FileApp(
 			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
 			final boolean fullscreen, int width, int height) {
 		this(title, gc, dataflowGraph, fullscreen, width, height, null);
 	}
 	
-	public MouseApp(
+	public FileApp(
 			String title, final GraphicsConfiguration gc, Graph dataflowGraph,
 			final boolean fullscreen, int width, int height, Color bgColor) {
 		super(title, gc);
@@ -118,26 +115,26 @@ public class MouseApp extends JFrame {
 					batikRunnableQueue.invokeAndWait(new Runnable() {
 						@Override
 						public void run() {
-//							long runEntered = System.currentTimeMillis();
-//							System.out.println(
-//									"Update thread launched in "
-//											+ (runEntered - start) + "ms" );
+							long runEntered = System.currentTimeMillis();
+							System.out.println(
+									"Update thread launched in "
+											+ (runEntered - start) + "ms" );
 							runnable.run();
-//							long afterCascade = System.currentTimeMillis();
-//							System.out.println(
-//									"RDF envent cascade executed in "
-//											+ (afterCascade - runEntered) + "ms" );
+							long afterCascade = System.currentTimeMillis();
+							System.out.println(
+									"RDF envent cascade executed in "
+											+ (afterCascade - runEntered) + "ms" );
 							cachingGraph.sendEvents();
-//							long afterSvgDom = System.currentTimeMillis();
-//							System.out.println(
-//									"SVG DOM updated in "
-//											+ (afterSvgDom - afterCascade) + "ms" );
+							long afterSvgDom = System.currentTimeMillis();
+							System.out.println(
+									"SVG DOM updated in "
+											+ (afterSvgDom - afterCascade) + "ms" );
 						}
 					});
-//					long runFinished = System.currentTimeMillis();
-//					System.out.println(
-//							"SVG updated and repainted in "
-//									+ (runFinished - start + "ms" ) );
+					long runFinished = System.currentTimeMillis();
+					System.out.println(
+							"SVG updated and repainted in "
+									+ (runFinished - start + "ms" ) );
 					if (newDocument != null && svgCanvas != null) {
 						batikRunnableQueue = null;
 						Document doc = newDocument;
@@ -160,86 +157,86 @@ public class MouseApp extends JFrame {
 //    					}
 //    				}
 //    			});
-    	final MouseInput mouseInput = new MouseInput();
+//    	final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
-    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
+//    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
 //		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
 		cachingGraph = new EventCachingGraph(outputGraph);
 //		cachingGraph = new EventCachingGraph( new LoggingGraph(outputGraph, Logger.getRootLogger(), true, true) );
-		svgCanvas = new JSVGCanvas();
-        svgCanvas.setSize(width,height);
-        
-        // Set the JSVGCanvas listeners.
-        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
-
-            public void documentLoadingStarted(SVGDocumentLoaderEvent e) {
-                //label.setText("Document Loading...");
-            }
-
-            public void documentLoadingCompleted(SVGDocumentLoaderEvent e) {
-                //label.setText("Document Loaded.");
-            }
-        });
-
-        svgCanvas.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
-
-            public void gvtBuildStarted(GVTTreeBuilderEvent e) {
-                //label.setText("Build Started...");
-            }
-
-            public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
-                //label.setText("Build Done.");
-//                frame.pack();
-            }
-        });
-
-        svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-
-            public void gvtRenderingPrepare(GVTTreeRendererEvent e) {
-                //label.setText("Rendering Started...");
-            }
-
-            public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-        		batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
-            	if (!graphicsInitialized) {
-            		// Display the frame.
-            		pack();
-            		if (fullscreen)
-            			gc.getDevice().setFullScreenWindow(MouseApp.this);
-            		else
-            			setVisible(true);
-//            		tuioGateway.connect();
-            		graphicsInitialized = true;
-            	}
-            }
-        });
-
-        getContentPane().setSize(width, height);
-        if (bgColor != null)
-        	getContentPane().setBackground(bgColor);
-        svgCanvas.setBackground(bgColor);
-        getContentPane().add(svgCanvas);
-
-        addWindowListener(new WindowAdapter() {
-
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-
-        setSize(width, height);
+//		svgCanvas = new JSVGCanvas();
+//        svgCanvas.setSize(width,height);
+//        
+//        // Set the JSVGCanvas listeners.
+//        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
+//
+//            public void documentLoadingStarted(SVGDocumentLoaderEvent e) {
+//                //label.setText("Document Loading...");
+//            }
+//
+//            public void documentLoadingCompleted(SVGDocumentLoaderEvent e) {
+//                //label.setText("Document Loaded.");
+//            }
+//        });
+//
+//        svgCanvas.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
+//
+//            public void gvtBuildStarted(GVTTreeBuilderEvent e) {
+//                //label.setText("Build Started...");
+//            }
+//
+//            public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
+//                //label.setText("Build Done.");
+////                frame.pack();
+//            }
+//        });
+//
+//        svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+//
+//            public void gvtRenderingPrepare(GVTTreeRendererEvent e) {
+//                //label.setText("Rendering Started...");
+//            }
+//
+//            public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
+//        		batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
+//            	if (!graphicsInitialized) {
+//            		// Display the frame.
+//            		pack();
+//            		if (fullscreen)
+//            			gc.getDevice().setFullScreenWindow(FileApp.this);
+//            		else
+//            			setVisible(true);
+////            		tuioGateway.connect();
+//            		graphicsInitialized = true;
+//            	}
+//            }
+//        });
+//
+//        getContentPane().setSize(width, height);
+//        if (bgColor != null)
+//        	getContentPane().setBackground(bgColor);
+//        svgCanvas.setBackground(bgColor);
+//        getContentPane().add(svgCanvas);
+//
+//        addWindowListener(new WindowAdapter() {
+//
+//            public void windowClosing(WindowEvent e) {
+//                System.exit(0);
+//            }
+//        });
+//
+//        setSize(width, height);
 
 		DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation();
                 
-		Set<DomEventListener> domEventListenerSet = new HashSet <DomEventListener>();
-		domEventListenerSet.add(mouseInput);
-		Map<String,Set<DomEventListener>> domEventListeners = new HashMap <String,Set<DomEventListener>>();
-		domEventListeners.put("click", domEventListenerSet);
-		domEventListeners.put("mousedown", domEventListenerSet);
-		domEventListeners.put("mouseup", domEventListenerSet);
+//		Set<DomEventListener> domEventListenerSet = new HashSet <DomEventListener>();
+//		domEventListenerSet.add(mouseInput);
+//		Map<String,Set<DomEventListener>> domEventListeners = new HashMap <String,Set<DomEventListener>>();
+//		domEventListeners.put("click", domEventListenerSet);
+//		domEventListeners.put("mousedown", domEventListenerSet);
+//		domEventListeners.put("mouseup", domEventListenerSet);
                 
 		Document xmlDoc =
 				DomDecoder2.decodeOne(
@@ -281,7 +278,7 @@ public class MouseApp extends JFrame {
 								newDocument = doc;
 							}
                                                                 
-						},domEventListeners);
+						} ); //,domEventListeners);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
@@ -328,15 +325,7 @@ public class MouseApp extends JFrame {
         		"3.0");
         LSSerializer serializer = feature.createLSSerializer();
         LSOutput output = feature.createLSOutput();
-//        output.setByteStream(System.out);
-        OutputStream os;
-		try {
-			os = new FileOutputStream("/home/miguel/tmp/Result.svg");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-        output.setByteStream(os);
+        output.setByteStream(System.out);
         serializer.write(xmlDoc, output);
 
         svgCanvas.setDocument(xmlDoc);
@@ -376,7 +365,7 @@ public class MouseApp extends JFrame {
 		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
-		new MouseApp(windowTitle, conf, wfGraph, fullScreen, color);
+		new FileApp(windowTitle, conf, wfGraph, fullScreen, color);
 		
     }	
 

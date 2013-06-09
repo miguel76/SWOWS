@@ -221,7 +221,8 @@ public class DomEncoder2 {
 				outputGraph.add(
 						new Triple(
 								newNode,
-								XML.text.asNode(),
+//								XML.text.asNode(),
+								XML.nodeValue.asNode(),
 								Node.createLiteral(textBufferStr) ));
 				connectNode(newNode);
 				textBuffer = new StringBuffer();
