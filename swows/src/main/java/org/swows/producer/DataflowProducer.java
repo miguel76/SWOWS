@@ -154,7 +154,7 @@ public class DataflowProducer extends DatasetProducer {
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.EmptyGraph.asNode()))
 			return EmptyGraphProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableGraph.asNode()))
-			return UpdatableFromEventsProducer2.class;
+			return UpdatableProducer2.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableFromEventsGraph.asNode()))
 			return UpdatableFromEventsProducer2.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.UpdatableFromEventsGraph2.asNode()))

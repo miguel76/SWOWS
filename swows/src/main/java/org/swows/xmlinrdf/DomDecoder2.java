@@ -102,6 +102,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	@Override
 	public synchronized void handleEvent(Event evt) {
 		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
+		System.out.println("In DOM decoder handling event " + evt + " of type " + evt.getType());
 		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
 		if (domEventListeners != null) {

@@ -19,6 +19,8 @@
  */
 package org.swows.graph;
 
+import java.util.Iterator;
+
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
@@ -26,10 +28,13 @@ import org.swows.graph.events.Listener;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * The Class SparqlConstructGraph it's the result of a
@@ -83,18 +88,6 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 	}
 
 	private Graph exec() {
-//		Dataset dataset = DatasetFactory.create(queryDataset);
-//		System.out.println("Input Default Graph: ");
-//		dataset.getDefaultModel().write(System.out,"N3");
-//		System.out.println();
-//		Iterator<String> nameList = dataset.listNames();
-//		while (nameList.hasNext()) {
-//			String uri = nameList.next();
-//			System.out.println("Input Named Graph (" + uri + "): ");
-//			dataset.getNamedModel(uri).write(System.out,"N3");
-//			System.out.println();
-//		}
-//		long queryStart = System.currentTimeMillis();
 		
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(
@@ -102,11 +95,33 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 						DatasetFactory.create(new DynamicDatasetMap( queryDataset) ));
 //        Graph resGraph = GraphFactory.createGraphMem();
 //        resGraph.getBulkUpdateHandler().add(queryExecution.execConstruct().getGraph());
-        Graph resGraph = queryExecution.execConstruct().getGraph();
+
+		System.out.println("**** QUERY " + queryExecution.hashCode() + " START ***");
+		System.out.println("Executing the following query...");
+		System.out.println(query);
+		System.out.println("...on the following dataset...");
+		Dataset dataset = DatasetFactory.create(queryDataset);
+		System.out.println("Input Default Graph: ");
+		dataset.getDefaultModel().write(System.out,"N3");
+		System.out.println();
+		Iterator<String> nameList = dataset.listNames();
+		while (nameList.hasNext()) {
+			String uri = nameList.next();
+			System.out.println("Input Named Graph (" + uri + "): ");
+			dataset.getNamedModel(uri).write(System.out,"N3");
+			System.out.println();
+		}
+		long queryStart = System.currentTimeMillis();
+		
+		Graph resGraph = queryExecution.execConstruct().getGraph();
 		queryExecution.close();
 
-//		long queryEnd = System.currentTimeMillis();
-//		System.out.println("Query execution time: " + (queryEnd - queryStart) );
+		System.out.println("The result of the query is the following graph...");
+		Model model = ModelFactory.createModelForGraph(resGraph);
+		model.write(System.out,"N3");
+		long queryEnd = System.currentTimeMillis();
+		System.out.println("Query execution time: " + (queryEnd - queryStart) );
+		System.out.println("**** QUERY " + queryExecution.hashCode() + " END ***");
 
 		return resGraph;
 	}
