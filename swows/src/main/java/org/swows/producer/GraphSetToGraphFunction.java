@@ -109,6 +109,7 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 * @param prodIter the prod iter
 	 */
 	public GraphSetToGraphFunction(Iterator<Producer> prodIter) {
+		producerList = new Vector<Producer>();
 		while(prodIter.hasNext()) {
 			producerList.add(prodIter.next());
 		}

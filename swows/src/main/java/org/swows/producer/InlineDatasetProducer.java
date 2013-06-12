@@ -20,8 +20,10 @@
 package org.swows.producer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.events.DynamicDataset;
@@ -30,10 +32,12 @@ import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.util.iterator.Map1;
 
 public class InlineDatasetProducer extends DatasetProducer {
 	
 	Producer inputProducer = null;
+//	Set<Producer> inputProducers = new HashSet<Producer>();
 	Map<Node,Producer> namedInputProducers = new HashMap<Node, Producer>();
 
 	/**
@@ -45,7 +49,29 @@ public class InlineDatasetProducer extends DatasetProducer {
 	 * @see Producer
 	 */
 	public InlineDatasetProducer(Graph conf, Node confRoot, final ProducerMap map) {
-		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
+//		final Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
+		inputProducer =
+				new UnionFunction(
+						GraphUtils
+						.getPropertyValues(conf, confRoot, DF.input.asNode())
+						.mapWith(new Map1<Node, Producer>() {
+							@Override
+							public Producer map1(Node graphNode) {
+								Producer producer = map.getProducer(graphNode);
+								if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
+								return producer;
+							}
+						}));
+
+//		Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
+//		while (inputNodes.hasNext()) {
+//			Node inputNode = inputNodes.next();
+//			Node graphNode = GraphUtils.getSingleValueProperty(conf, inputNode, DF.input.asNode());
+//			Producer producer = map.getProducer(graphNode);
+//			if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
+//			inputProducers.add(producer);
+//		}
+		
 		Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.namedInput.asNode());
 		while (namedInputNodes.hasNext()) {
 			Node namedInputNode = namedInputNodes.next();
@@ -63,6 +89,9 @@ public class InlineDatasetProducer extends DatasetProducer {
 	public boolean dependsFrom(Producer producer) {
 		if ( producer == inputProducer || inputProducer.dependsFrom(producer) )
 			return true;
+//		for (Producer currProducer : inputProducers)
+//			if ( producer == currProducer || currProducer.dependsFrom(producer) )
+//				return true;
 		for (Producer currProducer : namedInputProducers.values())
 			if ( producer == currProducer || currProducer.dependsFrom(producer) )
 				return true;

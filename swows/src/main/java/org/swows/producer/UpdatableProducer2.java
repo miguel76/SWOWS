@@ -39,7 +39,7 @@ import com.hp.hpl.jena.update.UpdateRequest;
 public class UpdatableProducer2 extends GraphProducer {
 	
 	private Producer
-				baseGraphProducer = EmptyGraphProducer.getInstance(),
+//				baseGraphProducer = EmptyGraphProducer.getInstance(),
 				configProducer,
 				inputProducer;
 
@@ -52,9 +52,9 @@ public class UpdatableProducer2 extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableProducer2(Graph conf, Node confRoot, ProducerMap map) {
-		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
-		if (baseGraphNode != null)
-			baseGraphProducer = map.getProducer(baseGraphNode);
+//		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
+//		if (baseGraphNode != null)
+//			baseGraphProducer = map.getProducer(baseGraphNode);
 		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
 		configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 	}
@@ -62,18 +62,18 @@ public class UpdatableProducer2 extends GraphProducer {
 	@Override
 	public boolean dependsFrom(Producer producer) {
 		return
-				baseGraphProducer.equals(producer)
-				|| baseGraphProducer.dependsFrom(producer)
-				|| (inputProducer != null && inputProducer.dependsFrom(producer))
+//				baseGraphProducer.equals(producer)
+//				|| baseGraphProducer.dependsFrom(producer)
+				(inputProducer != null && inputProducer.dependsFrom(producer))
 				|| (configProducer != null && configProducer.dependsFrom(producer));
 	}
 
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
-		DynamicGraph baseGraph = (baseGraphProducer == null) ? null : baseGraphProducer.createGraph(inputDataset); 
+//		DynamicGraph baseGraph = (baseGraphProducer == null) ? null : baseGraphProducer.createGraph(inputDataset); 
 		UpdateRequest updateRequest = QueryFactory.toUpdateRequest(configProducer.createGraph(inputDataset), SWI.GraphRoot.asNode());
 		return new UpdatableGraph2(
-				baseGraph,
+//				baseGraph,
 				updateRequest,
 				inputProducer.createDataset(inputDataset) );
 	}
