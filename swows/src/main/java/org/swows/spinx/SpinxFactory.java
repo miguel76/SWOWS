@@ -648,6 +648,24 @@ public class SpinxFactory {
 					SP.insertPattern.asNode(),
 					fromQuads(insertQuads) ) );
 		}
+		List<Node> usingNodes = update.getUsing();
+		for (Node usingNode : usingNodes)
+			graph.add( new Triple(
+					queryRootNode,
+					SP.using.asNode(),
+					usingNode ) );
+		List<Node> usingNamedNodes = update.getUsingNamed();
+		for (Node usingNamedNode : usingNamedNodes)
+			graph.add( new Triple(
+					queryRootNode,
+					SP.usingNamed.asNode(),
+					usingNamedNode ) );
+		Node withNode = update.getWithIRI();
+		if (withNode != null)
+			graph.add( new Triple(
+					queryRootNode,
+					SP.with.asNode(),
+					withNode ) );
 	}
 
 //	private void fromDeleteWhere(UpdateDeleteWhere update, Node queryRootNode) {

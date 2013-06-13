@@ -40,6 +40,7 @@ import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
 import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
 import com.hp.hpl.jena.sparql.util.graph.GraphUtils;
 import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.GraphStoreFactory;
 import com.hp.hpl.jena.update.Update;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import com.hp.hpl.jena.update.UpdateProcessor;
@@ -62,12 +63,14 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 		baseGraphCopy = new DynamicGraphFromGraph( innerGraph );
 
 		this.updateRequest = updateRequest;
-		for (Update update : updateRequest.getOperations()) {
-			if (update instanceof UpdateWithUsing)
-				((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
-		}
+//		for (Update update : updateRequest.getOperations()) {
+//			if (update instanceof UpdateWithUsing)
+//				((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
+//		}
 	
 //		this.originalInputDataset = inputDataset;
+
+		graphStore = GraphStoreFactory.create();
 
 		Iterator<Node> graphNodes = inputDataset.listGraphNodes();
 		Node nextGraphNode = null;
@@ -77,14 +80,18 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 					nextGraphNode == null ?
 							inputDataset.getDefaultGraph() :
 							inputDataset.getGraph(nextGraphNode);
+			if (nextGraphNode == null)
+				graphStore.setDefaultGraph(eventGraph);
+			else
+				graphStore.addGraph(nextGraphNode, eventGraph);
 			eventGraph.getEventManager2().register(
 					new Listener() {
 						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
 							System.out.println("Start Add notifyUpdate");
 							System.out.println("This graph: " + baseGraphCopy);
-							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
-							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
+//							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
+//							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
 							System.out.println("Default input graph: " + graphStore.getDefaultGraph());
 							Iterator<Node> graphNodes = graphStore.listGraphNodes();
 							while (graphNodes.hasNext()) {
@@ -100,10 +107,10 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 					} );
 		} while(nextGraphNode != null);
 
-		this.graphStore = new GraphStoreBasic(inputDataset);
-//		this.graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
-//		this.graphStore.setDefaultGraph(baseGraphCopy);
-
+//		this.graphStore = new GraphStoreBasic(inputDataset);
+//		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
+		this.graphStore.setDefaultGraph(baseGraphCopy);
+		
 		update();
 //		this.graphStore.removeGraph(SWI.ThisGraph.asNode());
 
@@ -134,10 +141,13 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 //			if (update instanceof UpdateWithUsing)
 //				((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
 //		}
-		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
+//		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
 		UpdateProcessor updateProcessor = UpdateExecutionFactory.create(updateRequest, graphStore);
 		updateProcessor.execute();
-		graphStore.removeGraph(SWI.ThisGraph.asNode());
+//		graphStore.removeGraph(SWI.ThisGraph.asNode());
+		
+//		System.out.println("ThisGraph after update");
+//		ModelFactory.createModelForGraph(graphStore.getGraph(SWI.ThisGraph.asNode())).write(System.out, "N3");
 		
 		System.out.println("Graph after update");
 		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");

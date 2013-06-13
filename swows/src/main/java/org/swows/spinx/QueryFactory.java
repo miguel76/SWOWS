@@ -841,8 +841,8 @@ public class QueryFactory {
 			if (graphNameNode.isURI()) {
 				if (query != null)
 					query.addNamedGraphURI(graphNameNode.getURI());
-				else if (updateDeleteInsert != null)
-					updateDeleteInsert.addUsingNamed(graphNameNode);
+//				else if (updateDeleteInsert != null)
+//					updateDeleteInsert.addUsingNamed(graphNameNode);
 			}
 			ElementContext subElementContext = toElementContext(subElementNode);
 			return
@@ -1265,6 +1265,18 @@ public class QueryFactory {
 		if (elementNode != null) {
 			updateDeleteInsert.setElement(toElement(elementNode));
 		}
+
+		Iterator<Node> usingNodes = GraphUtils.getPropertyValues(graph, queryRootNode, SP.using.asNode());
+		while(usingNodes.hasNext())
+			updateDeleteInsert.addUsing( usingNodes.next() );
+		Iterator<Node> usingNamedNodes = GraphUtils.getPropertyValues(graph, queryRootNode, SP.using.asNode());
+		while(usingNamedNodes.hasNext())
+			updateDeleteInsert.addUsingNamed( usingNamedNodes.next() );
+		Node withNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.with.asNode() );
+		if (withNode != null) {
+			updateDeleteInsert.setWithIRI(withNode);
+		}
+		
 		return updateDeleteInsert;
 	}
 	
