@@ -87,6 +87,8 @@ public class MouseInput implements DomEventListener {
 	public void buildGraph() {
 		if (mouseEventGraph == null) {
 			mouseEventGraph = new DynamicGraphFromGraph( graphMaker.createGraph() );
+		} else {
+			mouseEventGraph.clear();
 		}
 	}
 	

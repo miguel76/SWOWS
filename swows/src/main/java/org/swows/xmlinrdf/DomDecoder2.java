@@ -102,7 +102,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	@Override
 	public synchronized void handleEvent(Event evt) {
 		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
-		System.out.println("In DOM decoder handling event " + evt + " of type " + evt.getType());
+//		System.out.println("In DOM decoder handling event " + evt + " of type " + evt.getType());
 		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
 		if (domEventListeners != null) {
@@ -215,6 +215,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
 	private Attr decodeAttr(Graph graph, Node elementNode) {
 		String nsUri = namespaceAttr(graph, elementNode);
+		if (nsUri == null)
+			throw new RuntimeException("Namespace not found for attribute " + elementNode + " in graph " + graph);
 		return
 				(nsUri.equals(VOID_NAMESPACE))
 					? document.createAttribute( qNameAttr(graph, elementNode) )
@@ -661,7 +663,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 										//org.w3c.dom.Node parentNode = null;
 										Node nodeType = newTriple.getObject();
 										
-										if ( graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
+										if ( nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
 											while (domSubjIter.hasNext()) {
 												org.w3c.dom.Node domSubj = domSubjIter.next();
 												org.w3c.dom.Node parentNode = domSubj.getParentNode();
@@ -685,8 +687,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 													XML.Attr.asNode() ) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
-											Attr newAttr = newDom.decodeAttr(sourceGraph, newTriple.getObject());
-											newDom.addNodeMapping(newTriple.getObject(), newAttr);
+											Attr newAttr = newDom.decodeAttr(sourceGraph, newTriple.getPredicate());
+//											newDom.addNodeMapping(newTriple.getPredicate(), newAttr);
+											newAttr.setValue(newTriple.getObject().getLiteralLexicalForm());
 											element.setAttributeNodeNS(newAttr);
 										}
 									} else if ( newTriple.getPredicate().equals(XML.hasChild.asNode()) ) {
@@ -695,7 +698,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 												.find(newTriple.getSubject(), XML.nodeType.asNode(), Node.ANY)
 												.next().getObject();
 										//System.out.println("Managing add hasChild (" + newTriple + ") for domSubjs " + domSubjs + " and node type " + nodeType);
-										if (nodeType.equals(XML.Element.asNode())) {
+										if (nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 												org.w3c.dom.Node newChild = newDom.decodeNode(sourceGraph, newTriple.getObject());

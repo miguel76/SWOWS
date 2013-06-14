@@ -88,21 +88,19 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 					new Listener() {
 						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
-							System.out.println("Start Add notifyUpdate");
-							System.out.println("This graph: " + baseGraphCopy);
-//							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
-//							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
-							System.out.println("Default input graph: " + graphStore.getDefaultGraph());
-							Iterator<Node> graphNodes = graphStore.listGraphNodes();
-							while (graphNodes.hasNext()) {
-								Node graphNode = graphNodes.next();
-								System.out.println("Named input graph (" + graphNode.getURI() + "):");
-								ModelFactory.createModelForGraph(graphStore.getGraph(graphNode)).write(System.out, "N3");
-							}
+//							System.out.println("Start Add notifyUpdate");
+//							System.out.println("This graph: " + baseGraphCopy);
+//							System.out.println("Default input graph: " + graphStore.getDefaultGraph());
+//							Iterator<Node> graphNodes = graphStore.listGraphNodes();
+//							while (graphNodes.hasNext()) {
+//								Node graphNode = graphNodes.next();
+//								System.out.println("Named input graph (" + graphNode.getURI() + "):");
+//								ModelFactory.createModelForGraph(graphStore.getGraph(graphNode)).write(System.out, "N3");
+//							}
 
 							update(updateEvent);
 							
-							System.out.println("End of Add notifyUpdate");
+//							System.out.println("End of Add notifyUpdate");
 						}
 					} );
 		} while(nextGraphNode != null);
@@ -146,11 +144,8 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 		updateProcessor.execute();
 //		graphStore.removeGraph(SWI.ThisGraph.asNode());
 		
-//		System.out.println("ThisGraph after update");
-//		ModelFactory.createModelForGraph(graphStore.getGraph(SWI.ThisGraph.asNode())).write(System.out, "N3");
-		
-		System.out.println("Graph after update");
-		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
+//		System.out.println("Graph after update");
+//		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
 		
 		((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 	}
