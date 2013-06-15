@@ -34,13 +34,16 @@ import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.update.UpdateFactory;
 import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdatableProducer2 extends GraphProducer {
 	
+	String queryTxt = null;
+	
 	private Producer
 //				baseGraphProducer = EmptyGraphProducer.getInstance(),
-				configProducer,
+				configProducer = null,
 				inputProducer;
 
 	/**
@@ -56,7 +59,12 @@ public class UpdatableProducer2 extends GraphProducer {
 //		if (baseGraphNode != null)
 //			baseGraphProducer = map.getProducer(baseGraphNode);
 		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
-		configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
+
+		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.txtConfig.asNode());
+		if (queryNode != null)
+			queryTxt = queryNode.getLiteralLexicalForm();
+		else
+			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 	}
 
 	@Override
@@ -71,7 +79,10 @@ public class UpdatableProducer2 extends GraphProducer {
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 //		DynamicGraph baseGraph = (baseGraphProducer == null) ? null : baseGraphProducer.createGraph(inputDataset); 
-		UpdateRequest updateRequest = QueryFactory.toUpdateRequest(configProducer.createGraph(inputDataset), SWI.GraphRoot.asNode());
+		UpdateRequest updateRequest =
+				(queryTxt != null) ?
+						UpdateFactory.create(queryTxt) :
+						QueryFactory.toUpdateRequest(configProducer.createGraph(inputDataset), SWI.GraphRoot.asNode());
 		return new UpdatableGraph2(
 //				baseGraph,
 				updateRequest,

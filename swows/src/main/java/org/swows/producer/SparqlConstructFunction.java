@@ -32,6 +32,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.update.UpdateFactory;
 
 /**
  * The Class SparqlConstructFunction executes a SPARQL
@@ -47,6 +48,7 @@ public class SparqlConstructFunction extends GraphProducer {
 //	private Map<Node, Producer> prodMap = new HashMap<Node, Producer>();
 	private Producer inputProducer = null;
 	private Producer configProducer = null;
+	private String queryTxt = null;
 
 	/**
 	 * Instantiates a new sparql construct function.
@@ -58,7 +60,11 @@ public class SparqlConstructFunction extends GraphProducer {
 	 */
 	public SparqlConstructFunction(Graph conf, Node confRoot, final ProducerMap map) {
 		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
-		configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
+		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.txtConfig.asNode());
+		if (queryNode != null)
+			queryTxt = queryNode.getLiteralLexicalForm();
+		else
+			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 //		final Model confModel = ModelFactory.createModelForGraph(conf);
 //		Resource constructResource =
 //			confModel
@@ -188,11 +194,18 @@ public class SparqlConstructFunction extends GraphProducer {
 	@Override
 	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
 		
-		Graph conf = configProducer.createGraph(inputDataset);
-		final Model confModel = ModelFactory.createModelForGraph(conf);
-		Node constructNode =
-			confModel.getRDFNode(SWI.GraphRoot.asNode()).asNode();
-		Query query = QueryFactory.toQuery(conf, constructNode);
+		Graph conf = null;
+		Node constructNode = null;
+		if (configProducer != null) {
+			conf = configProducer.createGraph(inputDataset);
+			final Model confModel = ModelFactory.createModelForGraph(conf);
+			constructNode =
+					confModel.getRDFNode(SWI.GraphRoot.asNode()).asNode();
+		}
+		Query query =
+				(queryTxt != null) ?
+						com.hp.hpl.jena.query.QueryFactory.create(queryTxt) :
+						QueryFactory.toQuery(conf, constructNode);
 		if (query == null)
 			throw new RuntimeException("Parsing Error");
 		
