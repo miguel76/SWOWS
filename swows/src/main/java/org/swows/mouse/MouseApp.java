@@ -463,7 +463,7 @@ public class MouseApp extends JFrame {
         
         if (args.length != 4) {
         	System.out.println("Wrong Number of Arguments!");
-        	System.out.println("usage: java -jar swows-mouse.jar <dataflow_uri> <window_title> F(ull screen)/W(indow) <bg_color>");
+        	System.out.println("usage: java -jar swows-gui.jar <dataflow_uri> <window_title> F(ull screen)/W(indow) <bg_color>");
         	System.exit(0);
         }
 		String mainGraphUrl = args[0];
