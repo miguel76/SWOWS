@@ -106,16 +106,16 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 	
 	private void update(GraphUpdate updateEvent) {
 
-		System.out.println("Start of update");
-		System.out.println("This graph: " + baseGraphCopy);
-		System.out.println("Executing update request: " + updateRequest);
-		System.out.println("Default input graph: " + graphStore.getDefaultGraph());
-		Iterator<Node> graphNodes = graphStore.listGraphNodes();
-		while (graphNodes.hasNext()) {
-			Node graphNode = graphNodes.next();
-			System.out.println("Named input graph (" + graphNode.getURI() + "):");
-			ModelFactory.createModelForGraph(graphStore.getGraph(graphNode)).write(System.out, "N3");
-		}
+//		System.out.println("Start of update");
+//		System.out.println("This graph: " + baseGraphCopy);
+//		System.out.println("Executing update request: " + updateRequest);
+//		System.out.println("Default input graph: " + graphStore.getDefaultGraph());
+//		Iterator<Node> graphNodes = graphStore.listGraphNodes();
+//		while (graphNodes.hasNext()) {
+//			Node graphNode = graphNodes.next();
+//			System.out.println("Named input graph (" + graphNode.getURI() + "):");
+//			ModelFactory.createModelForGraph(graphStore.getGraph(graphNode)).write(System.out, "N3");
+//		}
 
 //		DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
 //		GraphStore graphStore = new GraphStoreBasic(inputDataset);
@@ -145,8 +145,8 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 		updateProcessor.execute();
 //		graphStore.removeGraph(SWI.ThisGraph.asNode());
 		
-		System.out.println("Graph after update");
-		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
+//		System.out.println("Graph after update");
+//		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
 		
 	}
 	
