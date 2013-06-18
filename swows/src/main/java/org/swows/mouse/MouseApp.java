@@ -480,5 +480,31 @@ public class MouseApp extends JFrame {
 		new MouseApp(windowTitle, conf, wfGraph, fullScreen, color);
 		
     }	
+    
+    public static Document createContent(DOMImplementation domImpl, String mainGraphUrl) {
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
+        final MouseInput mouseInput = new MouseInput();
+    	final SystemTime systemTime = new SystemTime();
+    	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
+    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
+//    	final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
+    	DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(wfGraph), inputDatasetGraph);
+    	DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
+    	DynamicGraph cachingGraph = new EventCachingGraph(outputGraph);
+		final Document xmlDoc =
+				DomDecoder2.decodeOne(
+						cachingGraph,
+						domImpl
+//						,new DocumentReceiver() {
+//							@Override
+//							public void sendDocument(Document doc) {
+//								newDocument = doc;
+//							}
+//						}
+//						,domEventListeners
+						);
+		return xmlDoc;
+    }
 
 }
