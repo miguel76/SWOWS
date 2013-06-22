@@ -381,9 +381,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			DOMImplementation domImpl,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl);
-		for (String eventType : domEventListeners.keySet())
-			for (DomEventListener listener : domEventListeners.get(eventType))
-				domDecoder.addDomEventListener(eventType, listener);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
 		return domDecoder.getDocument();
 	}
 
@@ -392,9 +393,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			DOMImplementation domImpl, RunnableContext updatesContext,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, updatesContext);
-		for (String eventType : domEventListeners.keySet())
-			for (DomEventListener listener : domEventListeners.get(eventType))
-				domDecoder.addDomEventListener(eventType, listener);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
 		return domDecoder.getDocument();
 	}
 
@@ -403,9 +405,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			DOMImplementation domImpl, DocumentReceiver docReceiver,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, docReceiver);
-		for (String eventType : domEventListeners.keySet())
-			for (DomEventListener listener : domEventListeners.get(eventType))
-				domDecoder.addDomEventListener(eventType, listener);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
 		return domDecoder.getDocument();
 	}
 
@@ -415,9 +418,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			DocumentReceiver docReceiver,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, updatesContext, docReceiver);
-		for (String eventType : domEventListeners.keySet())
-			for (DomEventListener listener : domEventListeners.get(eventType))
-				domDecoder.addDomEventListener(eventType, listener);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
 		return domDecoder.getDocument();
 	}
 
