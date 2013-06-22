@@ -71,8 +71,25 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
 	
-	private Map<String, Set<Element>> eventType2elements = new HashMap<String, Set<Element>>();
-	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
+	private static EventManager DEFAULT_EVENT_MANAGER =
+			new EventManager() {
+				@Override
+				public void removeEventListener(org.w3c.dom.Node target, String type,
+						EventListener listener, boolean useCapture) {
+					if (target instanceof EventTarget)
+						((EventTarget) target).removeEventListener(type, listener, useCapture);
+				}
+				@Override
+				public void addEventListener(org.w3c.dom.Node target, String type,
+						EventListener listener, boolean useCapture) {
+					if (target instanceof EventTarget)
+						((EventTarget) target).addEventListener(type, listener, useCapture);
+				}
+			};
+	private EventManager eventManager = DEFAULT_EVENT_MANAGER;
+	
+//	private Map<String, Set<Element>> eventType2elements = new HashMap<String, Set<Element>>();
+//	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
 	
 	private Logger logger = Logger.getRootLogger();
 	
@@ -103,14 +120,16 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	public synchronized void handleEvent(Event evt) {
 		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
 //		System.out.println("In DOM decoder handling event " + evt + " of type " + evt.getType());
-		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
+		org.w3c.dom.Node eventCurrentTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
+		Node eventCurrentTargetGraphNode = dom2graphNodeMapping.get(eventCurrentTargetDomNode);
+		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
 		if (domEventListeners != null) {
 			synchronized (domEventListeners) {
 				Set<DomEventListener> domEventListenersForType = domEventListeners.get(evt.getType());
 				for (DomEventListener l : domEventListenersForType) {
 					logger.debug("Sending to " + l + " the event " + evt);
-					l.handleEvent(evt, eventTargetGraphNode);
+					l.handleEvent(evt, eventCurrentTargetGraphNode, eventTargetGraphNode);
 				}
 			}
 		}
@@ -270,22 +289,23 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			if (eventTypeNode.isLiteral()) {
 				String eventType = eventTypeNode.getLiteralLexicalForm();
 //				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
-				((EventTarget) element).addEventListener(eventType, this, false);
+//				((EventTarget) element).addEventListener(eventType, this, false);
+				eventManager.addEventListener(element, eventType, this, false);
 				
-				Set<Element> elemsForEventType = eventType2elements.get(eventType);
-				if (elemsForEventType == null) {
-					elemsForEventType = new HashSet<Element>();
-					eventType2elements.put(eventType, elemsForEventType);
-					((EventTarget) document).addEventListener(eventType, this, false);
-				}
-				elemsForEventType.add(element);
-				
-				Set<String> eventTypesForElement = element2eventTypes.get(element);
-				if (eventTypesForElement == null) {
-					eventTypesForElement = new HashSet<String>();
-					element2eventTypes.put(element, eventTypesForElement);
-				}
-				eventTypesForElement.add(eventType);
+//				Set<Element> elemsForEventType = eventType2elements.get(eventType);
+//				if (elemsForEventType == null) {
+//					elemsForEventType = new HashSet<Element>();
+//					eventType2elements.put(eventType, elemsForEventType);
+//					((EventTarget) document).addEventListener(eventType, this, false);
+//				}
+//				elemsForEventType.add(element);
+//				
+//				Set<String> eventTypesForElement = element2eventTypes.get(element);
+//				if (eventTypesForElement == null) {
+//					eventTypesForElement = new HashSet<String>();
+//					element2eventTypes.put(element, eventTypesForElement);
+//				}
+//				eventTypesForElement.add(eventType);
 				
 			}
 		}
@@ -338,8 +358,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private void redecodeDocument(Node docRootNode) {
 		graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 		dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
-		eventType2elements = new HashMap<String, Set<Element>>();
-		element2eventTypes = new HashMap<Element, Set<String>>();
+//		eventType2elements = new HashMap<String, Set<Element>>();
+//		element2eventTypes = new HashMap<Element, Set<String>>();
 		decodeDocument(docRootNode);
 		if (docReceiver != null)
 			docReceiver.sendDocument(document);
@@ -359,14 +379,35 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decode(
 			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			EventManager eventManager) {
+		return (new DomDecoder2(graph, docRootNode, domImpl, eventManager)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl, RunnableContext updatesContext) {
 		return (new DomDecoder2(graph, docRootNode, domImpl, updatesContext)).getDocument();
 	}
 
 	public static Document decode(
 			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			EventManager eventManager) {
+		return (new DomDecoder2(graph, docRootNode, domImpl, updatesContext, eventManager)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl, DocumentReceiver docReceiver) {
 		return (new DomDecoder2(graph, docRootNode, domImpl, docReceiver)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return (new DomDecoder2(graph, docRootNode, domImpl, docReceiver, eventManager)).getDocument();
 	}
 
 	public static Document decode(
@@ -378,9 +419,30 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decode(
 			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return (new DomDecoder2(graph, docRootNode, domImpl, updatesContext, docReceiver, eventManager)).getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, eventManager);
 		if (domEventListeners != null)
 			for (String eventType : domEventListeners.keySet())
 				for (DomEventListener listener : domEventListeners.get(eventType))
@@ -402,9 +464,35 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decode(
 			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, updatesContext, eventManager);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl, DocumentReceiver docReceiver,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, docReceiver);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, docReceiver, eventManager);
 		if (domEventListeners != null)
 			for (String eventType : domEventListeners.keySet())
 				for (DomEventListener listener : domEventListeners.get(eventType))
@@ -425,8 +513,28 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		return domDecoder.getDocument();
 	}
 
+	public static Document decode(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl, RunnableContext updatesContext,
+			DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		DomDecoder2 domDecoder = new DomDecoder2(graph, docRootNode, domImpl, updatesContext, docReceiver, eventManager);
+		if (domEventListeners != null)
+			for (String eventType : domEventListeners.keySet())
+				for (DomEventListener listener : domEventListeners.get(eventType))
+					domDecoder.addDomEventListener(eventType, listener);
+		return domDecoder.getDocument();
+	}
+
 	public static Document decodeOne(DynamicGraph graph, DOMImplementation domImpl) {
 		return decodeAll(graph, domImpl).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, eventManager).next();
 	}
 
 	public static Document decodeOne(
@@ -437,8 +545,22 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decodeOne(
 			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, eventManager).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
 			DocumentReceiver docReceiver) {
 		return decodeAll(graph, domImpl, docReceiver).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, docReceiver, eventManager).next();
 	}
 
 	public static Document decodeOne(
@@ -449,8 +571,22 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decodeOne(
 			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext, DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, eventManager).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		return decodeAll(graph, domImpl, domEventListeners).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, domEventListeners, eventManager).next();
 	}
 
 	public static Document decodeOne(
@@ -462,9 +598,25 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 
 	public static Document decodeOne(
 			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, domEventListeners, eventManager).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
 			DocumentReceiver docReceiver,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		return decodeAll(graph, domImpl, docReceiver, domEventListeners).next();
+	}
+
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, docReceiver, domEventListeners, eventManager).next();
 	}
 
 	public static Document decodeOne(
@@ -474,9 +626,23 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		return decodeAll(graph, domImpl, updatesContext, docReceiver, domEventListeners).next();
 	}
 
+	public static Document decodeOne(
+			DynamicGraph graph, DOMImplementation domImpl,
+			RunnableContext updatesContext, DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, domEventListeners, eventManager).next();
+	}
+
 	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl) {
 		return decodeAll(graph, domImpl, (RunnableContext) null);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, (RunnableContext) null, eventManager);
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
@@ -486,15 +652,36 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, null, docReceiver, eventManager);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl, 
 			final RunnableContext updatesContext) {
 		return decodeAll(graph, domImpl, updatesContext, (DocumentReceiver) null);
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl, 
+			final RunnableContext updatesContext,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, (DocumentReceiver) null, eventManager);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl,
 			final RunnableContext updatesContext, final DocumentReceiver docReceiver) {
-		return decodeAll(graph, domImpl, updatesContext, docReceiver, null);
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, (EventManager) null);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final RunnableContext updatesContext, final DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, null, eventManager);
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
@@ -505,9 +692,24 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
 	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, (RunnableContext) null, domEventListeners, eventManager);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
 			final DocumentReceiver docReceiver,
 			Map<String,Set<DomEventListener>> domEventListeners) {
 		return decodeAll(graph, domImpl, null, docReceiver, domEventListeners);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final DocumentReceiver docReceiver,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, null, docReceiver, domEventListeners, eventManager);
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
@@ -518,15 +720,31 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	}
 	
 	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl, 
+			final RunnableContext updatesContext,
+			Map<String,Set<DomEventListener>> domEventListeners,
+			EventManager eventManager) {
+		return decodeAll(graph, domImpl, updatesContext, null, domEventListeners, eventManager);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
 			final DynamicGraph graph, final DOMImplementation domImpl,
 			final RunnableContext updatesContext, final DocumentReceiver docReceiver,
 			final Map<String,Set<DomEventListener>> domEventListeners) {
+		return decodeAll(graph, domImpl, updatesContext, docReceiver, domEventListeners, null);
+	}
+	
+	public static ExtendedIterator<Document> decodeAll(
+			final DynamicGraph graph, final DOMImplementation domImpl,
+			final RunnableContext updatesContext, final DocumentReceiver docReceiver,
+			final Map<String,Set<DomEventListener>> domEventListeners,
+			final EventManager eventManager) {
 		return graph
 				.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
 				.mapWith(new Map1<Triple, Document>() {
 					@Override
 					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver, domEventListeners);
+						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver, domEventListeners, eventManager);
 					}
 				});
 	}
@@ -568,21 +786,21 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 				removeSubtreeMapping(children.item(i));
 			}
 		}
-		if (domNode instanceof Element) {
-			Element element = (Element) domNode;
-			Set<String> eventTypesForElement = element2eventTypes.get(element);
-			if (eventTypesForElement != null) {
-				for (String eventType : eventTypesForElement) {
-					Set<Element> elementsForEventType = eventType2elements.get(eventType);
-					elementsForEventType.remove(element);
-					if (elementsForEventType.isEmpty()) {
-						eventType2elements.remove(eventType);
-						((EventTarget) document).removeEventListener(eventType, DomDecoder2.this, false);
-					}
-				}
-				element2eventTypes.remove(element);
-			}			
-		}
+//		if (domNode instanceof Element) {
+//			Element element = (Element) domNode;
+//			Set<String> eventTypesForElement = element2eventTypes.get(element);
+//			if (eventTypesForElement != null) {
+//				for (String eventType : eventTypesForElement) {
+//					Set<Element> elementsForEventType = eventType2elements.get(eventType);
+//					elementsForEventType.remove(element);
+//					if (elementsForEventType.isEmpty()) {
+//						eventType2elements.remove(eventType);
+//						((EventTarget) document).removeEventListener(eventType, DomDecoder2.this, false);
+//					}
+//				}
+//				element2eventTypes.remove(element);
+//			}			
+//		}
 	}
 	
 	private DomDecoder2(Graph graph) {
@@ -599,6 +817,13 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private DomDecoder2(
 			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl,
+			EventManager eventManager) {
+		this(graph, docRootNode, domImpl, (DocumentReceiver) null, eventManager);
+	}
+	
+	private DomDecoder2(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
 			DocumentReceiver docReceiver) {
 		this(graph, docRootNode, domImpl, null, docReceiver);
 	}
@@ -606,8 +831,24 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private DomDecoder2(
 			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl,
+			DocumentReceiver docReceiver,
+			EventManager eventManager) {
+		this(graph, docRootNode, domImpl, null, docReceiver, eventManager);
+	}
+	
+	private DomDecoder2(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
 			RunnableContext updatesContext) {
-		this(graph, docRootNode, domImpl, updatesContext, null);
+		this(graph, docRootNode, domImpl, updatesContext,(EventManager) null);
+	}
+	
+	private DomDecoder2(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			EventManager eventManager) {
+		this(graph, docRootNode, domImpl, updatesContext, null, eventManager);
 	}
 	
 	private DomDecoder2(
@@ -615,10 +856,20 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			DOMImplementation domImpl,
 			RunnableContext updatesContext,
 			DocumentReceiver docReceiver) {
+		this(graph, docRootNode, domImpl, updatesContext, docReceiver, null);
+	}
+	
+	private DomDecoder2(
+			DynamicGraph graph, Node docRootNode,
+			DOMImplementation domImpl,
+			RunnableContext updatesContext,
+			DocumentReceiver docReceiver,
+			EventManager eventManager) {
 		this.graph = graph;
 		this.domImplementation = domImpl;
 		this.updatesContext = ( updatesContext == null ? this : updatesContext );
 		this.docReceiver = docReceiver;
+		this.eventManager = eventManager;
 		decodeWorker(graph, docRootNode);
 	}
 	
@@ -721,22 +972,26 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 //												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
-												((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
+//												((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
+												eventManager.addEventListener(
+													element,
+													eventTypeNode.getLiteralLexicalForm(),
+													DomDecoder2.this, false);
 
-												Set<Element> elemsForEventType = eventType2elements.get(eventType);
-												if (elemsForEventType == null) {
-													elemsForEventType = new HashSet<Element>();
-													eventType2elements.put(eventType, elemsForEventType);
-													((EventTarget) document).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
-												}
-												elemsForEventType.add(element);
-
-												Set<String> eventTypesForElement = element2eventTypes.get(element);
-												if (eventTypesForElement == null) {
-													eventTypesForElement = new HashSet<String>();
-													element2eventTypes.put(element, eventTypesForElement);
-												}
-												eventTypesForElement.add(eventType);
+//												Set<Element> elemsForEventType = eventType2elements.get(eventType);
+//												if (elemsForEventType == null) {
+//													elemsForEventType = new HashSet<Element>();
+//													eventType2elements.put(eventType, elemsForEventType);
+//													((EventTarget) document).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
+//												}
+//												elemsForEventType.add(element);
+//
+//												Set<String> eventTypesForElement = element2eventTypes.get(element);
+//												if (eventTypesForElement == null) {
+//													eventTypesForElement = new HashSet<String>();
+//													element2eventTypes.put(element, eventTypesForElement);
+//												}
+//												eventTypesForElement.add(eventType);
 											}
 										}
 									}
@@ -837,19 +1092,25 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 //												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
-												((EventTarget) element).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
-												Set<Element> elemsForEventType = eventType2elements.get(eventType);
-												elemsForEventType.remove(element);
-												if (elemsForEventType.isEmpty()) {
-													eventType2elements.remove(eventType);
-													((EventTarget) document).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
-												}
-
-												Set<String> eventTypesForElement = element2eventTypes.get(element);
-												eventTypesForElement.remove(eventType);
-												if (eventTypesForElement.isEmpty()) {
-													element2eventTypes.remove(element);
-												}
+//												((EventTarget) element).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
+												
+												eventManager.removeEventListener(
+														element,
+														eventTypeNode.getLiteralLexicalForm(),
+														DomDecoder2.this, false);
+												
+//												Set<Element> elemsForEventType = eventType2elements.get(eventType);
+//												elemsForEventType.remove(element);
+//												if (elemsForEventType.isEmpty()) {
+//													eventType2elements.remove(eventType);
+//													((EventTarget) document).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
+//												}
+//
+//												Set<String> eventTypesForElement = element2eventTypes.get(element);
+//												eventTypesForElement.remove(eventType);
+//												if (eventTypesForElement.isEmpty()) {
+//													element2eventTypes.remove(element);
+//												}
 											}
 										}
 									}

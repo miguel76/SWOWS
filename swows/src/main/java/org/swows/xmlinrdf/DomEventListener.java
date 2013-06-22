@@ -25,6 +25,6 @@ import com.hp.hpl.jena.graph.Node;
 
 public interface DomEventListener {
 	
-	public void handleEvent(Event event, Node graphNode );
+	public void handleEvent(Event event, Node currentTargetGraphNode , Node targetGraphNode );
 
 }

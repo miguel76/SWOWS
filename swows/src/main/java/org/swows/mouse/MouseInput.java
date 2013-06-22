@@ -55,7 +55,7 @@ public class MouseInput implements DomEventListener {
 //    
 //    private RunnableContext runnableContext = null;
     
-    private Map<MouseEvent,Set<Node>> event2domNodes = new HashMap<MouseEvent, Set<Node>>();
+//    private Map<MouseEvent,Set<Node>> event2domNodes = new HashMap<MouseEvent, Set<Node>>();
     
 	private Logger logger = Logger.getRootLogger();
 	
@@ -98,18 +98,18 @@ public class MouseInput implements DomEventListener {
 	}
 	
 	@Override
-	public synchronized void handleEvent(Event event, Node graphNode) {
+	public synchronized void handleEvent(Event event, Node currentTargetGraphNode , Node targetGraphNode ) {
 //		logger.debug("In " + this + " received event " + event);
 		MouseEvent mouseEvent = (MouseEvent) event;
-		Set<Node> domNodes = event2domNodes.get(mouseEvent);
-//		logger.debug("domNodes: " + domNodes);
-		if (event.getCurrentTarget() instanceof Element) {
-			if (domNodes == null) {
-				domNodes = new HashSet<Node>();
-				event2domNodes.put(mouseEvent, domNodes);
-			}
-			domNodes.add(graphNode);
-		} else if (event.getCurrentTarget() instanceof Document && domNodes != null) {
+//		Set<Node> domNodes = event2domNodes.get(mouseEvent);
+////		logger.debug("domNodes: " + domNodes);
+//		if (event.getCurrentTarget() instanceof Element) {
+//			if (domNodes == null) {
+//				domNodes = new HashSet<Node>();
+//				event2domNodes.put(mouseEvent, domNodes);
+//			}
+//			domNodes.add(graphNode);
+//		} else if (event.getCurrentTarget() instanceof Document && domNodes != null) {
 			
 			buildGraph();
 			
@@ -119,8 +119,10 @@ public class MouseInput implements DomEventListener {
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.UIEvent.asNode() ) );
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.MouseEvent.asNode() ) );
 
-			for (Node targetNode : domNodes)
-				mouseEventGraph.add( new Triple( eventNode, DOMEvents.target.asNode(), targetNode ));
+			mouseEventGraph.add( new Triple( eventNode, DOMEvents.currentTarget.asNode(), currentTargetGraphNode ));
+			mouseEventGraph.add( new Triple( eventNode, DOMEvents.target.asNode(), targetGraphNode ));
+//			for (Node targetNode : domNodes)
+//				mouseEventGraph.add( new Triple( eventNode, DOMEvents.target.asNode(), targetNode ));
 
 			GraphUtils.addIntegerProperty(
 					mouseEventGraph, eventNode,
@@ -183,7 +185,7 @@ public class MouseInput implements DomEventListener {
 						}
 					}, 0 );
 			logger.debug("Update thread launched!");
-		}
+//		}
 	}
 
 }
