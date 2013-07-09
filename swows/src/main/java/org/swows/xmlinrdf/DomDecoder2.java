@@ -262,6 +262,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 				element.setAttributeNodeNS(attr);
 			}
 		}
+		if (elementNode.isURI()) {
+			element.setAttribute("resource", elementNode.getURI());
+		}
 		Set<Node> orderedChildren = new HashSet<Node>();
 		{
 			Node child = GraphUtils.getSingleValueOptProperty(graph, elementNode, XML.firstChild.asNode());
