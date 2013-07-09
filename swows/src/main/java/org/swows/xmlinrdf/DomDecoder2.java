@@ -74,13 +74,17 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
 				@Override
-				public void removeEventListener(org.w3c.dom.Node target, String type,
+				public void removeEventListener(
+						Node targetNode,
+						org.w3c.dom.Node target, String type,
 						EventListener listener, boolean useCapture) {
 					if (target instanceof EventTarget)
 						((EventTarget) target).removeEventListener(type, listener, useCapture);
 				}
 				@Override
-				public void addEventListener(org.w3c.dom.Node target, String type,
+				public void addEventListener(
+						Node targetNode,
+						org.w3c.dom.Node target, String type,
 						EventListener listener, boolean useCapture) {
 					if (target instanceof EventTarget)
 						((EventTarget) target).addEventListener(type, listener, useCapture);
@@ -290,7 +294,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 				String eventType = eventTypeNode.getLiteralLexicalForm();
 //				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
 //				((EventTarget) element).addEventListener(eventType, this, false);
-				eventManager.addEventListener(element, eventType, this, false);
+				eventManager.addEventListener(elementNode, element, eventType, this, false);
 				
 //				Set<Element> elemsForEventType = eventType2elements.get(eventType);
 //				if (elemsForEventType == null) {
@@ -974,6 +978,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
 //												((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
 												eventManager.addEventListener(
+													newTriple.getSubject(),
 													element,
 													eventTypeNode.getLiteralLexicalForm(),
 													DomDecoder2.this, false);
@@ -1095,6 +1100,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //												((EventTarget) element).removeEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
 												
 												eventManager.removeEventListener(
+														oldTriple.getSubject(),
 														element,
 														eventTypeNode.getLiteralLexicalForm(),
 														DomDecoder2.this, false);
