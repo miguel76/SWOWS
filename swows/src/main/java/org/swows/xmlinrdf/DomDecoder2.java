@@ -891,6 +891,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	@Override
 	public synchronized void notifyUpdate(final Graph sourceGraph, final GraphUpdate update) {
 		
+		logger.debug("Begin of Notify Update in DOM Decoder");
+
 		if (!update.getAddedGraph().isEmpty() || !update.getDeletedGraph().isEmpty()) {
 			updatesContext.run(
 					new Runnable() {
@@ -1133,6 +1135,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 						}
 					});
 		}
+
+		logger.debug("End of Notify Update in DOM Decoder");
 
 	}
 
