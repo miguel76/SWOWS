@@ -41,9 +41,13 @@ public class LoadGraph extends DynamicChangingGraph {
 //	private long pollingPeriod;
 	
 	public static String guessLang(String filenameOrURI) {
+		
+		// TODO: probeContentType?
+		
 		String ext = FileUtils.getFilenameExt(filenameOrURI);
         if (ext.equals( "sparql" )) return Syntax.syntaxSPARQL.getSymbol();
-        if (ext.equals( "xml" )) return XmlReader.XML_SYNTAX_URI;
+        if (ext.equals( "xml" ) || ext.equals( "svg" ) || ext.equals( "html" ))
+        	return XmlReader.XML_SYNTAX_URI;
 		return FileUtils.guessLang(filenameOrURI);
 	}
 
