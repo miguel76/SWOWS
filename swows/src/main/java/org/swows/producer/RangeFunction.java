@@ -28,6 +28,7 @@ import org.swows.vocabulary.SWI;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 
 public class RangeFunction extends GraphToSetFunction {
@@ -86,7 +87,7 @@ public class RangeFunction extends GraphToSetFunction {
 			}
 			@Override
 			public Node next() {
-				Node currNode = Node.createLiteral(index.toString(),XSDDatatype.XSDinteger);
+				Node currNode = NodeFactory.createLiteral(index.toString(),XSDDatatype.XSDinteger);
 				index = index.add(BigInteger.ONE);
 				return currNode;
 			}

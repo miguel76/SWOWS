@@ -44,6 +44,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -99,7 +100,7 @@ public class DomEncoder2 {
 			} else 
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
-				typeNode = Node.createURI(nsAndLn( namespace, localName ));
+				typeNode = NodeFactory.createURI(nsAndLn( namespace, localName ));
 				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
 				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
 				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
@@ -118,7 +119,7 @@ public class DomEncoder2 {
 			} else 
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
-				typeNode = Node.createURI(nsAndLn( namespace, localName ));
+				typeNode = NodeFactory.createURI(nsAndLn( namespace, localName ));
 //				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
 				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Attr.asNode()));
 				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
@@ -131,7 +132,7 @@ public class DomEncoder2 {
 		private Node getNsNode(String namespace) {
 			Node nsNode = nsMap.get(namespace);
 			if (nsNode == null) {
-				nsNode = Node.createURI(namespace);
+				nsNode = NodeFactory.createURI(namespace);
 				nsMap.put(namespace, nsNode);
 			}
 			return nsNode;
@@ -140,7 +141,7 @@ public class DomEncoder2 {
 		private Node getLnNode(String localName) {
 			Node lnNode = lnMap.get(localName);
 			if (lnNode == null) {
-				lnNode = Node.createLiteral(localName);
+				lnNode = NodeFactory.createLiteral(localName);
 				lnMap.put(localName, lnNode);
 			}
 			return lnNode;
@@ -191,7 +192,7 @@ public class DomEncoder2 {
 								newNode,
 //								XML.text.asNode(),
 								XML.nodeValue.asNode(),
-								Node.createLiteral(textBufferStr) ));
+								NodeFactory.createLiteral(textBufferStr) ));
 				connectNode(newNode);
 				textBuffer = new StringBuffer();
 			}
@@ -219,7 +220,7 @@ public class DomEncoder2 {
 		
 		@Override
 		public void startDocument() throws SAXException {
-			docNode = Node.createURI(docURI);
+			docNode = NodeFactory.createURI(docURI);
 			outputGraph.add(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
 		}
 
@@ -264,7 +265,7 @@ public class DomEncoder2 {
 				idAttr = atts.getValue("http://www.w3.org/2000/svg", "id");
 			
 			Node newNode = (idAttr != null)
-								? Node.createURI( nsAndLn(docURI, idAttr) )
+								? NodeFactory.createURI( nsAndLn(docURI, idAttr) )
 				 				: Skolemizer.getInstance().getNode();
 								
 //			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
@@ -297,7 +298,7 @@ public class DomEncoder2 {
 						new Triple(
 								newNode,
 								nodeAttr,
-								Node.createLiteral( atts.getValue(i) ) ));
+								NodeFactory.createLiteral( atts.getValue(i) ) ));
 			}
 								
 			push(newNode);
@@ -400,7 +401,7 @@ public class DomEncoder2 {
 			Node rootNode = null;
 			while (rootUri == null || graph.contains(rootNode, Node.ANY, Node.ANY) || graph.contains(Node.ANY, Node.ANY, rootNode) ) {
 				rootUri = getRandomString();
-				rootNode = Node.createURI(rootUri);
+				rootNode = NodeFactory.createURI(rootUri);
 			}
 				//DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
 				//docBuilderFactory.setCoalescing(true);

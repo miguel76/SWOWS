@@ -46,6 +46,7 @@ import TUIO.TuioTime;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.GraphMaker;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.impl.SimpleGraphMaker;
 import com.hp.hpl.jena.util.iterator.Filter;
@@ -187,13 +188,13 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	
 	@SuppressWarnings("unused")
 	private static Node tuioTime2XSDduration(TuioTime tuioTime) {
-		return Node.createLiteral(
+		return NodeFactory.createLiteral(
 				String.format("PT%d.%06dS", tuioTime.getSeconds(), tuioTime.getMicroseconds()),
 				(String) null, XSDDatatype.XSDduration);
 	}
 	
 	private static Node tuioTime2XSDdecimal(TuioTime tuioTime) {
-		return Node.createLiteral(
+		return NodeFactory.createLiteral(
 				String.format("%d.%06d", tuioTime.getSeconds(), tuioTime.getMicroseconds()),
 				(String) null, XSDDatatype.XSDdecimal);
 	}
@@ -203,7 +204,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	}
 	
 	private static final Node T0 =
-			Node.createLiteral( "0", (String) null, XSDDatatype.XSDdecimal );
+			NodeFactory.createLiteral( "0", (String) null, XSDDatatype.XSDdecimal );
 	
 	private void updateDomNodes(TuioPoint point, Node tuioNode) {
 		Set<Node> prevPointDomNodesMapping = point2domNodesMapping.get(point);
@@ -230,13 +231,13 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	private Node addTuioPoint(TuioPoint point) {
 		startReceiving();
 		currPointDomNodesMapping = new HashSet<Node>();
-		Node pointNode = Node.createURI(TUIO.getInstanceURI() + "point_" + point.hashCode());
+		Node pointNode = NodeFactory.createURI(TUIO.getInstanceURI() + "point_" + point.hashCode());
 		tuioGraph.add( new Triple( pointNode, RDF.type.asNode(), TUIO.Tracked.asNode() ) );
 		tuioGraph.add( new Triple(pointNode, TUIO.source.asNode(), tuioSourceNode));
 		//Node positionNode = Node.createAnon();
-		Node positionNode = Node.createURI(TUIO.getInstanceURI() + "pointPosition_" + point.hashCode());
-		Node xNode = Node.createLiteral(Float.toString(point.getX()), (String) null, XSDDatatype.XSDdecimal);
-		Node yNode = Node.createLiteral(Float.toString(point.getY()), (String) null, XSDDatatype.XSDdecimal);
+		Node positionNode = NodeFactory.createURI(TUIO.getInstanceURI() + "pointPosition_" + point.hashCode());
+		Node xNode = NodeFactory.createLiteral(Float.toString(point.getX()), (String) null, XSDDatatype.XSDdecimal);
+		Node yNode = NodeFactory.createLiteral(Float.toString(point.getY()), (String) null, XSDDatatype.XSDdecimal);
 		tuioGraph.add( new Triple(pointNode, TUIO.position.asNode(), positionNode));
 		tuioGraph.add( new Triple(positionNode, RDF.type.asNode(), TUIO.Point2D.asNode()));
 		tuioGraph.add( new Triple(positionNode, TUIO.x.asNode(), xNode));
@@ -270,9 +271,9 @@ public class TuioGateway implements TuioListener, DomEventListener {
 						+ " ( id: " + object.getSymbolID() + " x:" + object.getX() + ", y:" + object.getY() + ", angle:" + object.getAngle() + ")");
 		Node objectNode = addTuioPoint(object);
 		tuioGraph.add( new Triple(objectNode, RDF.type.asNode(), TUIO.Object.asNode()));
-		Node angleNode = Node.createLiteral(Float.toString(object.getAngle()), (String) null, XSDDatatype.XSDdecimal);
+		Node angleNode = NodeFactory.createLiteral(Float.toString(object.getAngle()), (String) null, XSDDatatype.XSDdecimal);
 		tuioGraph.add( new Triple(objectNode, TUIO.angle.asNode(), angleNode));
-		Node symbolNode = Node.createLiteral(Integer.toString(object.getSymbolID()), (String) null, XSDDatatype.XSDinteger);
+		Node symbolNode = NodeFactory.createLiteral(Integer.toString(object.getSymbolID()), (String) null, XSDDatatype.XSDinteger);
 		tuioGraph.add( new Triple(objectNode, TUIO.markerId.asNode(), symbolNode));
 		for (int i=0;i<listenerList.size();i++) {
 			TuioListener listener = (TuioListener) listenerList.elementAt(i);
@@ -401,7 +402,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 				Float.parseFloat( oldTriple.getObject().getLiteralLexicalForm() );
 		if (newObjectValue != oldObjectValue) {
 			Node newObject =
-					Node.createLiteral(Float.toString(newObjectValue), (String) null, XSDDatatype.XSDdecimal);
+					NodeFactory.createLiteral(Float.toString(newObjectValue), (String) null, XSDDatatype.XSDdecimal);
 			tuioGraph.add( new Triple(subject, predicate, newObject) );
 			tuioGraph.delete(oldTriple);
 		}

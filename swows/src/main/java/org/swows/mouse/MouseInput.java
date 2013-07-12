@@ -34,6 +34,7 @@ import org.w3c.dom.events.MouseEvent;
 
 import com.hp.hpl.jena.graph.GraphMaker;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.impl.SimpleGraphMaker;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -108,7 +109,7 @@ public class MouseInput implements DomEventListener {
 			buildGraph();
 			
 
-			Node eventNode = Node.createURI(DOMEvents.getInstanceURI() + "event_" + event.hashCode());
+			Node eventNode = NodeFactory.createURI(DOMEvents.getInstanceURI() + "event_" + event.hashCode());
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.Event.asNode() ) );
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.UIEvent.asNode() ) );
 			mouseEventGraph.add( new Triple( eventNode, RDF.type.asNode(), DOMEvents.MouseEvent.asNode() ) );

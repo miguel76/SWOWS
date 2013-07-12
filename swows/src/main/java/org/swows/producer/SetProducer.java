@@ -41,7 +41,7 @@ public abstract class SetProducer extends GraphProducer {
 		Iterator<Node> elements = createIterator(inputDataset);
         DynamicGraph newGraph = new DynamicGraphFromGraph( GraphFactory.createGraphMem() );
 		//System.out.println("Empty graph created");
-		//Node root = Node.createURI("http://www.swows.org/rootedGraphs/instance#root");
+		//Node root = NodeFactory.createURI("http://www.swows.org/rootedGraphs/instance#root");
 		
 		//System.out.println("Filling graph...");
         while (elements.hasNext()) {

@@ -28,7 +28,7 @@ import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
@@ -60,7 +60,7 @@ public class SystemTime implements Runnable {
 //		return new Triple(
 //				Instance.GraphRoot.asNode(),
 //				org.swows.vocabulary.time.systemTime.asNode(),
-//				Node.createLiteral( "" + time, (String) null, XSDDatatype.XSDinteger ) );
+//				NodeFactory.createLiteral( "" + time, (String) null, XSDDatatype.XSDinteger ) );
 //	}
 	
 	private static Triple tripleFromTime() {
@@ -68,8 +68,8 @@ public class SystemTime implements Runnable {
 		return new Triple(
 				SWI.GraphRoot.asNode(),
 				org.swows.vocabulary.TIME.systemTime.asNode(),
-				Node.createLiteral( String.format("%d.%03d", time / 1000, time % 1000 ), (String) null, XSDDatatype.XSDdecimal ) );
-//				Node.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
+				NodeFactory.createLiteral( String.format("%d.%03d", time / 1000, time % 1000 ), (String) null, XSDDatatype.XSDdecimal ) );
+//				NodeFactory.createLiteral( "" + System.currentTimeMillis(), (String) null, XSDDatatype.XSDinteger ) );
 	}
 	
 	public DynamicGraph getGraph() {

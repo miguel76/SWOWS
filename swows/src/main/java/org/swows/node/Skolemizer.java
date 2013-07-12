@@ -10,6 +10,7 @@ import org.swows.vocabulary.SWI;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.function.FunctionEnv;
@@ -47,7 +48,7 @@ public class Skolemizer {
 			new WeakHashMap<FunctionEnv, Node>();
 	
 	private Node createNode() {
-		return Node.createURI(SWI.BASE_URI + "/.well-known/genid/" + count++);
+		return NodeFactory.createURI(SWI.BASE_URI + "/.well-known/genid/" + count++);
 	}
 
 //	public synchronized Node getNode(Node var, List<Node> list) {
@@ -184,7 +185,7 @@ public class Skolemizer {
 						else {
 							Node bnode = bnodes.get(id);
 							if (bnode == null) {
-								bnode = Node.createAnon();
+								bnode = NodeFactory.createAnon();
 								bnodes.put(id, bnode);
 							}
 							return bnode;

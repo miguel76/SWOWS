@@ -25,7 +25,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
@@ -35,15 +34,13 @@ import org.apache.batik.util.RunnableQueue;
 import org.apache.log4j.PropertyConfigurator;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
-import org.swows.mouse.MouseApp;
 import org.swows.node.Skolemizer;
-import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
@@ -52,11 +49,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.function.FunctionRegistry;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.sparql.util.NodeFactory;
-import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.update.GraphStore;
 import com.hp.hpl.jena.update.GraphStoreFactory;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
@@ -265,7 +258,7 @@ public class Step2Test {
 		newWfModel =
 				ModelFactory.createModelForGraph(
 						wfDatasetGraph.getGraph(
-								Node.createURI("http://www.swows.org/transform#Assignments")));
+								NodeFactory.createURI("http://www.swows.org/transform#Assignments")));
 		print( 
 				newWfModel,
 				new FileOutputStream("/home/miguel/git/WorldInfo/tmp/assignments.sk.n3") );

@@ -43,7 +43,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.algebra.Algebra;
 import com.hp.hpl.jena.sparql.algebra.Op;
 import com.hp.hpl.jena.sparql.sse.SSE;
-import com.hp.hpl.jena.util.FileManager;
 
 public class QueryFactoryTest {
 
@@ -78,7 +77,7 @@ public class QueryFactoryTest {
     	SSE.write(op);
     	System.exit(0);
     	
-//    	Node queryRootNode = Node.createURI("#defaultQuery");
+//    	Node queryRootNode = NodeFactory.createURI("#defaultQuery");
     	
     	
 //    	System.out.println();

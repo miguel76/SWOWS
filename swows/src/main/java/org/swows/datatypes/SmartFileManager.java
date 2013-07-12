@@ -357,6 +357,7 @@ public class SmartFileManager extends FileManager {
     }
     
     /** return whether caching is on of off */
+    @Deprecated
     public boolean getCachingModels() {
     	return baseFileManager.getCachingModels();
     }

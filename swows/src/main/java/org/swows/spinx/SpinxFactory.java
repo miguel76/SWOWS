@@ -35,6 +35,7 @@ import org.swows.vocabulary.SWI;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.ResultSet;
@@ -209,7 +210,7 @@ public class SpinxFactory {
 		Node varNode = varMap.get(var);
 		if (varNode == null) {
 			varNode = createNode();
-			Node varNameNode = Node.createLiteral(var.getVarName());
+			Node varNameNode = NodeFactory.createLiteral(var.getVarName());
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			varMap.put(var, varNode);
@@ -221,7 +222,7 @@ public class SpinxFactory {
 		Node varNode = parentVarMap.get(var);
 		if (varNode == null) {
 			varNode = createNode();
-			Node varNameNode = Node.createLiteral(var.getVarName());
+			Node varNameNode = NodeFactory.createLiteral(var.getVarName());
 			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
 			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			parentVarMap.put(var, varNode);
@@ -244,8 +245,8 @@ public class SpinxFactory {
 			String separator = accumulator.getValue().asString();
 			Node scalarvalNode = createNode();
 			graph.add(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
-			graph.add(new Triple( scalarvalNode, SPINX.key.asNode(), Node.createLiteral("separator") ));
-			graph.add(new Triple( scalarvalNode, SPINX.value.asNode(), Node.createLiteral(separator) ));
+			graph.add(new Triple( scalarvalNode, SPINX.key.asNode(), NodeFactory.createLiteral("separator") ));
+			graph.add(new Triple( scalarvalNode, SPINX.value.asNode(), NodeFactory.createLiteral(separator) ));
 		}
 		return aggrNode;
 	}
@@ -261,19 +262,19 @@ public class SpinxFactory {
 			graph.add(new Triple( exprRootNode, RDF.type.asNode(), SPINX.FunctionCall.asNode() ));
 			String functionIRI = functionExpr.getFunctionIRI();
 			if (functionIRI != null) {
-				Node functionIRINode = Node.createURI( functionIRI );
+				Node functionIRINode = NodeFactory.createURI( functionIRI );
 				graph.add(new Triple( exprRootNode, SPINX.functionIRI.asNode(), functionIRINode ));
 			}
 			String opName = functionExpr.getOpName();
 			if (opName != null) {
-				Node opNameNode = Node.createLiteral( opName );
+				Node opNameNode = NodeFactory.createLiteral( opName );
 				graph.add(new Triple( exprRootNode, SPINX.opName.asNode(), opNameNode ));
 			}
 			FunctionLabel functionLabel = functionExpr.getFunctionSymbol();
 			if (functionLabel != null) {
 				String functionSymbol = functionLabel.getSymbol();
 				if (functionSymbol != null) {
-					Node functionSymbolNode = Node.createLiteral( functionSymbol );
+					Node functionSymbolNode = NodeFactory.createLiteral( functionSymbol );
 					graph.add(new Triple( exprRootNode, SPINX.functionLabel.asNode(), functionSymbolNode ));
 					KnownFunctionsMapping.set(functionSymbol, functionExpr.getClass());
 				}
@@ -281,7 +282,7 @@ public class SpinxFactory {
 			Iterator<Expr> args = functionExpr.getArgs().iterator();
 			int argCount = 0;
 			while (args.hasNext()) {
-				Node argPredNode = Node.createURI( SP.getURI() + "arg" + ++argCount );
+				Node argPredNode = NodeFactory.createURI( SP.getURI() + "arg" + ++argCount );
 				Node argNode = fromExpr(args.next());
 				graph.add(new Triple( exprRootNode, argPredNode, argNode ));
 			}
@@ -343,11 +344,11 @@ public class SpinxFactory {
 					}
 					graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.ModPath.asNode()));
 					if (min != 0) {
-						Node minNode = Node.createLiteral(Long.toString(min), XSDDatatype.XSDinteger);
+						Node minNode = NodeFactory.createLiteral(Long.toString(min), XSDDatatype.XSDinteger);
 						graph.add(new Triple(pathRootNode, SP.modMin.asNode(), minNode));
 					}
 					if (max != 0) {
-						Node maxNode = Node.createLiteral(Long.toString(max), XSDDatatype.XSDinteger);
+						Node maxNode = NodeFactory.createLiteral(Long.toString(max), XSDDatatype.XSDinteger);
 						graph.add(new Triple(pathRootNode, SP.modMax.asNode(), maxNode));
 					}
 				}
@@ -373,7 +374,7 @@ public class SpinxFactory {
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
-				Node.createURI(SP.getURI() + "Element")));
+				NodeFactory.createURI(SP.getURI() + "Element")));
 		graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.TriplePattern.asNode()));
 		Node subjectNode = fromNode(triple.getSubject());
 		Node predicateNode = fromNode(triple.getPredicate());
@@ -391,7 +392,7 @@ public class SpinxFactory {
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
-				Node.createURI(SP.getURI() + "Element")));
+				NodeFactory.createURI(SP.getURI() + "Element")));
 		Node subjectNode = fromNode(triplePath.getSubject());
 		Node pathNode = fromPath(triplePath.getPath());
 		Node objectNode = fromNode(triplePath.getObject());
@@ -415,7 +416,7 @@ public class SpinxFactory {
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
-				Node.createURI(SP.getURI() + "Element")));
+				NodeFactory.createURI(SP.getURI() + "Element")));
 		List<Element> childList = null;
 		if (element instanceof ElementExists) {
 			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.Exists.asNode()));
@@ -508,7 +509,7 @@ public class SpinxFactory {
 		graph.add(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
-				Node.createURI(SP.getURI() + "Element")));
+				NodeFactory.createURI(SP.getURI() + "Element")));
 		graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
 		graph.add(new Triple( elementRootNode, SP.graphNameNode.asNode(), defaultGraph ));
 		graph.add(new Triple( elementRootNode, SPINX.element.asNode(), innerElement ));
@@ -608,7 +609,7 @@ public class SpinxFactory {
 				graph.add(new Triple(projectedNode, SP.expression.asNode(), fromExpr(projectedExpr)));
 		}
 		if (query.isDistinct())
-			graph.add(new Triple(queryRootNode, SP.distinct.asNode(), Node.createLiteral("true", XSDDatatype.XSDboolean)));
+			graph.add(new Triple(queryRootNode, SP.distinct.asNode(), NodeFactory.createLiteral("true", XSDDatatype.XSDboolean)));
 
 		VarExprList groupByExprList = query.getGroupBy();
 		if (groupByExprList != null) {
@@ -759,7 +760,7 @@ public class SpinxFactory {
 
 //		Node prevColNode = null;
 		for (String varName : resultSet.getResultVars()) {
-			graph.add(new Triple(tableNode, SAS.varName.asNode(), Node.createLiteral(varName)));
+			graph.add(new Triple(tableNode, SAS.varName.asNode(), NodeFactory.createLiteral(varName)));
 		}
 		
 //		QueryIterator rows = table.
@@ -875,7 +876,7 @@ public class SpinxFactory {
 			int argCount = 0;
 			for (Expr e : op.getArgs()) {
 				Node exprNode = fromExpr(e);
-				Node argPredNode = Node.createURI( SP.getURI() + "arg" + ++argCount );
+				Node argPredNode = NodeFactory.createURI( SP.getURI() + "arg" + ++argCount );
 				graph.add(new Triple( opNode, argPredNode, exprNode ));
 			}
 			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
@@ -923,7 +924,7 @@ public class SpinxFactory {
 		@Override
 		public void visit(OpLabel op) {
 			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Labelled.asNode()));
-			graph.add(new Triple(opNode, SAS.label.asNode(), Node.createLiteral(op.getObject().toString())));
+			graph.add(new Triple(opNode, SAS.label.asNode(), NodeFactory.createLiteral(op.getObject().toString())));
 			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
@@ -1058,8 +1059,8 @@ public class SpinxFactory {
 		@Override
 		public void visit(OpSlice op) {
 			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Slice.asNode()));
-			graph.add(new Triple(opNode, SAS.start.asNode(), Node.createLiteral(Long.toString(op.getStart()), XSDDatatype.XSDinteger)));
-			graph.add(new Triple(opNode, SAS.length.asNode(), Node.createLiteral(Long.toString(op.getLength()), XSDDatatype.XSDinteger)));
+			graph.add(new Triple(opNode, SAS.start.asNode(), NodeFactory.createLiteral(Long.toString(op.getStart()), XSDDatatype.XSDinteger)));
+			graph.add(new Triple(opNode, SAS.length.asNode(), NodeFactory.createLiteral(Long.toString(op.getLength()), XSDDatatype.XSDinteger)));
 			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
@@ -1093,7 +1094,7 @@ public class SpinxFactory {
 		graph.add( new Triple(
 				opNode,
 				SAS.name.asNode(),
-				Node.createLiteral(op.getName()) ) );
+				NodeFactory.createLiteral(op.getName()) ) );
 		op.visit(new OpVisitorToSas(opNode));
 		return opNode;
 	}
@@ -1107,7 +1108,7 @@ public class SpinxFactory {
 		graph.add( new Triple(
 				opNode,
 				SAS.name.asNode(),
-				Node.createLiteral(Tags.tagGraph) ) );
+				NodeFactory.createLiteral(Tags.tagGraph) ) );
 		graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
 		graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), defaultGraph));
 		graph.add(new Triple(opNode, SAS.subOp.asNode(), opInnerNode));

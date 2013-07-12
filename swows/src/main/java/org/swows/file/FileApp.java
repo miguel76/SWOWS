@@ -132,7 +132,7 @@ public class FileApp extends JFrame {
 		});
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
-//    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
+//    	inputDatasetGraph.addGraph(NodeFactory.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
 //		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);

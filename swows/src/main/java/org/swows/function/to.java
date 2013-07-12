@@ -27,6 +27,7 @@ import org.swows.vocabulary.SWI;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
@@ -60,7 +61,7 @@ public class to extends GraphReturningFunction {
         			new Triple(
         					root,
         					RDFS.member.asNode(),
-        					Node.createLiteral(index.toString(),XSDDatatype.XSDinteger) ) );
+        					NodeFactory.createLiteral(index.toString(),XSDDatatype.XSDinteger) ) );
         	index = index.add(BigInteger.ONE);
         }
 		//System.out.println("Graph filled: " + newGraph);

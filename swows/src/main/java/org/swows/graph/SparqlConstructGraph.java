@@ -59,7 +59,7 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		for (String namedGraphURI : query.getNamedGraphURIs() ) {
 		while (graphNodes.hasNext()) {
 			DynamicGraph currGraph = queryDataset.getGraph( graphNodes.next() );
-//			Node graphNode = Node.createURI(namedGraphURI);
+//			Node graphNode = NodeFactory.createURI(namedGraphURI);
 //			DynamicGraph currGraph = queryDataset.getGraph( graphNode );
 			currGraph.getEventManager2().register(listener);
 		}

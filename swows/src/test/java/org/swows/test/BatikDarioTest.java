@@ -43,7 +43,12 @@ import TUIO.TuioPoint;
 
 public class BatikDarioTest extends JFrame {
 
-    public BatikDarioTest() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public BatikDarioTest() {
         JFrame frame = new JFrame("Prova");
         JPanel p = new JPanel(new BorderLayout());
         JSVGCanvas svgCanvas = new JSVGCanvas(null, true, true);

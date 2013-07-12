@@ -2,5 +2,10 @@ package org.swows.test;
 
 public class ComparisonException extends RuntimeException
 {
-    ComparisonException(String msg) { super(msg) ; }
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	ComparisonException(String msg) { super(msg) ; }
 }

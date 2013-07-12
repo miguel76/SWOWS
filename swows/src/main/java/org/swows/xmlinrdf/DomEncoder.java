@@ -48,6 +48,7 @@ import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.TripleMatch;
@@ -113,14 +114,14 @@ public class DomEncoder {
 
 		public EncodedDocument(Document document, String rootUri) {
 			this.document = document;
-//			rootNode = Node.createURI(rootUri + "_" + docId);
-			rootNode = Node.createURI(rootUri);
+//			rootNode = NodeFactory.createURI(rootUri + "_" + docId);
+			rootNode = NodeFactory.createURI(rootUri);
 			mapXmlNode2BlankId.put(document, rootNode);
 			mapBlankId2XmlNode.put(rootNode, document);
 		}
 
 		private synchronized Node createNode() {
-			return Node.createURI(
+			return NodeFactory.createURI(
 					DOC.getURI()
 					+ "node_"
 					+ Long.toString(docId)		
@@ -132,7 +133,7 @@ public class DomEncoder {
 		private Node mapElement2Node(Element element) {
 			Attr idAttr = element.getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "id");
 			if (idAttr != null)
-				return Node.createURI(document.getBaseURI() + "#" + idAttr.getValue());
+				return NodeFactory.createURI(document.getBaseURI() + "#" + idAttr.getValue());
 			AnonId anonId = mapElement2BlankId.get(element);
 			if (anonId != null)
 				return Node.createAnon(anonId);
@@ -160,15 +161,15 @@ public class DomEncoder {
 			if (node.getNodeType() == org.w3c.dom.Node.ELEMENT_NODE) {
 				Attr idAttr = ((Element) node).getAttributeNode("id");
 				if (idAttr != null)
-					graphNode = Node.createURI(DOC.getURI() + idAttr.getValue());
+					graphNode = NodeFactory.createURI(DOC.getURI() + idAttr.getValue());
 				else {
 					Attr xmlIdAttr = ((Element) node).getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "id");
 					if (xmlIdAttr != null)
-						graphNode = Node.createURI(DOC.getURI() + xmlIdAttr.getValue());
+						graphNode = NodeFactory.createURI(DOC.getURI() + xmlIdAttr.getValue());
 					else {
 						Attr svgIdAttr = ((Element) node).getAttributeNodeNS("http://www.w3.org/2000/svg", "id");
 						if (svgIdAttr != null)
-							graphNode = Node.createURI(DOC.getURI() + svgIdAttr.getValue());
+							graphNode = NodeFactory.createURI(DOC.getURI() + svgIdAttr.getValue());
 					}
 				}
 				
@@ -572,13 +573,13 @@ public class DomEncoder {
 						else if ( p.equals(XML.nodeValue.asNode()) )
 							singleObjectString = subjXmlNode.getNodeValue();
 						if (singleObjectString != null)
-							singleObjectNode = Node.createLiteral(singleObjectString);
+							singleObjectNode = NodeFactory.createLiteral(singleObjectString);
 						else {
 							if ( p.equals(XML.namespace.asNode()) ) {
 								singleObjectNode =
 										subjXmlNode.getNamespaceURI() == null
 											? null
-											: Node.createURI(subjXmlNode.getNamespaceURI());
+											: NodeFactory.createURI(subjXmlNode.getNamespaceURI());
 							}
 							else if ( p.equals(XML.nodeType.asNode()) ) {
 								singleObjectNode = Utils.mapNodeType2resource(subjXmlNode.getNodeType()).asNode();
@@ -813,7 +814,7 @@ public class DomEncoder {
 			Node rootNode = null;
 			while (rootUri == null || graph.contains(rootNode, Node.ANY, Node.ANY) || graph.contains(Node.ANY, Node.ANY, rootNode) ) {
 				rootUri = getRandomString();
-				rootNode = Node.createURI(rootUri);
+				rootNode = NodeFactory.createURI(rootUri);
 			}
 			Document newDoc;
 			try {

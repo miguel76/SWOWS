@@ -40,6 +40,7 @@ import org.swows.vocabulary.SPINX;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.Syntax;
@@ -242,7 +243,7 @@ public class QueryFactory {
 ////					System.out.println("Function " + symbol + ", evaluating args...");
 //					int argCount = 1;
 //					while (true) {
-//						Node argUriNode = Node.createURI(SP.getURI() + "arg" + argCount++);
+//						Node argUriNode = NodeFactory.createURI(SP.getURI() + "arg" + argCount++);
 //						Node argNode = getObject(exprRootNode, argUriNode);
 //						if (argNode == null)
 //							break;
@@ -346,7 +347,7 @@ public class QueryFactory {
 							ExprList argList = new ExprList();
 							int argCount = 1;
 							while (true) {
-								Node argUriNode = Node.createURI(SP.getURI() + "arg" + argCount++);
+								Node argUriNode = NodeFactory.createURI(SP.getURI() + "arg" + argCount++);
 								Node argNode = getObject(exprRootNode, argUriNode);
 								if (argNode == null)
 									break;
@@ -499,7 +500,7 @@ public class QueryFactory {
 					ExprList argList = new ExprList();
 					int argCount = 1;
 					while (true) {
-						Node argUriNode = Node.createURI(SP.getURI() + "arg" + argCount++);
+						Node argUriNode = NodeFactory.createURI(SP.getURI() + "arg" + argCount++);
 						Node argNode = getObject(exprRootNode, argUriNode);
 						if (argNode == null)
 							break;
@@ -1321,7 +1322,7 @@ public class QueryFactory {
 					public Triple map1(Triple triple) {
 						Node queryNode = triple.getSubject();
 						String queryString = toQuery(graph, queryNode).toString();
-						return new Triple(queryNode, SP.text.asNode(), Node.createLiteral(queryString));
+						return new Triple(queryNode, SP.text.asNode(), NodeFactory.createLiteral(queryString));
 					}
 				}).toSet();
 		GraphUtil.add(graph, triplesToBeAdded.iterator());

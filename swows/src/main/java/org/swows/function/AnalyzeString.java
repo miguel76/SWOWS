@@ -10,6 +10,7 @@ import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.function.FunctionEnv;
@@ -19,18 +20,18 @@ import com.hp.hpl.jena.vocabulary.RDF;
 public class AnalyzeString extends GraphReturningFunction {
 	
 	private static final Node
-		MATCH_CLASS =	Node.createURI( Factory.getBaseURI() + "match"),
-		NON_MATCH_CLASS =	Node.createURI( Factory.getBaseURI() + "non-match"),
-		FIRST_PROPERTY =	Node.createURI( Factory.getBaseURI() + "first"),
-		FIRST_MATCH_PROPERTY =	Node.createURI( Factory.getBaseURI() + "first-match"),
-		FIRST_NON_MATCH_PROPERTY =	Node.createURI( Factory.getBaseURI() + "first-non-match"), 
-		NEXT_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next"),
-		NEXT_MATCH_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next-match"),
-		NEXT_NON_MATCH_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next-non-match"), 
-		FIRST_GROUP_PROPERTY =	Node.createURI( Factory.getBaseURI() + "first-group"),
-		NEXT_GROUP_PROPERTY =	Node.createURI( Factory.getBaseURI() + "next-group"),
-		GROUP_NON_MATCH_CLASS =	Node.createURI( Factory.getBaseURI() + "group-non-match"),
-		STRING_PROPERTY =	Node.createURI( Factory.getBaseURI() + "string");
+		MATCH_CLASS =	NodeFactory.createURI( Factory.getBaseURI() + "match"),
+		NON_MATCH_CLASS =	NodeFactory.createURI( Factory.getBaseURI() + "non-match"),
+		FIRST_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "first"),
+		FIRST_MATCH_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "first-match"),
+		FIRST_NON_MATCH_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "first-non-match"), 
+		NEXT_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "next"),
+		NEXT_MATCH_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "next-match"),
+		NEXT_NON_MATCH_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "next-non-match"), 
+		FIRST_GROUP_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "first-group"),
+		NEXT_GROUP_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "next-group"),
+		GROUP_NON_MATCH_CLASS =	NodeFactory.createURI( Factory.getBaseURI() + "group-non-match"),
+		STRING_PROPERTY =	NodeFactory.createURI( Factory.getBaseURI() + "string");
 
 	@Override
 	public int getMinArgNum() {
@@ -89,7 +90,7 @@ public class AnalyzeString extends GraphReturningFunction {
 						new Triple(
 								node,
 								STRING_PROPERTY,
-								Node.createLiteral(matchResult.group()) ));
+								NodeFactory.createLiteral(matchResult.group()) ));
 				last = node;
 				lastMatching = node;
 				Node lastGroup = null;
@@ -105,7 +106,7 @@ public class AnalyzeString extends GraphReturningFunction {
 								new Triple(
 										group,
 										STRING_PROPERTY,
-										Node.createLiteral(match) ));
+										NodeFactory.createLiteral(match) ));
 					else
 						newGraph.add(
 								new Triple(
@@ -132,7 +133,7 @@ public class AnalyzeString extends GraphReturningFunction {
 						new Triple(
 								node,
 								STRING_PROPERTY,
-								Node.createLiteral(token) ));
+								NodeFactory.createLiteral(token) ));
 				last = node;
 				lastNonMatching = node;
 				return node;

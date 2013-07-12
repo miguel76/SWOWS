@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.sparql.core.Var;
 import com.hp.hpl.jena.sparql.engine.ExecutionContext;
 import com.hp.hpl.jena.sparql.engine.QueryIterator;
@@ -92,7 +93,7 @@ public class bnode extends PFuncListAndSimple {
         Node blankNode = getBlankNode(object, list);
 
         if (blankNode == null) {
-        	blankNode = Node.createAnon();
+        	blankNode = NodeFactory.createAnon();
         	setBlankNode(object, list, blankNode);
         }
 

@@ -31,6 +31,7 @@ import java.util.Set;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.sparql.expr.Expr;
 import com.hp.hpl.jena.sparql.expr.aggregate.AggAvg;
 import com.hp.hpl.jena.sparql.expr.aggregate.AggAvgDistinct;
@@ -79,7 +80,7 @@ public class AggregatorSymbols {
 	}
 	
 	private static void add( Class<? extends Aggregator> aggregatorClass, String name, boolean distinct, boolean withExpr ) {
-		Node aggrUriNode = Node.createURI(baseUri + name);
+		Node aggrUriNode = NodeFactory.createURI(baseUri + name);
 		aggregators2uris.put(aggregatorClass, aggrUriNode);
 		if (distinct)
 			distinctAggregators.add(aggregatorClass);

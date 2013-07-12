@@ -59,7 +59,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 
@@ -156,7 +156,7 @@ public class MouseApp extends JFrame {
     	final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
-    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
+    	inputDatasetGraph.addGraph(NodeFactory.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
 //		final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
 		DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(dataflowGraph), inputDatasetGraph);
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
@@ -325,7 +325,7 @@ public class MouseApp extends JFrame {
         final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
-    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
+    	inputDatasetGraph.addGraph(NodeFactory.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
 //    	final DynamicDataset inputDatasetGraph = new SingleGraphDataset(mouseInput.getGraph());
     	DataflowProducer applyOps =	new DataflowProducer(new DynamicGraphFromGraph(wfGraph), inputDatasetGraph);
     	DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
