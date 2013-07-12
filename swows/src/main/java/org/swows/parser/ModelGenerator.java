@@ -20,6 +20,7 @@
 package org.swows.parser;
 
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.Stack;
 
@@ -42,7 +43,9 @@ public class ModelGenerator extends Parser {
 	    	return input.substring(1, input.length() - 1);
 	    } else {
 	    	byte buffer[] = new byte[(int) new java.io.File(input).length()];
-	    	new java.io.FileInputStream(input).read(buffer);
+	    	InputStream in = new java.io.FileInputStream(input);
+	    	in.read(buffer);
+	    	in.close();
 	    	String content = new String(buffer, System.getProperty("file.encoding"));
 	    	return content.length() > 0 && content.charAt(0) == '\uFEFF'
 	    			? content.substring(1)

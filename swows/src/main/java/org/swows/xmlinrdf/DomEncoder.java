@@ -46,6 +46,7 @@ import com.hp.hpl.jena.graph.Capabilities;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphEventManager;
 import com.hp.hpl.jena.graph.GraphStatisticsHandler;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
@@ -822,7 +823,7 @@ public class DomEncoder {
 				docBuilderFactory.setNamespaceAware(true);
 				newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
 				Graph newGraph = encode(newDoc, rootUri);
-				graph.getBulkUpdateHandler().add(newGraph);
+				GraphUtil.addInto(graph, newGraph);
 				
 				Iterator<Triple> tripleIterator =
 						graph.find(rootNode, null, null).andThen(graph.find(null, null, rootNode));

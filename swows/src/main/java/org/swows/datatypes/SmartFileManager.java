@@ -33,8 +33,6 @@ import org.swows.reader.ReaderFactory;
 import org.swows.spinx.SpinxFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-import org.swows.vocabulary.SPINX;
-import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DomEncoder;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -43,7 +41,6 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.update.UpdateFactory;
@@ -52,7 +49,6 @@ import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.LocationMapper;
 import com.hp.hpl.jena.util.Locator;
 import com.hp.hpl.jena.util.TypedStream;
-import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
 

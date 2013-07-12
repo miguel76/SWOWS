@@ -63,7 +63,7 @@ public class TwitterProducer extends GraphProducer {
     private DOMSource source;
     StreamResult fileXml = null;
     Date date = null;
-    private Element twitter, tweetUser, tweetDate, tweetText;
+    private Element twitter, tweetText;
     private int tweetsLength;
     private DynamicChangingGraph dynamicChangingGraph = null;
     private String twitterUsername;
@@ -234,9 +234,7 @@ public class TwitterProducer extends GraphProducer {
         //localTimer.get().schedule(null, 10000, 10000);
         //Timer timer = new Timer();
 
-        LocalTimer localTimer = new LocalTimer();
-
-        localTimer.get().schedule(new TimerTask() {
+        LocalTimer.get().schedule(new TimerTask() {
 
             public void run() {
 

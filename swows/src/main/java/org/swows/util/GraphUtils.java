@@ -20,12 +20,11 @@
 package org.swows.util;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
@@ -120,7 +119,7 @@ public class GraphUtils {
 					}
 				})
 				.toSet();
-		graph.getBulkUpdateHandler().delete(triplesToDelete.iterator());
+		GraphUtil.delete(graph, triplesToDelete.iterator());
 	}
 	
 }

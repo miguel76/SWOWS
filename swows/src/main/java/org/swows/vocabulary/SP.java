@@ -27,13 +27,11 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.shared.ReificationStyle;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * Vocabulary of the SPIN SPARQL Syntax schema.
  * 
- * @author Holger Knublauch
  */
 public class SP {
 
@@ -276,7 +274,7 @@ public class SP {
 	 */
 	public static Model getModel() {
 		if(model == null) {
-			model = ModelFactory.createDefaultModel(ReificationStyle.Minimal);
+			model = ModelFactory.createDefaultModel();
 			InputStream is = SP.class.getResourceAsStream("/etc/sp.rdf");
 			if(is == null) {
 				model.read(SP.BASE_URI);

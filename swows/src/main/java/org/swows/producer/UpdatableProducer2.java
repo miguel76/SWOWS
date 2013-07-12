@@ -19,11 +19,6 @@
  */
 package org.swows.producer;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
-import org.swows.graph.UpdatableFromEventsGraph2;
 import org.swows.graph.UpdatableGraph2;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;

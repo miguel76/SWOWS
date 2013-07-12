@@ -31,6 +31,7 @@ import org.swows.graph.events.Listener;
 import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
@@ -49,8 +50,9 @@ public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 			final List<UpdateRequest> updateList,
 			final List<DynamicDataset> updateInputDatasetList ) {
 		Graph innerGraph = GraphFactory.createGraphMem();
-		if (baseGraph != null)
-			innerGraph.getBulkUpdateHandler().add(baseGraph);
+		if (baseGraph != null) {
+			GraphUtil.addInto(innerGraph, baseGraph);
+		}
 		baseGraphCopy = new DynamicGraphFromGraph( innerGraph );
 
 		Iterator<UpdateRequest> updateIter = updateList.iterator();

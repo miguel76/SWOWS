@@ -23,24 +23,11 @@ import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
-import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.batik.swing.svg.GVTTreeBuilderAdapter;
-import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
-import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
-import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.DynamicDatasetMap;
@@ -51,10 +38,8 @@ import org.swows.producer.DataflowProducer;
 import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.SystemTime;
-import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DocumentReceiver;
 import org.swows.xmlinrdf.DomDecoder2;
-import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -63,11 +48,12 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 
 public class FileApp extends JFrame {
+	
+	// TODO: still work to be done (if this class is usefull)
 
 	/**
 	 * 
@@ -75,9 +61,7 @@ public class FileApp extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private RunnableQueue batikRunnableQueue = null;
 	private EventCachingGraph cachingGraph = null;
-	private boolean graphicsInitialized = false;
 	private Document newDocument = null;
-	private JSVGCanvas svgCanvas = null;
 
 	public FileApp(String title, final GraphicsConfiguration gc, Graph dataflowGraph) {
 		this(title, gc, dataflowGraph, true);
@@ -135,29 +119,17 @@ public class FileApp extends JFrame {
 					System.out.println(
 							"SVG updated and repainted in "
 									+ (runFinished - start + "ms" ) );
-					if (newDocument != null && svgCanvas != null) {
+					if (newDocument != null) {
 						batikRunnableQueue = null;
-						Document doc = newDocument;
+//						Document doc = newDocument;
 						newDocument = null;
-						svgCanvas.setDocument(doc);
+//						svgCanvas.setDocument(doc);
 					}
 				} catch(InterruptedException e) {
 					throw new RuntimeException(e);
 				}
 			}
 		});
-//    	final MouseInput tuioGateway =
-//    			new MouseInput(autoRefresh, new RunnableContext() {
-//    				@Override
-//    				public void run(Runnable runnable) {
-//    					try {
-//    						batikRunnableQueue.invokeAndWait(runnable);
-//    					} catch(InterruptedException e) {
-//    						throw new RuntimeException(e);
-//    					}
-//    				}
-//    			});
-//    	final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();
     	final DynamicDatasetMap inputDatasetGraph = new DynamicDatasetMap(systemTime.getGraph());
 //    	inputDatasetGraph.addGraph(Node.createURI(SWI.getURI() + "mouseEvents"), mouseInput.getGraph());
@@ -166,68 +138,6 @@ public class FileApp extends JFrame {
 		DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
 		cachingGraph = new EventCachingGraph(outputGraph);
 //		cachingGraph = new EventCachingGraph( new LoggingGraph(outputGraph, Logger.getRootLogger(), true, true) );
-//		svgCanvas = new JSVGCanvas();
-//        svgCanvas.setSize(width,height);
-//        
-//        // Set the JSVGCanvas listeners.
-//        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
-//
-//            public void documentLoadingStarted(SVGDocumentLoaderEvent e) {
-//                //label.setText("Document Loading...");
-//            }
-//
-//            public void documentLoadingCompleted(SVGDocumentLoaderEvent e) {
-//                //label.setText("Document Loaded.");
-//            }
-//        });
-//
-//        svgCanvas.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
-//
-//            public void gvtBuildStarted(GVTTreeBuilderEvent e) {
-//                //label.setText("Build Started...");
-//            }
-//
-//            public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
-//                //label.setText("Build Done.");
-////                frame.pack();
-//            }
-//        });
-//
-//        svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-//
-//            public void gvtRenderingPrepare(GVTTreeRendererEvent e) {
-//                //label.setText("Rendering Started...");
-//            }
-//
-//            public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-//        		batikRunnableQueue = svgCanvas.getUpdateManager().getUpdateRunnableQueue();
-//            	if (!graphicsInitialized) {
-//            		// Display the frame.
-//            		pack();
-//            		if (fullscreen)
-//            			gc.getDevice().setFullScreenWindow(FileApp.this);
-//            		else
-//            			setVisible(true);
-////            		tuioGateway.connect();
-//            		graphicsInitialized = true;
-//            	}
-//            }
-//        });
-//
-//        getContentPane().setSize(width, height);
-//        if (bgColor != null)
-//        	getContentPane().setBackground(bgColor);
-//        svgCanvas.setBackground(bgColor);
-//        getContentPane().add(svgCanvas);
-//
-//        addWindowListener(new WindowAdapter() {
-//
-//            public void windowClosing(WindowEvent e) {
-//                System.exit(0);
-//            }
-//        });
-//
-//        setSize(width, height);
 
 		DOMImplementation domImpl = SVGDOMImplementation.getDOMImplementation();
                 
@@ -280,29 +190,6 @@ public class FileApp extends JFrame {
                                                                 
 						} ); //,domEventListeners);
 
-        svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-
-     /*   EventTarget t = (EventTarget) xmlDoc;
-
-        if (EventsProducer.getEventsProducer() == null) {
-            try {
-                             
-              EventsProducer.setEventsProducer();      
-            } catch (java.lang.ExceptionInInitializerError ex) {
-                ex.printStackTrace();
-                ex.getCause();
-            }
-        }
-
-       t.addEventListener("click", new EventListener() {
-
-            public void handleEvent(Event evt) {
-                EventsProducer.getEventsProducer().update(evt);
-                
-            }
-        }, false);
-
-*/
         
         DOMImplementation implementation = null;
 		try {
@@ -327,19 +214,6 @@ public class FileApp extends JFrame {
         LSOutput output = feature.createLSOutput();
         output.setByteStream(System.out);
         serializer.write(xmlDoc, output);
-
-        svgCanvas.setDocument(xmlDoc);
-
-//        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//		Transformer transformer;
-//		try {
-//			transformer = transformerFactory.newTransformer();
-//			DOMSource source = new DOMSource(xmlDoc);
-//			StreamResult result =  new StreamResult(System.out);
-//			transformer.transform(source, result);
-//		} catch (TransformerException e) {
-//			e.printStackTrace();
-//		}
 
 	}
         

@@ -68,7 +68,9 @@ public class TuioGateway implements TuioListener, DomEventListener {
     private Logger logger;
     private Vector<TuioListener> listenerList = new Vector<TuioListener>();
     
-    private RunnableContext runnableContext = null;
+    @SuppressWarnings("unused")
+	private RunnableContext runnableContext = null;
+    // TODO: is runnableContext useful? the thread system must be reviewed
     
     private TimerTask localTimerTask = new TimerTask() {
 		@Override
@@ -183,6 +185,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		tuioClient.connect();
 	}
 	
+	@SuppressWarnings("unused")
 	private static Node tuioTime2XSDduration(TuioTime tuioTime) {
 		return Node.createLiteral(
 				String.format("PT%d.%06dS", tuioTime.getSeconds(), tuioTime.getMicroseconds()),
@@ -284,6 +287,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		logger.trace(triple.getSubject() + " " + triple.getPredicate().getURI() + " " + triple.getObject());
 	}
 		
+	@SuppressWarnings("unused")
 	private void debugAllTracked() {
 		logger.trace("Begin of tracked debugging");
 		Iterator<Node> trackedIterator =
@@ -404,6 +408,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 			
 	}
 	
+	@SuppressWarnings("unused")
 	private void changeObject(Node subject, Node predicate, Node newObject) {
 		Triple oldTriple = tuioGraph.find(subject, predicate, Node.ANY).next();
 		tuioGraph.add( new Triple(subject, predicate, newObject) );
@@ -460,11 +465,11 @@ public class TuioGateway implements TuioListener, DomEventListener {
 	}
 
 	@Override
-	public void handleEvent(Event event, Node graphNode) {
+	public void handleEvent(Event event, Node targetNode, Node currTargetNode) {
 //		TuioEvent tuioEvent = (TuioEvent) event;
 //		TuioPoint tuioPoint = tuioEvent.getTuioPoint();
 		if (currPointDomNodesMapping != null)
-			currPointDomNodesMapping.add(graphNode);
+			currPointDomNodesMapping.add(targetNode);
 //		Set<Node> domNodes = point2domNodesMapping.get(tuioPoint);
 //		if (domNodes == null) {
 //			domNodes = new HashSet<Node>();

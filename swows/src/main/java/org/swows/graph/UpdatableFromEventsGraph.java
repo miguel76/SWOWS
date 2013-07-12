@@ -31,6 +31,7 @@ import org.swows.graph.events.Listener;
 import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -72,15 +73,15 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
 							
 							Graph thisGraph = GraphFactory.createGraphMem();
-							thisGraph.getBulkUpdateHandler().add(baseGraphCopy);
+							GraphUtil.addInto(thisGraph, baseGraphCopy);
 							inputDataset.addGraph(SWI.ThisGraph.asNode(), thisGraph);
 							
 							Graph addedGraph = GraphFactory.createGraphMem();
-							addedGraph.getBulkUpdateHandler().add(update.getAddedGraph());
+							GraphUtil.addInto(addedGraph, update.getAddedGraph());
 							inputDataset.addGraph(SWI.AddedGraph.asNode(), addedGraph);
 							
 							Graph deletedGraph = GraphFactory.createGraphMem();
-							deletedGraph.getBulkUpdateHandler().add(update.getDeletedGraph());
+							GraphUtil.addInto(deletedGraph, update.getDeletedGraph());
 							inputDataset.addGraph(SWI.DeletedGraph.asNode(), deletedGraph);
 							
 							QueryExecution queryExecution =
@@ -88,7 +89,7 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 					        final Graph resGraph = queryExecution.execConstruct().getGraph();
 							System.out.println("Query Result: " + resGraph);
 							queryExecution.close();
-							baseGraphCopy.getBulkUpdateHandler().add(resGraph);
+							GraphUtil.addInto(baseGraphCopy, resGraph);
 							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 //							getEventManager2().notifyUpdate(new GraphUpdate() {
 //								@Override
@@ -121,6 +122,7 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 //							System.out.println("Added graph: " +  update.getAddedGraph());
 //							System.out.println("Deleted graph: " +  update.getDeletedGraph());
 							DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
+							// TODO: probably local copies needed as in the "adder notifier"
 							inputDataset.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
 							inputDataset.addGraph(SWI.AddedGraph.asNode(), update.getAddedGraph());
 							inputDataset.addGraph(SWI.DeletedGraph.asNode(), update.getDeletedGraph());
@@ -129,7 +131,7 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 					        final Graph resGraph = queryExecution.execConstruct().getGraph();
 //							System.out.println("Query Result: " + resGraph);
 							queryExecution.close();
-							baseGraphCopy.getBulkUpdateHandler().delete(resGraph);
+							GraphUtil.deleteFrom(baseGraphCopy, resGraph);
 							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 //							getEventManager2().notifyUpdate(new GraphUpdate() {
 //								@Override

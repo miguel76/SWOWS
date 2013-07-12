@@ -23,7 +23,9 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.compose.Difference;
+import com.hp.hpl.jena.graph.GraphUtil;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.compose.CompositionBase;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
@@ -68,9 +70,17 @@ public class DynamicChangingGraph extends DynamicGraphFromGraph {
 		baseGraph = newGraph;
 
 		final Graph addedGraph = GraphFactory.createGraphMem();
-		addedGraph.getBulkUpdateHandler().add(new Difference(newGraph, oldGraph));
+		GraphUtil.add(
+				addedGraph,
+				CompositionBase.butNot(
+						newGraph.find(Node.ANY, Node.ANY, Node.ANY),
+						oldGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
 		final Graph deletedGraph = GraphFactory.createGraphMem();
-		deletedGraph.getBulkUpdateHandler().add(new Difference(oldGraph, newGraph));
+		GraphUtil.add(
+				deletedGraph,
+				CompositionBase.butNot(
+						oldGraph.find(Node.ANY, Node.ANY, Node.ANY),
+						newGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
 			eventManager.notifyUpdate(new GraphUpdate() {
 				@Override

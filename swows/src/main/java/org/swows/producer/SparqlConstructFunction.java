@@ -32,7 +32,6 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.update.UpdateFactory;
 
 /**
  * The Class SparqlConstructFunction executes a SPARQL

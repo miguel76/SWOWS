@@ -19,10 +19,6 @@
  */
 package org.swows.mouse;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
@@ -33,8 +29,6 @@ import org.swows.runnable.RunnableContextFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DOMEvents;
 import org.swows.xmlinrdf.DomEventListener;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.MouseEvent;
 

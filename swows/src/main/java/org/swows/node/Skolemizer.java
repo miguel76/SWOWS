@@ -7,22 +7,13 @@ import java.util.WeakHashMap;
 
 import org.swows.vocabulary.SWI;
 
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
-import com.hp.hpl.jena.graph.Capabilities;
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphStatisticsHandler;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.shared.AddDeniedException;
-import com.hp.hpl.jena.shared.DeleteDeniedException;
-import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.function.FunctionEnv;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
 
 public class Skolemizer {
@@ -178,7 +169,8 @@ public class Skolemizer {
 
 	public static Graph deSkolemize(Graph inputGraph) {
 		Graph newGraph = GraphFactory.createDefaultGraph();
-		newGraph.getBulkUpdateHandler().add(
+		GraphUtil.add(
+				newGraph,
 				inputGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(new Map1<Triple, Triple>() {
 //					Map<Integer, Node> bnodes = new HashMap<Integer, Node>();
 					Map<String, Node> bnodes = new HashMap<String, Node>();
@@ -209,10 +201,10 @@ public class Skolemizer {
 		return newGraph;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public Graph skolemize(Graph inputGraph) {
 		Graph newGraph = GraphFactory.createDefaultGraph();
-		newGraph.getBulkUpdateHandler().add(
+		GraphUtil.add(
+				newGraph,
 				inputGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(new Map1<Triple, Triple>() {
 //					Map<Integer, Node> bnodes = new HashMap<Integer, Node>();
 					Map<Node, Node> bnodeIds = new HashMap<Node, Node>();

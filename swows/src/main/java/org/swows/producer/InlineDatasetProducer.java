@@ -20,10 +20,8 @@
 package org.swows.producer;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.events.DynamicDataset;

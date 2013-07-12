@@ -25,9 +25,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,7 +33,6 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.xml.transform.TransformerException;
 
-import org.apache.batik.dom.events.DOMMutationEvent;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
@@ -61,13 +57,6 @@ import org.swows.xmlinrdf.DomDecoder2;
 import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.events.Event;
-import org.w3c.dom.events.EventListener;
-import org.w3c.dom.events.EventTarget;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -118,7 +107,7 @@ public class MouseApp extends JFrame {
 				try {
 					while (batikRunnableQueue == null || cachingGraph == null) Thread.yield();
 //					while (batikRunnableQueue == null) Thread.yield();
-					final long start = System.currentTimeMillis();
+//					final long start = System.currentTimeMillis();
 					batikRunnableQueue.invokeAndWait(new Runnable() {
 						@Override
 						public void run() {
@@ -288,157 +277,6 @@ public class MouseApp extends JFrame {
 						},domEventListeners);
 
         svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-
-     /*   EventTarget t = (EventTarget) xmlDoc;
-
-        if (EventsProducer.getEventsProducer() == null) {
-            try {
-                             
-              EventsProducer.setEventsProducer();      
-            } catch (java.lang.ExceptionInInitializerError ex) {
-                ex.printStackTrace();
-                ex.getCause();
-            }
-        }
-
-       t.addEventListener("click", new EventListener() {
-
-            public void handleEvent(Event evt) {
-                EventsProducer.getEventsProducer().update(evt);
-                
-            }
-        }, false);
-
-*/
-        
-//        DOMImplementation implementation = null;
-//		try {
-//			implementation = DOMImplementationRegistry.newInstance()
-//					.getDOMImplementation("XML 3.0");
-//		} catch (ClassCastException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		} catch (ClassNotFoundException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		} catch (InstantiationException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		} catch (IllegalAccessException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//      	DOMImplementationLS feature = (DOMImplementationLS) implementation.getFeature("LS",
-//        		"3.0");
-//        LSSerializer serializer = feature.createLSSerializer();
-//        LSOutput output = feature.createLSOutput();
-////        output.setByteStream(System.out);
-//        
-//        OutputStream os;
-//		try {
-//			os = new FileOutputStream("/home/miguel/tmp/Result.svg");
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//			throw new RuntimeException(e);
-//		}
-//        output.setByteStream(os);
-//        serializer.write(xmlDoc, output);
-        
-        EventListener domEventListener =
-				new EventListener() {
-					@Override
-					public void handleEvent(Event event) {
-						DOMMutationEvent domEvent = (DOMMutationEvent) event;
-						System.out.println("*** DOM Changed Event START ***");
-						System.out.println("Event type: " + domEvent.getType());
-						System.out.println("Target: " + domEvent.getTarget());
-						System.out.println("Attr Name: " + domEvent.getAttrName());
-						System.out.println("Attr Change Type: " + domEvent.getAttrChange());
-						System.out.println("Attr New Value: " + domEvent.getNewValue());
-						System.out.println("Attr Prev Value: " + domEvent.getPrevValue());
-						System.out.println("Related Node: " + domEvent.getRelatedNode());
-						System.out.println("*** DOM Changed Event END ***");
-					}
-				};
-				
-		EventListener domGenericEventListener =
-				new EventListener() {
-					@Override
-					public void handleEvent(Event event) {
-				        DOMImplementation implementation = null;
-						try {
-							implementation = DOMImplementationRegistry.newInstance()
-									.getDOMImplementation("XML 3.0");
-						} catch (ClassCastException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (ClassNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (InstantiationException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IllegalAccessException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-				      	DOMImplementationLS feature = (DOMImplementationLS) implementation.getFeature("LS",
-				        		"3.0");
-				        LSSerializer serializer = feature.createLSSerializer();
-				        LSOutput output = feature.createLSOutput();
-				        OutputStream os;
-						try {
-							os = new FileOutputStream("/home/miguel/tmp/Result.svg");
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-							throw new RuntimeException(e);
-						}
-				        output.setByteStream(os);
-				        serializer.write(xmlDoc, output);
-					}
-				};
-						
-//        ((EventTarget) xmlDoc)
-//        		.addEventListener(
-//        				"DOMSubtreeModified",
-//        				domGenericEventListener,
-//						false);
-//
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMNodeInserted",
-//						domEventListener,
-//						false);
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMNodeRemoved",
-//						domEventListener,
-//						false);
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMNodeRemovedFromDocument",
-//						domEventListener,
-//						false);
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMNodeInsertedIntoDocument",
-//						domEventListener,
-//						false);
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMNodeInserted",
-//						domEventListener,
-//						false);
-////        ((EventTarget) xmlDoc)
-////				.addEventListener(
-////						"DOMAttrModified",
-////						domEventListener,
-////						false);
-//        ((EventTarget) xmlDoc)
-//				.addEventListener(
-//						"DOMCharacterDataModified",
-//						domEventListener,
-//						false);
 
         svgCanvas.setDocument(xmlDoc);
 

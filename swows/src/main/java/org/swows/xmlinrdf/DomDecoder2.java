@@ -226,10 +226,12 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		return document.createTextNode(value(graph, elementNode));
 	}
 	
+	@SuppressWarnings("unused")
 	private Comment decodeComment(Graph graph, Node elementNode) {
 		return document.createComment(value(graph, elementNode));
 	}
 	
+	@SuppressWarnings("unused")
 	private ProcessingInstruction decodeProcessingInstruction(Graph graph, Node elementNode) {
 		return document.createProcessingInstruction(
 				qNameElement(graph, elementNode),
@@ -896,6 +898,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		if (!update.getAddedGraph().isEmpty() || !update.getDeletedGraph().isEmpty()) {
 			updatesContext.run(
 					new Runnable() {
+						@SuppressWarnings("unchecked")
 						@Override
 						public void run() {
 							ExtendedIterator<Triple> addEventsIter =
@@ -977,7 +980,6 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 									} else if ( newTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = newTriple.getObject();
 										if (eventTypeNode.isLiteral()) {
-											String eventType = eventTypeNode.getLiteralLexicalForm();
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 //												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
@@ -1098,7 +1100,6 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 									} else if ( oldTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = oldTriple.getObject();
 										if (eventTypeNode.isLiteral()) {
-											String eventType = eventTypeNode.getLiteralLexicalForm();
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 //												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");

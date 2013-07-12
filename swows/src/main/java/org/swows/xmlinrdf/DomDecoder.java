@@ -99,14 +99,16 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	@Override
 	public synchronized void handleEvent(Event evt) {
 		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
-		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
+		org.w3c.dom.Node eventTargetDomNode = (org.w3c.dom.Node) evt.getTarget();
+		org.w3c.dom.Node eventCurrTargetDomNode = (org.w3c.dom.Node) evt.getCurrentTarget();
 		Node eventTargetGraphNode = dom2graphNodeMapping.get(eventTargetDomNode);
+		Node eventCurrTargetGraphNode = dom2graphNodeMapping.get(eventCurrTargetDomNode);
 		if (domEventListeners != null) {
 			synchronized (domEventListeners) {
 				Set<DomEventListener> domEventListenersForType = domEventListeners.get(evt.getType());
 				for (DomEventListener l : domEventListenersForType) {
 					logger.debug("Sending to " + l + " the event " + evt);
-					l.handleEvent(evt, eventTargetGraphNode);
+					l.handleEvent(evt, eventTargetGraphNode, eventCurrTargetGraphNode);
 				}
 			}
 		}
@@ -600,6 +602,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		if (!update.getAddedGraph().isEmpty() || !update.getDeletedGraph().isEmpty()) {
 			updatesContext.run(
 					new Runnable() {
+						@SuppressWarnings("unchecked")
 						@Override
 						public void run() {
 							ExtendedIterator<Triple> addEventsIter =

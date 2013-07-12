@@ -21,12 +21,7 @@ package org.swows.reader;
 
 import java.io.Reader;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.swows.vocabulary.SWI;
-import org.swows.xmlinrdf.DomEncoder;
 import org.swows.xmlinrdf.DomEncoder2;
-import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import com.hp.hpl.jena.graph.Graph;

@@ -124,13 +124,14 @@ public class AggregatorSymbols {
 		return uris2aggregators.get(uriNode).get(distinct).get(withExpr);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Aggregator getAggregator(Node uriNode, boolean distinct, Expr expr, Properties scalarvals) {
 		Class<? extends Aggregator> aggregatorClass = getAggregatorClass(uriNode, distinct, expr != null);
 //		Object[] baseValues = null;
 		int exprValuesCount = (expr == null) ? 0 : 1;
 		int scalarvalsCount = (scalarvals != null) ? scalarvals.size() : 0;
 		Object[] actualParams = new Object[exprValuesCount + scalarvalsCount];
-		Class[] actualClasses = new Class[exprValuesCount + scalarvalsCount];
+		Class<?>[] actualClasses = new Class[exprValuesCount + scalarvalsCount];
 		
 		if (expr != null) {
 			actualParams[0] = expr;
@@ -149,9 +150,9 @@ public class AggregatorSymbols {
 			try {
 				return ((Constructor<Aggregator>) aggregatorClass.getConstructor(actualClasses)).newInstance(actualParams);
 			} catch(NoSuchMethodException e) {
-				Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
-				for (Constructor<Aggregator> currConstr : constructors) {
-					Class[] paramTypes = currConstr.getParameterTypes();
+				Constructor<? extends Aggregator>[] constructors = (Constructor<? extends Aggregator>[]) aggregatorClass.getConstructors();
+				for (Constructor<? extends Aggregator> currConstr : constructors) {
+					Class<?>[] paramTypes = currConstr.getParameterTypes();
 					if ( paramTypes.length >= actualParams.length
 							&& Arrays.equals( Arrays.copyOf(paramTypes, actualParams.length), actualClasses ) ) {
 						Object[] params = new Object[paramTypes.length];
@@ -168,46 +169,6 @@ public class AggregatorSymbols {
 			throw new RuntimeException(e); 
 		}
 
-//		try {
-//			if (expr == null) {
-//				try {
-//					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(scalarvalClasses)).newInstance();
-//				} catch(NoSuchMethodException e) {
-//					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
-//					for (Constructor<Aggregator> currConstr : constructors) {
-//						Class[] paramTypes = currConstr.getParameterTypes();
-//						if (!paramTypes[0].equals(Expr.class) && paramTypes.length >= scalarvalParams.length) {
-//							Object[] params = new Object[paramTypes.length];
-//							for (int i = 0; i < scalarvalParams.length; i++) params[i] = scalarvalParams[i];
-//							for (int i = scalarvalParams.length; i < params.length; i++) params[i] = null;
-//							return currConstr.newInstance(params);
-//						}
-//					}
-//					throw new RuntimeException("Could not find empty constructor for " + aggregatorClass);
-//				}
-//			} else {
-//				try {
-//					return ((Constructor<Aggregator>) aggregatorClass.getConstructor(Array Expr.class, scalarvalClasses)).newInstance(expr);
-//				} catch(NoSuchMethodException e) {
-//					Constructor<Aggregator>[] constructors = (Constructor<Aggregator>[]) aggregatorClass.getConstructors();
-//					for (Constructor<Aggregator> currConstr : constructors) {
-//						Class[] paramTypes = currConstr.getParameterTypes();
-//						if (paramTypes[0].equals(Expr.class) && paramTypes.length >= scalarvalParams.length + 1) {
-//							Object[] params = new Object[paramTypes.length];
-//							params[0] = expr;
-//							for (int i = 1; i < scalarvalParams.length + 1; i++) params[i] = scalarvalParams[i];
-//							for (int i = scalarvalParams.length + 1; i < params.length; i++) params[i] = null;
-//							return currConstr.newInstance(params);
-//						}
-//					}
-//					throw new RuntimeException("Could not find Expr constructor for " + aggregatorClass);
-//				}
-//			}
-//		} catch (Exception e) {
-//			if (e instanceof RuntimeException)
-//					throw (RuntimeException) e; 
-//			throw new RuntimeException(e); 
-//		}
 	}
 
 }

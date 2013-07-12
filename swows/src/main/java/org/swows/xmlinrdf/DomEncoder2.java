@@ -26,23 +26,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.swows.node.Skolemizer;
-import org.swows.vocabulary.DOC;
 import org.swows.vocabulary.XML;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -51,39 +41,20 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
-import com.hp.hpl.jena.graph.Capabilities;
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphStatisticsHandler;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.TransactionHandler;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.graph.impl.SimpleEventManager;
-import com.hp.hpl.jena.graph.impl.SimpleTransactionHandler;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.shared.AddDeniedException;
-import com.hp.hpl.jena.shared.DeleteDeniedException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.util.iterator.Map1;
-import com.hp.hpl.jena.util.iterator.NiceIterator;
-import com.hp.hpl.jena.util.iterator.NullIterator;
-import com.hp.hpl.jena.util.iterator.SingletonIterator;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class DomEncoder.
  */
@@ -98,9 +69,6 @@ public class DomEncoder2 {
 
 	static class DocumentEncoder implements ContentHandler {
 		
-		private static final NullIterator<Triple> emptyTripleIterator = new NullIterator<Triple>();
-		private static final NullIterator<org.w3c.dom.Node> emptyNodeIterator = new NullIterator<org.w3c.dom.Node>();
-		private static Random rnd = new Random();
 		private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
 		
 		private Graph outputGraph;
@@ -440,7 +408,7 @@ public class DomEncoder2 {
 				//docBuilderFactory.setNamespaceAware(true);
 				//newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
 				Graph newGraph = encode(xmlInputSource, rootUri);
-				graph.getBulkUpdateHandler().add(newGraph);
+				GraphUtil.addInto(graph, newGraph);
 				
 				Iterator<Triple> tripleIterator =
 						graph.find(rootNode, null, null).andThen(graph.find(null, null, rootNode));

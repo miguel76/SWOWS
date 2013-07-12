@@ -25,8 +25,8 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class UpdatableGraph extends DelegatingDynamicGraph {
@@ -36,16 +36,15 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 			final DynamicGraph addGraph,
 			final DynamicGraph deleteGraph ) {
 		baseGraphCopy = new DynamicGraphFromGraph( GraphFactory.createGraphMem() );
-		final BulkUpdateHandler bulkUpdateHandler = baseGraphCopy.getBulkUpdateHandler();
-		bulkUpdateHandler.add(baseGraph);
-		bulkUpdateHandler.add(addGraph);
-		bulkUpdateHandler.delete(deleteGraph);
+		GraphUtil.addInto(baseGraphCopy, baseGraph);
+		GraphUtil.addInto(baseGraphCopy, addGraph);
+		GraphUtil.deleteFrom(baseGraphCopy, deleteGraph);
 		baseGraph.getEventManager2().register(
 				new Listener() {
 					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
-						baseGraphCopy.getBulkUpdateHandler().add(update.getAddedGraph());
-						baseGraphCopy.getBulkUpdateHandler().delete(update.getDeletedGraph());
+						GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
+						GraphUtil.deleteFrom(baseGraphCopy, update.getDeletedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
 							@Override
 							public Graph getAddedGraph() {
@@ -62,7 +61,7 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 				new Listener() {
 					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
-						baseGraphCopy.getBulkUpdateHandler().add(update.getAddedGraph());
+						GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
 							@Override
 							public Graph getAddedGraph() {
@@ -79,7 +78,7 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 				new Listener() {
 					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
-						baseGraphCopy.getBulkUpdateHandler().delete(update.getAddedGraph());
+						GraphUtil.deleteFrom(baseGraphCopy, update.getAddedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
 							@Override
 							public Graph getAddedGraph() {

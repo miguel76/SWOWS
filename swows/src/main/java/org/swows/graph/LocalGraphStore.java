@@ -20,28 +20,16 @@
 package org.swows.graph;
 
 import java.util.Iterator;
-import java.util.List;
 
-import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
-import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
-import com.hp.hpl.jena.sparql.util.Context;
 import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.Update;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import com.hp.hpl.jena.update.UpdateProcessor;
 import com.hp.hpl.jena.update.UpdateRequest;
@@ -52,153 +40,14 @@ public class LocalGraphStore extends DelegatingDynamicDataset {
 	private GraphStore graphStore;
 	private UpdateRequest updateRequest;
 	
+	// TODO: to be tested, possibly not working right now
+	// TODO: baseDatasetCopy must be set (depending from management) and then check event flow
+	
 	public LocalGraphStore(
 			final UpdateRequest updateRequest,
 			final DynamicDataset inputDataset ) {
 		graphStore = new GraphStoreBasic(inputDataset);
-		baseDatasetCopy = new DynamicDataset() {
-			
-			@Override
-			public long size() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-			
-			@Override
-			public void removeGraph(Node graphName) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public Iterator<Node> listGraphNodes() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public boolean isEmpty() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-			@Override
-			public Lock getLock() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Context getContext() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Iterator<Quad> findNG(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Iterator<Quad> find(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Iterator<Quad> find(Quad quad) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public Iterator<Quad> find() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public void deleteAny(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void delete(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void delete(Quad quad) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public boolean containsGraph(Node graphNode) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-			@Override
-			public boolean contains(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-			@Override
-			public boolean contains(Quad quad) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-			@Override
-			public void close() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void add(Node g, Node s, Node p, Node o) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void add(Quad quad) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void setDefaultGraph(DynamicGraph g) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public DynamicGraph getGraph(Node graphNode) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public DynamicGraph getDefaultGraph() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public void addGraph(Node graphName, DynamicGraph graph) {
-				// TODO Auto-generated method stub
-				
-			}
-		} graphStore;
-		baseGraphCopy = new DynamicGraphFromGraph( innerGraph );
 		this.updateRequest = updateRequest;
-		this.originalInputDataset = inputDataset;
 
 		Iterator<Node> graphNodes = inputDataset.listGraphNodes();
 		Node nextGraphNode = null;
@@ -212,21 +61,7 @@ public class LocalGraphStore extends DelegatingDynamicDataset {
 					new Listener() {
 						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
-							System.out.println("Start Add notifyUpdate");
-							System.out.println("This graph: " + baseGraphCopy);
-							System.out.println("Added graph: " +  updateEvent.getAddedGraph());
-							System.out.println("Deleted graph: " +  updateEvent.getDeletedGraph());
-							System.out.println("Default input graph: " + originalInputDataset.getDefaultGraph());
-							Iterator<Node> graphNodes = originalInputDataset.listGraphNodes();
-							while (graphNodes.hasNext()) {
-								Node graphNode = graphNodes.next();
-								System.out.println("Named input graph (" + graphNode.getURI() + "):");
-								ModelFactory.createModelForGraph(originalInputDataset.getGraph(graphNode)).write(System.out, "N3");
-							}
-
 							update(updateEvent);
-							
-							System.out.println("End of Add notifyUpdate");
 						}
 					} );
 		} while(nextGraphNode != null);
@@ -234,36 +69,11 @@ public class LocalGraphStore extends DelegatingDynamicDataset {
 	}
 	
 	private void update(GraphUpdate updateEvent) {
-		DatasetGraphMap inputDataset = new DatasetGraphMap(originalInputDataset);
-		GraphStore graphStore = new GraphStoreBasic(inputDataset);
-		
-//		Graph thisGraph = GraphFactory.createGraphMem();
-//		thisGraph.getBulkUpdateHandler().add(baseGraphCopy);
-//		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
-		graphStore.setDefaultGraph(baseGraphCopy);
-		
-		if (updateEvent != null) {
-//		Graph addedGraph = GraphFactory.createGraphMem();
-//		addedGraph.getBulkUpdateHandler().add(updateEvent.getAddedGraph());
-			graphStore.addGraph(SWI.AddedGraph.asNode(), updateEvent.getAddedGraph());
-		
-//		Graph deletedGraph = GraphFactory.createGraphMem();
-//		deletedGraph.getBulkUpdateHandler().add(updateEvent.getDeletedGraph());
-			graphStore.addGraph(SWI.DeletedGraph.asNode(), updateEvent.getDeletedGraph());
-		}
-		
-//		GraphStore graphStore = new GraphStoreBasic(inputDataset);
-//		for (Update update : updateRequest.getOperations()) {
-//			if (update instanceof UpdateWithUsing)
-//				((UpdateWithUsing) update).setWithIRI(SWI.ThisGraph.asNode());
-//		}
 		UpdateProcessor updateProcessor = UpdateExecutionFactory.create(updateRequest, graphStore);
 		updateProcessor.execute();
 		
-		System.out.println("Graph after update");
-		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
-		
-		((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
+		// TODO: possibly DynamicDatasetFromDataset class must be created
+//		((DynamicDatasetFromDataset) baseDatasetCopy).sendUpdateEvents();
 	}
 	
 	private void update() {

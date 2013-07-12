@@ -69,6 +69,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	}
 
 	@Override
+	@Deprecated
 	public BulkUpdateHandler getBulkUpdateHandler() {
 		return new BulkUpdateHandler() {
 			BulkUpdateHandler buh = baseGraph.getBulkUpdateHandler();

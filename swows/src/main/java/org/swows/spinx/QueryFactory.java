@@ -38,6 +38,7 @@ import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
@@ -205,6 +206,7 @@ public class QueryFactory {
 
 	}
 	
+	@SuppressWarnings("unused")
 	private String functionToSymbol(String functionName) {
 		return
 				(functionToSymbolMap.containsKey(functionName))
@@ -587,8 +589,6 @@ public class QueryFactory {
 		private Set<Var> producedVars = null;
 		private Set<Var> consumedVars = null;
 		private TriplePath triplePath = null;
-		public ElementContext() {
-		}
 		public ElementContext(Element element) {
 			this.element = element;
 		}
@@ -625,6 +625,7 @@ public class QueryFactory {
 			this.consumedVars = consumedVars;
 			this.producedVars = producedVars;
 		}
+		@SuppressWarnings("unused")
 		public ElementContext(
 				Element element,
 				TriplePath triplePath,
@@ -637,10 +638,12 @@ public class QueryFactory {
 			this.producedVars = producedVars;
 			this.priority = priority;
 		}
+		@SuppressWarnings("unused")
 		public ElementContext(Element element, int priority) {
 			this.element = element;
 			this.priority = priority;
 		}
+		@SuppressWarnings("unused")
 		public ElementContext(
 				Element element,
 				Set<Var> consumedVars,
@@ -679,6 +682,7 @@ public class QueryFactory {
 		public Set<Var> getConsumedVars() {
 			return (consumedVars != null) ? consumedVars : emptyVarSet;
 		}
+		@SuppressWarnings("unused")
 		public int getPriority() {
 			return priority;
 		}
@@ -690,6 +694,7 @@ public class QueryFactory {
 		public TriplePath getTriplePath() {
 			return triplePath;
 		}
+		@SuppressWarnings("unused")
 		public boolean isTriplePath() {
 			return triplePath != null;
 		}
@@ -738,6 +743,7 @@ public class QueryFactory {
 			Expr expr = toExpr(exprNode);
 			return new ElementContext(new ElementFilter(expr), expr.getVarsMentioned());
 		} else if (elementType.equals(SPINX.ElementGroup.asNode())) {
+			@SuppressWarnings("unused")
 			boolean allTriplePatterns = true;
 			boolean allTriplePaths = true;
 			ElementGroup elementGroup = new ElementGroup();
@@ -747,10 +753,6 @@ public class QueryFactory {
 			Set<Var> producedVarSet = new HashSet<Var>();
 			while (subElementNodes.hasNext()) {
 				Node subElementNode2 = subElementNodes.next();
-				Node subSubjNode = getObject(subElementNode2, SP.subject.asNode());
-				Node subPredNode = getObject(subElementNode2, SP.predicate.asNode());
-				Node subObjNode = getObject(subElementNode2, SP.object.asNode());
-				Node subPathNode = getObject(subElementNode2, SP.path.asNode());
 				Node elementTypeNode = getElementType( subElementNode2 );
 
 				ElementContext elementContext = toElementContext(subElementNode2);
@@ -1322,7 +1324,7 @@ public class QueryFactory {
 						return new Triple(queryNode, SP.text.asNode(), Node.createLiteral(queryString));
 					}
 				}).toSet();
-		graph.getBulkUpdateHandler().add(triplesToBeAdded.iterator());
+		GraphUtil.add(graph, triplesToBeAdded.iterator());
 	}
 	
 	public static Query toQuery(Graph graph, Node queryRootNode, Map<Node, Var> parentVarMap) {

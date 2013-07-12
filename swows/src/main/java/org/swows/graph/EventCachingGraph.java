@@ -28,8 +28,8 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
@@ -57,7 +57,7 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 		super();
 //		this.connectedGraph = connectedGraph;
 		Graph initialGraph = GraphFactory.createGraphMem();
-		initialGraph.getBulkUpdateHandler().add(connectedGraph);
+		GraphUtil.addInto(initialGraph, connectedGraph);
 		baseGraphCopy =	new DynamicGraphFromGraph( initialGraph );
 //		graphListener =
 //				new Listener() {
@@ -77,9 +77,8 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 	public synchronized void sendEvents() {
 		if (cachedGraphUpdates != null) {
 			for (GraphUpdate update : cachedGraphUpdates) {
-				BulkUpdateHandler buh = baseGraphCopy.getBulkUpdateHandler();
-				buh.delete(update.getDeletedGraph());
-				buh.add(update.getAddedGraph());
+				GraphUtil.deleteFrom(baseGraphCopy, update.getDeletedGraph());
+				GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
 			}
 			cachedGraphUpdates = null;
 			((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
