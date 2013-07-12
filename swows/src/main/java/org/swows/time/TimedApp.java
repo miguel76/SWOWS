@@ -37,7 +37,6 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
-import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.SingleGraphDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -194,7 +193,7 @@ public class TimedApp extends JFrame {
 //		String mainGraphUrl = baseUri + "test-circles.n3";
 		//String mainGraphUrl = baseUri + "main.n3";
 
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl);
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
 //		System.out.println("*** Workflow graph  ***");

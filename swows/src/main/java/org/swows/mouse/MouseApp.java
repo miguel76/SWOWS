@@ -42,7 +42,6 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
-import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.EventCachingGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -312,7 +311,7 @@ public class MouseApp extends JFrame {
 		
 		boolean fullScreen = windowMode == 'f' || windowMode == 'F';
 
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl);
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
 		new MouseApp(windowTitle, conf, wfGraph, fullScreen, color);
@@ -320,7 +319,7 @@ public class MouseApp extends JFrame {
     }	
     
     public static Document createContent(DOMImplementation domImpl, String mainGraphUrl) {
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl);
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
         final MouseInput mouseInput = new MouseInput();
     	final SystemTime systemTime = new SystemTime();

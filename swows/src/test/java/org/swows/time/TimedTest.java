@@ -29,7 +29,6 @@ import javax.xml.transform.TransformerException;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.RunnableQueue;
 import org.apache.log4j.PropertyConfigurator;
-import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -73,7 +72,7 @@ public class TimedTest {
 //		String mainGraphUrl = baseUri + "test-circles.n3";
 		String mainGraphUrl = baseUri + "main.n3";
 
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl);
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
 //		System.out.println("*** Workflow graph  ***");

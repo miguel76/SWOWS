@@ -29,7 +29,6 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.util.RunnableQueue;
-import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.EventCachingGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -236,7 +235,7 @@ public class FileApp extends JFrame {
 		
 		boolean fullScreen = windowMode == 'f' || windowMode == 'F';
 
-		Dataset wfDataset = DatasetFactory.create(mainGraphUrl, SmartFileManager.get());
+		Dataset wfDataset = DatasetFactory.create(mainGraphUrl);
 		final Graph wfGraph = wfDataset.asDatasetGraph().getDefaultGraph();
 
 		new FileApp(windowTitle, conf, wfGraph, fullScreen, color);
