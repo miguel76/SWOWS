@@ -20,13 +20,17 @@
 package org.swows.xmlinrdf;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
+import java.util.Vector;
 
-import org.apache.jena.riot.system.StreamRDF;
 import org.swows.node.Skolemizer;
 import org.swows.vocabulary.XML;
 import org.xml.sax.Attributes;
@@ -37,16 +41,25 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
+import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * The Class DomEncoder.
  */
-public class DomEncoder2 {
+public class DomEncoder3 {
 
 /*
 	private static interface NodeReference {
@@ -59,7 +72,7 @@ public class DomEncoder2 {
 		
 		private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
 		
-		private StreamRDF outputStream;
+		private Graph outputGraph;
 		private Stack<Node> nodeStack = new Stack<Node>();
 		private Stack<Node> lastSiblingStack = new Stack<Node>();
 		private String docURI;
@@ -73,8 +86,8 @@ public class DomEncoder2 {
 		private Set<String> defAttrs = new HashSet<String>();
 		private StringBuffer textBuffer = new StringBuffer();
 		
-		public DocumentEncoder(StreamRDF outputStream, String docURI) {
-			this.outputStream = outputStream;
+		public DocumentEncoder(Graph outputGraph, String docURI) {
+			this.outputGraph = outputGraph;
 			this.docURI = docURI;
 		}
 
@@ -88,10 +101,10 @@ public class DomEncoder2 {
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
 				typeNode = NodeFactory.createURI(nsAndLn( namespace, localName ));
-				outputStream.triple(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
-				outputStream.triple(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
-				outputStream.triple(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
-				outputStream.triple(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
+				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
+				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Element.asNode()));
+				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
 				nsMap.put(localName, typeNode);
 			}
 			return typeNode;
@@ -107,10 +120,10 @@ public class DomEncoder2 {
 				typeNode = nsMap.get(localName);
 			if (typeNode == null) {
 				typeNode = NodeFactory.createURI(nsAndLn( namespace, localName ));
-//				outputStream.triple(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
-				outputStream.triple(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Attr.asNode()));
-				outputStream.triple(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
-				outputStream.triple(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
+//				outputGraph.add(new Triple(typeNode, RDF.type.asNode(), RDFS.Class.asNode()));
+				outputGraph.add(new Triple(typeNode, RDFS.subClassOf.asNode(), XML.Attr.asNode()));
+				outputGraph.add(new Triple(typeNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(typeNode, XML.nodeName.asNode(), getLnNode(localName)));
 				nsMap.put(localName, typeNode);
 			}
 			return typeNode;
@@ -142,12 +155,12 @@ public class DomEncoder2 {
 		private Node defineAttr(String namespace, String localName) {
 			if (namespace == null || namespace.isEmpty()) {
 				Node attrNode = getAttrTypeNode(VOID_NAMESPACE, localName);
-//				outputStream.triple(
+//				outputGraph.add(
 //						new Triple(
 //								attrNode,
 //								RDF.type.asNode(),
 //								XML.AttrType.asNode() ));
-				outputStream.triple(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
 				defAttrs.add(localName);
 				return attrNode;
 			} else {
@@ -157,13 +170,13 @@ public class DomEncoder2 {
 					nsSet = new HashSet<String>();
 					defNsAttrs.put(namespace, nsSet);
 				}
-//				outputStream.triple(
+//				outputGraph.add(
 //						new Triple(
 //								attrNode,
 //								RDF.type.asNode(),
 //								XML.AttrType.asNode() ));
-				outputStream.triple(new Triple(attrNode, XML.namespace.asNode(), getNsNode(namespace)));
-				outputStream.triple(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
+				outputGraph.add(new Triple(attrNode, XML.namespace.asNode(), getNsNode(namespace)));
+				outputGraph.add(new Triple(attrNode, XML.nodeName.asNode(), getLnNode(localName)));
 				nsSet.add(localName);
 				return attrNode;
 			}
@@ -173,8 +186,8 @@ public class DomEncoder2 {
 			String textBufferStr = textBuffer.toString().trim();
 			if (!textBufferStr.isEmpty()) {
 				Node newNode = Skolemizer.getInstance().getNode();
-				outputStream.triple(new Triple(newNode, RDF.type.asNode(), XML.Text.asNode()));
-				outputStream.triple(
+				outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Text.asNode()));
+				outputGraph.add(
 						new Triple(
 								newNode,
 //								XML.text.asNode(),
@@ -196,7 +209,7 @@ public class DomEncoder2 {
 			Node node = nodeStack.pop();
 			Node lastSibling = lastSiblingStack.pop();
 			if (lastSibling != null)
-				outputStream.triple(new Triple(node, XML.lastChild.asNode(), lastSibling));
+				outputGraph.add(new Triple(node, XML.lastChild.asNode(), lastSibling));
 		}
 
 		@Override
@@ -208,7 +221,7 @@ public class DomEncoder2 {
 		@Override
 		public void startDocument() throws SAXException {
 			docNode = NodeFactory.createURI(docURI);
-			outputStream.triple(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
+			outputGraph.add(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
 		}
 
 		@Override
@@ -219,28 +232,24 @@ public class DomEncoder2 {
 		public void endPrefixMapping(String prefix) throws SAXException { }
 
 		private void connectNode(Node newNode) {
-			outputStream.triple(new Triple(newNode, XML.ownerDocument.asNode(), docNode));
+			outputGraph.add(new Triple(newNode, XML.ownerDocument.asNode(), docNode));
 			if (!nodeStack.isEmpty()) {
 				Node parentNode = nodeStack.peek();
-				outputStream.triple(new Triple(newNode, XML.parentNode.asNode(), parentNode));
-				outputStream.triple(new Triple(parentNode, XML.hasChild.asNode(), newNode));
+				outputGraph.add(new Triple(newNode, XML.parentNode.asNode(), parentNode));
+				outputGraph.add(new Triple(parentNode, XML.hasChild.asNode(), newNode));
 				Node lastSibling = lastSiblingStack.pop();
 				if (lastSibling == null) {
-					outputStream.triple(new Triple(parentNode, XML.firstChild.asNode(), newNode));
+					outputGraph.add(new Triple(parentNode, XML.firstChild.asNode(), newNode));
 				} else {
-					outputStream.triple(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
-					outputStream.triple(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
+					outputGraph.add(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
+					outputGraph.add(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
 				}
 				lastSiblingStack.push(newNode);
 			}
 		}
 		
 		private String nsAndLn(String ns, String ln) {
-			return
-					( (ns == null) || (ns.length() == 0) ?
-							VOID_NAMESPACE + "#" :
-							ns + (ns.charAt(ns.length() - 1) == '#' ? "" : "#") )
-					+ ln;
+			return ns + (ns.charAt(ns.length() - 1) == '#' ? "" : "#") + ln;
 		}
 		
 		@Override
@@ -259,17 +268,17 @@ public class DomEncoder2 {
 								? NodeFactory.createURI( nsAndLn(docURI, idAttr) )
 				 				: Skolemizer.getInstance().getNode();
 								
-//			outputStream.triple(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
+//			outputGraph.add(new Triple(newNode, RDF.type.asNode(), XML.Element.asNode()));
 			
 			Node typeNode = getElementTypeNode(uri, localName);
-			outputStream.triple(new Triple(newNode, RDF.type.asNode(), typeNode));
+			outputGraph.add(new Triple(newNode, RDF.type.asNode(), typeNode));
 			
 			if (nextIsRootElement) {
-				outputStream.triple(new Triple(docNode, XML.hasChild.asNode(), newNode));
+				outputGraph.add(new Triple(docNode, XML.hasChild.asNode(), newNode));
 				nextIsRootElement = false;
 			}
 			
-//			outputStream.triple(new Triple(typeNode, OWL.oneOf.asNode(), XML.Element.asNode()));
+//			outputGraph.add(new Triple(typeNode, OWL.oneOf.asNode(), XML.Element.asNode()));
 			
 //			  <rdfs:subClassOf>
 //			    <owl:Restriction>
@@ -278,14 +287,14 @@ public class DomEncoder2 {
 //			    </owl:Restriction>
 //			  </rdfs:subClassOf>
 			
-//			outputStream.triple(new Triple(newNode, XML.namespace.asNode(), getNsNode(uri)));
-//			outputStream.triple(new Triple(newNode, XML.nodeName.asNode(), getLnNode(localName)));
+//			outputGraph.add(new Triple(newNode, XML.namespace.asNode(), getNsNode(uri)));
+//			outputGraph.add(new Triple(newNode, XML.nodeName.asNode(), getLnNode(localName)));
 
 			connectNode(newNode);
 			
 			for (int i = 0; i < atts.getLength(); i++) {
 				Node nodeAttr = defineAttr(atts.getURI(i), atts.getLocalName(i));
-				outputStream.triple(
+				outputGraph.add(
 						new Triple(
 								newNode,
 								nodeAttr,
@@ -330,11 +339,11 @@ public class DomEncoder2 {
 	 * @param document the document
 	 * @return the graph
 	 */
-	public static void encode(InputSource inputSAX, String rootUri, StreamRDF outputStream) {
+	public static void encode(InputSource inputSAX, String rootUri, Graph graph) {
 //		return new DocumentEncoder(document, rootUri);
 		try {
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-			xmlReader.setContentHandler( new DocumentEncoder(outputStream, rootUri) );
+			xmlReader.setContentHandler( new DocumentEncoder(graph, rootUri) );
 			//xmlReader.setFeature("XML 2.0", true);
 			xmlReader.parse(inputSAX);
 		} catch(SAXException e) {
@@ -344,8 +353,122 @@ public class DomEncoder2 {
 		}
 	}
 
+	/**
+	 * Encode.
+	 *
+	 * @param document the document
+	 * @return the graph
+	 */
+	public static Graph encode(InputSource inputSAX, String rootUri) {
+		Graph outputGraph = GraphFactory.createGraphMem();
+		encode(inputSAX, rootUri, outputGraph);
+		return outputGraph;
+	}
+
+	public static void developInRDF(Graph graph) {
+		Model model = ModelFactory.createModelForGraph(graph);
+		Iterator<Resource> xmlResources =
+				model.listResourcesWithProperty(RDF.type, XML.Document)
+				.filterKeep( new Filter<Resource>() {
+					@Override
+					public boolean accept(Resource res) {
+						StmtIterator stmtIterator = res.listProperties();
+						boolean textProp = false;
+						while (stmtIterator.hasNext()) {
+							Property prop = stmtIterator.next().getPredicate();
+							if (prop.equals(XML.text)) {
+								// TODO: check for single literal string value of xml.text
+								textProp = true;
+							}
+							else if (!prop.equals(RDF.type))
+								return false;
+						}
+						return textProp;
+					}
+				});
+		//if (!xmlResources.hasNext())
+		//	System.out.println("Empty Iterator!");
+		
+		List<Resource> xmlResourcesList = new Vector<Resource>();
+		while (xmlResources.hasNext())
+			xmlResourcesList.add(xmlResources.next());
+		xmlResources = xmlResourcesList.iterator();
+		while (xmlResources.hasNext()) {
+			Resource xmlRes = xmlResources.next();
+			String xmlString = xmlRes.getRequiredProperty(XML.text).getString();
+			InputSource xmlInputSource = new InputSource(new StringReader(xmlString));
+			String rootUri = null;
+			Node rootNode = null;
+			while (rootUri == null || graph.contains(rootNode, Node.ANY, Node.ANY) || graph.contains(Node.ANY, Node.ANY, rootNode) ) {
+				rootUri = getRandomString();
+				rootNode = NodeFactory.createURI(rootUri);
+			}
+				//DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+				//docBuilderFactory.setCoalescing(true);
+				//docBuilderFactory.setFeature("XML 2.0", true);
+				//docBuilderFactory.setNamespaceAware(true);
+				//newDoc = docBuilderFactory.newDocumentBuilder().parse(xmlInputSource);
+				Graph newGraph = encode(xmlInputSource, rootUri);
+				GraphUtil.addInto(graph, newGraph);
+				
+				Iterator<Triple> tripleIterator =
+						graph.find(rootNode, null, null).andThen(graph.find(null, null, rootNode));
+				List<Triple> tripleList = new Vector<Triple>();
+				while (tripleIterator.hasNext()) {
+					Triple triple = tripleIterator.next();
+					tripleList.add(triple);
+				}
+				tripleIterator = tripleList.iterator();
+				while (tripleIterator.hasNext()) {
+					Triple triple = tripleIterator.next();
+					graph.add(
+							new Triple(
+									triple.getSubject().equals(rootNode) ? xmlRes.asNode() : triple.getSubject(),
+									triple.getPredicate(),
+									triple.getObject().equals(rootNode) ? xmlRes.asNode() : triple.getObject()
+								));
+					graph.delete(triple);
+				}
+//SparqlJenaQuery query = new SparqlJenaQuery(queryString);
+				//query.addRootedGraph(graph, xmlRes.asNode());
+		}
+
+	}
+
 	//public static final String URI = "http://www.swows.org/datatypes/sparql/jena";
 	//public static final Resource namespace = ResourceFactory.createResource("http://www.swows.org/datatypes/sparql/jena");
 	public static final int RANDOM_HEX_SIZE = 8;
+	private static final Random random = new Random();
 	
+	private static char nibble2hexDigit(byte input) {
+		input |= 15;
+		switch(input) {
+		case 10:
+			return 'a';
+		case 11:
+			return 'b';
+		case 12:
+			return 'c';
+		case 13:
+			return 'd';
+		case 14:
+			return 'e';
+		case 15:
+			return 'f';
+		default:
+			return Byte.toString(input).charAt(0);
+		}
+	}
+	
+	private static String getRandomString() {
+		byte randomBytes[] = new byte[RANDOM_HEX_SIZE * 2];
+		random.nextBytes(randomBytes);
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < RANDOM_HEX_SIZE * 2; i++) {
+			sb.append( nibble2hexDigit( (byte) (randomBytes[i] >>> 8) ) );
+			sb.append( nibble2hexDigit( randomBytes[i] ) );
+		}
+		return sb.toString();
+	}
+
 }

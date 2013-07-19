@@ -22,12 +22,15 @@ package org.swows.graph;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.swows.reader.ReaderFactory;
 import org.swows.reader.XmlReader;
 import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContextFactory;
 
+import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.FileUtils;
 
@@ -56,7 +59,8 @@ public class LoadGraph extends DynamicChangingGraph {
 		this.baseURI = baseURI;
 		this.rdfSyntax = rdfSyntax != null ? rdfSyntax : guessLang(filenameOrURI);
 //		this.pollingPeriod = pollingPeriod;
-		this.baseGraph = FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph();
+		baseGraph = GraphFactory.createGraphMem();
+		RDFDataMgr.read(baseGraph,filenameOrURI,baseURI,null);
 		if (pollingPeriod > 0) {
 //			final RunnableContext runnableCtxt = RunnableContextFactory.getDefaultRunnableContext();
 //			Timer updateTimer = new Timer();
@@ -95,7 +99,10 @@ public class LoadGraph extends DynamicChangingGraph {
 	}
 	
 	private void update() {
-		setBaseGraph( FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph() );
+		Graph newGraph = GraphFactory.createGraphMem();
+		RDFDataMgr.read(newGraph,filenameOrURI,baseURI,null);
+		setBaseGraph( newGraph );
+		// TODO: not using rdfSyntax!
 	}
 
 }

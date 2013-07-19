@@ -19,6 +19,7 @@
  */
 package org.swows.producer;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.swows.graph.LoadGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -29,6 +30,7 @@ import org.swows.vocabulary.DF;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.util.FileManager;
 
 public class LoadGraphProducer extends GraphProducer {
@@ -81,8 +83,10 @@ public class LoadGraphProducer extends GraphProducer {
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		if (pollingPeriod > 0)
 			return new LoadGraph(filenameOrURI, baseURI, rdfSyntax, pollingPeriod);
-		return new DynamicGraphFromGraph(
-				FileManager.get().loadModel(filenameOrURI,baseURI,rdfSyntax).getGraph() );
+		Graph newGraph = GraphFactory.createGraphMem();
+		RDFDataMgr.read(newGraph,filenameOrURI,baseURI,null);
+		return new DynamicGraphFromGraph(newGraph);
+		// TODO: not using rdfSyntax!
 	}
 
 }
