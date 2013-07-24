@@ -55,7 +55,7 @@ public class UpdatableProducer2 extends GraphProducer {
 //			baseGraphProducer = map.getProducer(baseGraphNode);
 		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
 
-		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.txtConfig.asNode());
+		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
 		if (queryNode != null)
 			queryTxt = queryNode.getLiteralLexicalForm();
 		else

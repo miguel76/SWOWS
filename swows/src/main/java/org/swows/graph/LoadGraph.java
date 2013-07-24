@@ -22,7 +22,7 @@ package org.swows.graph;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.jena.riot.RDFDataMgr;
+import org.swows.reader.RDFDataMgr;
 import org.swows.reader.ReaderFactory;
 import org.swows.reader.XmlReader;
 import org.swows.runnable.LocalTimer;
@@ -31,7 +31,6 @@ import org.swows.runnable.RunnableContextFactory;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.FileUtils;
 
 public class LoadGraph extends DynamicChangingGraph {

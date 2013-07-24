@@ -30,6 +30,7 @@ public class ReaderFactory {
 //			RdfReaderFactory.initialize();
 //			XmlReader.initialize();
 			XmlReaderRIOTFactory.initialize();
+			HtmlReaderRIOTFactory.initialize();
 			initialized = true;
 		}
 	}

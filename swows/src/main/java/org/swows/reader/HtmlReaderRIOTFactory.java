@@ -19,7 +19,12 @@
  */
 package org.swows.reader;
 
+import java.io.IOException;
 import java.io.InputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
@@ -29,29 +34,33 @@ import org.apache.jena.riot.RDFParserRegistry;
 import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.xalan.xsltc.trax.DOM2SAX;
+import org.ccil.cowan.tagsoup.jaxp.SAXFactoryImpl;
 import org.swows.xmlinrdf.DomEncoder2;
+import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.sparql.util.Context;
 
-public class XmlReaderRIOTFactory implements ReaderRIOTFactory {
+public class HtmlReaderRIOTFactory implements ReaderRIOTFactory {
 	
 //	public static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
 
 	protected static void initialize() {
-//		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, XmlReaderRIOTFactory.class.getCanonicalName());
+//		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, HtmlReaderRIOTFactory.class.getCanonicalName());
 
         Lang lang =
         		LangBuilder
-        		.create("XML", "text/xml")
-        		.addAltContentTypes("application/xml","text/xml","image/svg+xml")
-        		.addFileExtensions("xml","svg").build() ;
+        		.create("HTML", "text/html")
+        		.addFileExtensions("htm","html").build() ;
         // This just registers the name, not the parser.
         RDFLanguages.register(lang) ;
         
         // Register the parser factory.
-        ReaderRIOTFactory factory = new XmlReaderRIOTFactory() ;
+        ReaderRIOTFactory factory = new HtmlReaderRIOTFactory() ;
         RDFParserRegistry.registerLangTriples(lang, factory) ;
         
 //        // Optional extra:
@@ -74,12 +83,27 @@ public class XmlReaderRIOTFactory implements ReaderRIOTFactory {
 					ContentType ct,
 					StreamRDF output,
 					Context context) {
+				
 				InputSource xmlInputSource = new InputSource(in);
 				xmlInputSource.setSystemId(baseURI);
 				output.start();
 				output.base(baseURI);
-				DomEncoder2.encode(xmlInputSource, baseURI, output);
+				try {
+//					Document document = Jsoup.parse(in, ct.getCharset(), baseURI);
+//					DOM2SAX dom2sax = new DOM2SAX(document);
+//					dom2sax.setContentHandler( DomEncoder2.encode(baseURI, output) );
+//					dom2sax.parse();
+					XMLReader xmlReader = XMLReaderFactory.createXMLReader ("org.ccil.cowan.tagsoup.Parser");
+					xmlReader.setContentHandler( DomEncoder2.encode(baseURI, output) );
+//					//xmlReader.setFeature("XML 2.0", true);
+					xmlReader.parse(xmlInputSource);
+				} catch(SAXException e) {
+					throw (RuntimeException) new RuntimeException(e).fillInStackTrace();
+				} catch (IOException e) {
+					throw (RuntimeException) new RuntimeException(e).fillInStackTrace();
+				}
 				output.finish();
+				// TODO: change with an HTML parser
 			}
 		};
 	}

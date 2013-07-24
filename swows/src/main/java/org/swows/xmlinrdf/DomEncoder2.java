@@ -330,11 +330,21 @@ public class DomEncoder2 {
 	 * @param document the document
 	 * @return the graph
 	 */
+	public static ContentHandler encode(String rootUri, StreamRDF outputStream) {
+		return new DocumentEncoder(outputStream, rootUri);
+	}
+
+	/**
+	 * Encode.
+	 *
+	 * @param document the document
+	 * @return the graph
+	 */
 	public static void encode(InputSource inputSAX, String rootUri, StreamRDF outputStream) {
 //		return new DocumentEncoder(document, rootUri);
 		try {
 			XMLReader xmlReader = XMLReaderFactory.createXMLReader();
-			xmlReader.setContentHandler( new DocumentEncoder(outputStream, rootUri) );
+			xmlReader.setContentHandler( encode(rootUri, outputStream) );
 			//xmlReader.setFeature("XML 2.0", true);
 			xmlReader.parse(inputSAX);
 		} catch(SAXException e) {
