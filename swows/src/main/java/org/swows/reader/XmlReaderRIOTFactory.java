@@ -36,7 +36,7 @@ import com.hp.hpl.jena.sparql.util.Context;
 
 public class XmlReaderRIOTFactory implements ReaderRIOTFactory {
 	
-//	public static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
+	public static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
 
 	protected static void initialize() {
 //		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, XmlReaderRIOTFactory.class.getCanonicalName());

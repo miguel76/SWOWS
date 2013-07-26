@@ -24,7 +24,7 @@ import java.util.TimerTask;
 
 import org.swows.reader.RDFDataMgr;
 import org.swows.reader.ReaderFactory;
-import org.swows.reader.XmlReader;
+import org.swows.reader.XmlReaderRIOTFactory;
 import org.swows.runnable.LocalTimer;
 import org.swows.runnable.RunnableContextFactory;
 
@@ -49,7 +49,7 @@ public class LoadGraph extends DynamicChangingGraph {
 		String ext = FileUtils.getFilenameExt(filenameOrURI);
         if (ext.equals( "sparql" )) return Syntax.syntaxSPARQL.getSymbol();
         if (ext.equals( "xml" ) || ext.equals( "svg" ) || ext.equals( "html" ))
-        	return XmlReader.XML_SYNTAX_URI;
+        	return XmlReaderRIOTFactory.XML_SYNTAX_URI;
 		return FileUtils.guessLang(filenameOrURI);
 	}
 
