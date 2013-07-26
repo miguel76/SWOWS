@@ -50,11 +50,11 @@ public class UpdatableProducer2 extends GraphProducer {
 	 * @see Producer
 	 */
 	public UpdatableProducer2(Graph conf, Node confRoot, ProducerMap map) {
-//		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
-//		if (baseGraphNode != null)
-//			baseGraphProducer = map.getProducer(baseGraphNode);
-		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
-
+		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
+		inputProducer =
+				(inputNode != null) ?
+						map.getProducer( inputNode ) :
+						EmptyGraphProducer.getInstance();
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
 		if (queryNode != null)
 			queryTxt = queryNode.getLiteralLexicalForm();

@@ -32,6 +32,7 @@ import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.runnable.RunnableContext;
 import org.swows.util.GraphUtils;
+import org.swows.vocabulary.SWI;
 import org.swows.vocabulary.XML;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
@@ -70,6 +71,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private RunnableContext updatesContext;
 	private Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
+	private Node docRootNode;
 	
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
@@ -96,7 +98,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
 	
 	private Logger logger = Logger.getRootLogger();
-	
+
 	public void addDomEventListener(String eventType, DomEventListener l) {
 		synchronized(this) {
 			if (domEventListeners == null)
@@ -374,6 +376,26 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			docReceiver.sendDocument(document);
 	}
 	
+	private void redecodeDocument() {
+		redecodeDocument(
+				graph
+					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
+					.mapWith( new Map1<Triple, Node>() {
+						@Override
+						public Node map1(Triple t) {
+							return t.getObject();
+						}
+				})
+				.andThen(
+					graph
+						.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
+						.mapWith( new Map1<Triple, Node>() {
+							@Override
+							public Node map1(Triple t) {
+								return t.getSubject();
+							}
+						}) ).next());
+	}
 
 	private void decodeWorker(DynamicGraph graph, Node docRootNode) {
 		decodeDocument(docRootNode);
@@ -748,14 +770,30 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			final RunnableContext updatesContext, final DocumentReceiver docReceiver,
 			final Map<String,Set<DomEventListener>> domEventListeners,
 			final EventManager eventManager) {
-		return graph
-				.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
-				.mapWith(new Map1<Triple, Document>() {
-					@Override
-					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject(), domImpl, updatesContext, docReceiver, domEventListeners, eventManager);
-					}
-				});
+		return
+				graph
+					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
+					.mapWith( new Map1<Triple, Node>() {
+						@Override
+						public Node map1(Triple t) {
+							return t.getObject();
+						}
+					})
+					.andThen(
+						graph
+							.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
+							.mapWith( new Map1<Triple, Node>() {
+								@Override
+								public Node map1(Triple t) {
+									return t.getSubject();
+								}
+							}))
+					.mapWith( new Map1<Node, Document>() {
+						@Override
+						public Document map1(Node node) {
+							return decode(graph, node, domImpl, updatesContext, docReceiver, domEventListeners, eventManager);
+						}
+					} );
 	}
 	
 	private void addNodeMapping(Node graphNode, org.w3c.dom.Node domNode) {
@@ -879,6 +917,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		this.updatesContext = ( updatesContext == null ? this : updatesContext );
 		this.docReceiver = docReceiver;
 		this.eventManager = eventManager;
+		this.docRootNode = docRootNode;
 		decodeWorker(graph, docRootNode);
 	}
 	
@@ -941,8 +980,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 													newDom.addNodeMapping(newTriple.getSubject(), newNode);
 												}
 											}
-										} else if ( !nodeType.equals(XML.Document.asNode()) ) {
-											newTriple.getSubject();
+										} else if (
+												nodeType.equals(XML.Document.asNode())
+												&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), newTriple.getSubject())) {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
@@ -972,8 +1012,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 												newDom.addNodeMapping(newTriple.getObject(), newChild);
 												element.appendChild(newChild);
 											}
-										} else if (nodeType.equals(XML.Document.asNode())) {
-											newTriple.getSubject();
+										} else if (
+												nodeType.equals(XML.Document.asNode())
+												&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), newTriple.getSubject())) {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
@@ -1035,6 +1076,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 												newDom.removeSubtreeMapping(oldAttr);
 												break;
 											case org.w3c.dom.Node.DOCUMENT_NODE: 
+												if ( oldTriple.getSubject().equals(docRootNode) ) {
+													redecodeDocument();
+													return;
+												}
 												break;
 											default:
 												org.w3c.dom.Node parentNode = domSubj.getParentNode();
@@ -1076,10 +1121,15 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											}
 										}
 									} else if ( oldTriple.getPredicate().equals(XML.hasChild.asNode()) ) {
-										Set<org.w3c.dom.Node> domObjs = graph2domNodeMapping.get(oldTriple.getObject());
-										if (domObjs != null) {
-											while (domSubjIter.hasNext()) {
-												Element element = (Element) domSubjIter.next();
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node domSubj = domSubjIter.next();
+											if ( domSubj.getNodeType() == org.w3c.dom.Node.DOCUMENT_NODE && oldTriple.getSubject().equals(docRootNode) ) {
+												redecodeDocument();
+												return;
+											}
+											Set<org.w3c.dom.Node> domObjs = graph2domNodeMapping.get(oldTriple.getObject());
+											if (domObjs != null) {
+												Element element = (Element) domSubj;
 												Iterator<org.w3c.dom.Node> domObjsIter = domObjs.iterator();
 												while (domObjsIter.hasNext()) {
 													try {

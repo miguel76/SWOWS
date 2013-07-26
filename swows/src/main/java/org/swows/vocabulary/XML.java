@@ -151,6 +151,8 @@ public class XML {
     public static final Property listenedEventType = property( "listenedEventType" );
     public static final Property documentURI = property( "documentURI" );
 
+    public static final Property document = property( "document" );
+
     public static final Resource AttrType = resource( "AttrType" );
 
     public static final List<Property> allProperties = new Vector<Property>();

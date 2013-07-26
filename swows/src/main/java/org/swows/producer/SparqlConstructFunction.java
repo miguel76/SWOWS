@@ -58,7 +58,11 @@ public class SparqlConstructFunction extends GraphProducer {
 	 * @see Producer
 	 */
 	public SparqlConstructFunction(Graph conf, Node confRoot, final ProducerMap map) {
-		inputProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.input.asNode()) );
+		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
+		inputProducer =
+				(inputNode != null) ?
+						map.getProducer( inputNode ) :
+						EmptyGraphProducer.getInstance();
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
 		if (queryNode != null)
 			queryTxt = queryNode.getLiteralLexicalForm();
