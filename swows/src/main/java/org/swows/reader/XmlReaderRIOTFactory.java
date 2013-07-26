@@ -32,7 +32,6 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.swows.xmlinrdf.DomEncoder2;
 import org.xml.sax.InputSource;
 
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.sparql.util.Context;
 
 public class XmlReaderRIOTFactory implements ReaderRIOTFactory {

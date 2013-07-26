@@ -178,8 +178,6 @@ public class DataflowProducer extends DatasetProducer {
 			return RangeFunction.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.JmsInputGraph.asNode()))
 			return JmsInputGraphProducer.class;
-        else if (conf.contains(graphId, RDF.type.asNode(), DF.TwitterGraph.asNode()))
-			return TwitterProducer.class;
 		throw new RuntimeException("Unrecognized Graph Producer for node " + graphId + " in graph " + conf);
 		//return null;
 	}
