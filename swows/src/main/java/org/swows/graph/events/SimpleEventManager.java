@@ -59,11 +59,13 @@ public class SimpleEventManager implements EventManager {
     
 	@Override
 	public void register(Listener listener) {
+		logger.debug("registering listener " + Utils.standardStr(listener) + " for " + Utils.standardStr(graph));
         listeners.add( listener );
 	}
 
 	@Override
 	public void unregister(Listener listener) {
+		logger.debug("unregistering listener " + Utils.standardStr(listener) + " for " + Utils.standardStr(graph));
         listeners.remove( listener ); 
 	}
 
@@ -79,10 +81,11 @@ public class SimpleEventManager implements EventManager {
 
 	@Override
 	public void notifyUpdate(Graph source, GraphUpdate update) {
-		logger.debug("Begin notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
-		for (Listener l:listeners) 
+		for (Listener l:listeners) {
+			logger.debug("notifying update " + update + " from " + Utils.standardStr(source) + " to " + Utils.standardStr(l));
 			l.notifyUpdate( source, update ); 
-		logger.debug("Ended notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
+		}
+//		logger.debug("Ended notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
 	}
 
 }

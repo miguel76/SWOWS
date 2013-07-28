@@ -32,6 +32,7 @@ import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.runnable.RunnableContext;
 import org.swows.util.GraphUtils;
+import org.swows.util.Utils;
 import org.swows.vocabulary.SWI;
 import org.swows.vocabulary.XML;
 import org.w3c.dom.Attr;
@@ -397,7 +398,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	}
 
 	private void decodeWorker(DynamicGraph graph, Node docRootNode) {
+		logger.debug("decoding document from " + Utils.standardStr(graph) + " ...");
 		decodeDocument(docRootNode);
+		logger.debug("registering as listener of " + Utils.standardStr(graph) + " ...");
 		graph.getEventManager2().register(this);
 	}
 
@@ -957,14 +960,15 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //								org.w3c.dom.Node xmlSubj = nodeMapping.get(newTriple.getSubject());
 								//System.out.println("Checking add event " + newTriple);
 								Set<org.w3c.dom.Node> domSubjs = graph2domNodeMapping.get(newTriple.getSubject());
-//								if (domSubjs == null)
-//									System.out.println(this + ": managing add event " + newTriple + ", domSubjs is null");
+								if (domSubjs == null)
+									logger.warn(this + ": managing add event " + newTriple + ", domSubjs is null");
 								if (domSubjs != null) {
-									//System.out.println("Managing add event " + newTriple + " for domSubjs " + domSubjs);
+									logger.trace("Managing add event " + newTriple + " for domSubjs " + domSubjs);
 									Set<org.w3c.dom.Node> domSubjsTemp = new HashSet<org.w3c.dom.Node>();
 									domSubjsTemp.addAll(domSubjs);
 									Iterator<org.w3c.dom.Node> domSubjIter = domSubjsTemp.iterator();
-									if (newTriple.getPredicate().equals(RDF.type.asNode())) {
+									if (newTriple.getPredicate().equals(RDF.type.asNode())
+											|| newTriple.getPredicate().equals(XML.nodeName.asNode())) {
 										//org.w3c.dom.Node parentNode = null;
 										Node nodeType = newTriple.getObject();
 										
@@ -1003,7 +1007,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 												sourceGraph
 												.find(newTriple.getSubject(), XML.nodeType.asNode(), Node.ANY)
 												.next().getObject();
-										//System.out.println("Managing add hasChild (" + newTriple + ") for domSubjs " + domSubjs + " and node type " + nodeType);
+										logger.trace("Managing add hasChild (" + newTriple + ") for domSubjs " + domSubjs + " and node type " + nodeType);
 										if (nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
@@ -1016,6 +1020,12 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 												&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), newTriple.getSubject())) {
 											redecodeDocument(newTriple.getSubject());
 											return;
+										}
+									} else if ( newTriple.getPredicate().equals(XML.nodeValue.asNode()) ) {
+										logger.trace("Managing add nodeValue (" + newTriple + ") for domSubjs " + domSubjs);
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											node.setNodeValue(newTriple.getObject().getLiteralLexicalForm());
 										}
 									} else if ( newTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = newTriple.getObject();

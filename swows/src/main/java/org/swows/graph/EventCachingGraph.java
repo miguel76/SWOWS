@@ -22,11 +22,13 @@ package org.swows.graph;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
+import org.swows.util.Utils;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
@@ -43,6 +45,7 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 //	private DynamicGraph connectedGraph;
 //	private EventManager eventManager = new SimpleEventManager(this);
 	private Set<GraphUpdate> cachedGraphUpdates = null;
+    private static final Logger logger = Logger.getLogger(EventCachingGraph.class);
 
 	/**
 	 * Instantiates a new logging graph.
@@ -72,15 +75,21 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 				getCachedGraphUpdates().add(update);
 			}
 		});
+		logger.debug("created graph " + Utils.standardStr(this) + " connected to " + Utils.standardStr(connectedGraph));
 	}
 
 	public synchronized void sendEvents() {
+		logger.debug("checking for events to send...");
 		if (cachedGraphUpdates != null) {
 			for (GraphUpdate update : cachedGraphUpdates) {
+				logger.debug("writing update event");
+				logger.trace("deleted graph: " + update.getDeletedGraph());
+				logger.trace("added graph: " + update.getAddedGraph());
 				GraphUtil.deleteFrom(baseGraphCopy, update.getDeletedGraph());
 				GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
 			}
 			cachedGraphUpdates = null;
+			logger.debug("sending update events...");
 			((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 		}
 	}

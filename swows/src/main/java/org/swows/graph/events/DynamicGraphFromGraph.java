@@ -244,6 +244,8 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		boolean modified = false;
 		if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
 			logger.debug("sending update events in " + Utils.standardStr(this));
+			logger.trace("deleted graph: " + currGraphUpdate.getDeletedGraph());
+			logger.trace("added graph: " + currGraphUpdate.getAddedGraph());
 			eventManager.notifyUpdate(currGraphUpdate);
 			modified = true;
 		}
