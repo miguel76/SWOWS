@@ -60,6 +60,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
 	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
+    private static final Logger logger = Logger.getLogger(DomDecoder2.class);
 
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
@@ -97,8 +98,6 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //	private Map<String, Set<Element>> eventType2elements = new HashMap<String, Set<Element>>();
 //	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
 	
-	private Logger logger = Logger.getRootLogger();
-
 	public void addDomEventListener(String eventType, DomEventListener l) {
 		synchronized(this) {
 			if (domEventListeners == null)

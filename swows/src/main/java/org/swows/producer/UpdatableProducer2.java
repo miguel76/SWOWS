@@ -34,7 +34,9 @@ import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdatableProducer2 extends GraphProducer {
 	
-	String queryTxt = null;
+	private String queryTxt = null;
+	private String baseURI;
+	// TODO: find a better way
 	
 	private Producer
 //				baseGraphProducer = EmptyGraphProducer.getInstance(),
@@ -56,8 +58,10 @@ public class UpdatableProducer2 extends GraphProducer {
 						map.getProducer( inputNode ) :
 						EmptyGraphProducer.getInstance();
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
-		if (queryNode != null)
+		if (queryNode != null) {
 			queryTxt = queryNode.getLiteralLexicalForm();
+			baseURI = confRoot.getURI().split("#")[0]; // TODO definitely find a better way 
+		}
 		else
 			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 	}
@@ -76,7 +80,7 @@ public class UpdatableProducer2 extends GraphProducer {
 //		DynamicGraph baseGraph = (baseGraphProducer == null) ? null : baseGraphProducer.createGraph(inputDataset); 
 		UpdateRequest updateRequest =
 				(queryTxt != null) ?
-						UpdateFactory.create(queryTxt) :
+						UpdateFactory.create(queryTxt, baseURI) :
 						QueryFactory.toUpdateRequest(configProducer.createGraph(inputDataset), SWI.GraphRoot.asNode());
 		return new UpdatableGraph2(
 //				baseGraph,

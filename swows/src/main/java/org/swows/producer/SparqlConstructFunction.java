@@ -48,6 +48,8 @@ public class SparqlConstructFunction extends GraphProducer {
 	private Producer inputProducer = null;
 	private Producer configProducer = null;
 	private String queryTxt = null;
+	private String baseURI;
+	// TODO: find a better way
 
 	/**
 	 * Instantiates a new sparql construct function.
@@ -64,8 +66,10 @@ public class SparqlConstructFunction extends GraphProducer {
 						map.getProducer( inputNode ) :
 						EmptyGraphProducer.getInstance();
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
-		if (queryNode != null)
+		if (queryNode != null) {
 			queryTxt = queryNode.getLiteralLexicalForm();
+			baseURI = confRoot.getURI().split("#")[0]; // TODO definitely find a better way
+		}
 		else
 			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 //		final Model confModel = ModelFactory.createModelForGraph(conf);
@@ -207,7 +211,7 @@ public class SparqlConstructFunction extends GraphProducer {
 		}
 		Query query =
 				(queryTxt != null) ?
-						com.hp.hpl.jena.query.QueryFactory.create(queryTxt) :
+						com.hp.hpl.jena.query.QueryFactory.create(queryTxt, baseURI) :
 						QueryFactory.toQuery(conf, constructNode);
 		if (query == null)
 			throw new RuntimeException("Parsing Error");

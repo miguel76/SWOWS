@@ -27,6 +27,7 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.Listener;
 import org.swows.graph.events.SimpleGraphUpdate;
 import org.swows.graph.events.SimpleListener;
+import org.swows.util.Utils;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Triple;
@@ -39,7 +40,7 @@ public class MultiUnion extends DynamicGraphFromGraph {
 
 	private Listener localListener = new SimpleListener() {
 		
-		SimpleGraphUpdate graphUpdate;
+		SimpleGraphUpdate currGraphUpdate;
 
 		@Override
 		protected void notifyDelete(Graph source, Triple triple) {
@@ -47,7 +48,7 @@ public class MultiUnion extends DynamicGraphFromGraph {
 				if (currGraph != source && currGraph.contains(triple))
 					return;
 			}
-			graphUpdate.putDeletedTriple(triple);
+			currGraphUpdate.putDeletedTriple(triple);
 		}
 
 		@Override
@@ -56,18 +57,21 @@ public class MultiUnion extends DynamicGraphFromGraph {
 				if (currGraph != source && currGraph.contains(triple))
 					return;
 			}
-			graphUpdate.putAddedTriple(triple);
+			currGraphUpdate.putAddedTriple(triple);
 		}
 
 		@Override
 		protected void beginNotify(Graph source) {
-			graphUpdate = new SimpleGraphUpdate();
+			currGraphUpdate = new SimpleGraphUpdate();
 		}
 
 		@Override
 		protected void endNotify(Graph source) {
-			eventManager.notifyUpdate(graphUpdate);
-			graphUpdate = null;
+			if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
+				logger.debug("sending update events in " + Utils.standardStr(this));
+				eventManager.notifyUpdate(currGraphUpdate);
+			}
+			currGraphUpdate = null;
 		}
 
 	};

@@ -21,6 +21,7 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
@@ -43,6 +44,7 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 
 	private Query query;
 	private DynamicDataset queryDataset;
+    private static final Logger logger = Logger.getLogger(SparqlConstructGraph.class);
 	
 	private Listener listener = new Listener() {
 		@Override
@@ -81,11 +83,13 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 
 	private synchronized void update() {
 		Graph newGraph = exec();
+		logger.debug("Setting new graph in " + hashCode());
 		setBaseGraph(newGraph);
 	}
 
 	private Graph exec() {
 		
+		logger.debug("Begin new graph construction in " + hashCode());
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(
 						query,
@@ -120,6 +124,7 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		System.out.println("Query execution time: " + (queryEnd - queryStart) );
 //		System.out.println("**** QUERY " + queryExecution.hashCode() + " END ***");
 
+		logger.debug("End new graph construction in " + hashCode());
 		return resGraph;
 	}
 

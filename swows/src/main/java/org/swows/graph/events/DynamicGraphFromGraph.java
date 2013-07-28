@@ -22,6 +22,9 @@ package org.swows.graph.events;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.swows.util.Utils;
+
 import com.hp.hpl.jena.graph.BulkUpdateHandler;
 import com.hp.hpl.jena.graph.Capabilities;
 import com.hp.hpl.jena.graph.Graph;
@@ -41,6 +44,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	protected Graph baseGraph;
 	protected EventManager eventManager;
 	private SimpleGraphUpdate currGraphUpdate = null;
+	protected Logger logger = Logger.getLogger(this.getClass());
 			
 	private SimpleGraphUpdate getCurrGraphUpdate() {
 		if (currGraphUpdate == null)
@@ -51,11 +55,13 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	public DynamicGraphFromGraph(Graph graph) {
 		baseGraph = graph;
 		this.eventManager = new SimpleEventManager(this);
+		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
 
 	public DynamicGraphFromGraph(Graph graph, EventManager eventManager) {
 		baseGraph = graph;
 		this.eventManager = eventManager;
+		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
 
 	@Override
@@ -234,10 +240,15 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		return baseGraph.toString();
 	}
 	
-	public synchronized void sendUpdateEvents() {
-		if (currGraphUpdate != null && !currGraphUpdate.isEmpty())
+	public synchronized boolean sendUpdateEvents() {
+		boolean modified = false;
+		if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
+			logger.debug("sending update events in " + Utils.standardStr(this));
 			eventManager.notifyUpdate(currGraphUpdate);
+			modified = true;
+		}
 		currGraphUpdate = null;
+		return modified;
 	}
 
 	@Override

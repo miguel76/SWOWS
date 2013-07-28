@@ -21,6 +21,7 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -42,7 +43,8 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 //	private DynamicDataset originalInputDataset;
 	private GraphStore graphStore;
 	private UpdateRequest updateRequest;
-	
+    private static final Logger logger = Logger.getLogger(UpdatableGraph2.class);
+    	
 	public UpdatableGraph2(
 //			final DynamicGraph baseGraph,
 			final UpdateRequest updateRequest,
@@ -61,33 +63,62 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 	
 //		this.originalInputDataset = inputDataset;
 
-		graphStore = GraphStoreFactory.create();
+		logger.debug("Creating graph store in " + hashCode());
 
+		graphStore = GraphStoreFactory.create();
+		
+
+		logger.debug("Adding input graphs in " + hashCode());
 		Iterator<Node> graphNodes = inputDataset.listGraphNodes();
-		Node nextGraphNode = null;
-		do {
-			nextGraphNode = graphNodes.hasNext() ? graphNodes.next() : null;
-			final DynamicGraph eventGraph =
-					nextGraphNode == null ?
-							inputDataset.getDefaultGraph() :
-							inputDataset.getGraph(nextGraphNode);
-			if (nextGraphNode == null)
-				graphStore.setDefaultGraph(eventGraph);
-			else
-				graphStore.addGraph(nextGraphNode, eventGraph);
-			eventGraph.getEventManager2().register(
+		while(graphNodes.hasNext()) {
+			Node nextGraphNode = graphNodes.next();
+			DynamicGraph currGraph = inputDataset.getGraph(nextGraphNode);
+			logger.debug("Adding graph " + nextGraphNode + " in " + hashCode());
+			graphStore.addGraph(nextGraphNode, currGraph);
+			currGraph.getEventManager2().register(
 					new Listener() {
 						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
 							update(updateEvent);
-							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
+//							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
 						}
 					} );
-		} while(nextGraphNode != null);
+		}
+		
+		
+//		baseGraphCopy.getEventManager2().register(
+//				new Listener() {
+//					@Override
+//					public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
+//						update(updateEvent);
+////						((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
+//					}
+//				} );
+//		Node nextGraphNode = null;
+//		do {
+//			nextGraphNode = graphNodes.hasNext() ? graphNodes.next() : null;
+//			final DynamicGraph eventGraph =
+//					nextGraphNode == null ?
+//							inputDataset.getDefaultGraph() :
+//							inputDataset.getGraph(nextGraphNode);
+//			if (nextGraphNode == null)
+//				graphStore.setDefaultGraph(eventGraph);
+//			else
+//				graphStore.addGraph(nextGraphNode, eventGraph);
+//			eventGraph.getEventManager2().register(
+//					new Listener() {
+//						@Override
+//						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
+//							update(updateEvent);
+//							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
+//						}
+//					} );
+//		} while(nextGraphNode != null);
 
 //		this.graphStore = new GraphStoreBasic(inputDataset);
 //		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
-		this.graphStore.setDefaultGraph(baseGraphCopy);
+		logger.debug("Adding default graph in " + hashCode());
+		graphStore.setDefaultGraph(baseGraphCopy);
 		
 		update();
 //		this.graphStore.removeGraph(SWI.ThisGraph.asNode());
@@ -96,6 +127,7 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 	}
 	
 	private void update(GraphUpdate updateEvent) {
+		logger.debug("Update block start in " + hashCode());
 
 //		System.out.println("Start of update");
 //		System.out.println("This graph: " + baseGraphCopy);
@@ -133,12 +165,17 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 //		}
 //		graphStore.addGraph(SWI.ThisGraph.asNode(), baseGraphCopy);
 		UpdateProcessor updateProcessor = UpdateExecutionFactory.create(updateRequest, graphStore);
-		updateProcessor.execute();
+		do {
+			logger.debug("Single update start in " + hashCode());
+			updateProcessor.execute();
+			logger.debug("Single update end in " + hashCode());
+		} while (((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents());
 //		graphStore.removeGraph(SWI.ThisGraph.asNode());
 		
 //		System.out.println("Graph after update");
 //		ModelFactory.createModelForGraph(baseGraphCopy).write(System.out, "N3");
 		
+		logger.debug("Update block end in " + hashCode());
 	}
 	
 	private void update() {

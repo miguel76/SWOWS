@@ -22,12 +22,17 @@ package org.swows.graph.events;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.log4j.Logger;
+import org.swows.util.Utils;
+
 import com.hp.hpl.jena.graph.Graph;
 
 public class SimpleEventManager implements EventManager {
 
     protected Graph graph;
     protected List<Listener>  listeners;
+
+    private static final Logger logger = Logger.getLogger(SimpleEventManager.class);
     
     public SimpleEventManager( Graph graph ) 
         { 
@@ -74,8 +79,10 @@ public class SimpleEventManager implements EventManager {
 
 	@Override
 	public void notifyUpdate(Graph source, GraphUpdate update) {
+		logger.debug("Begin notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
 		for (Listener l:listeners) 
 			l.notifyUpdate( source, update ); 
+		logger.debug("Ended notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
 	}
 
 }
