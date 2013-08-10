@@ -21,7 +21,7 @@ package org.swows.producer;
 
 import java.util.Iterator;
 
-import org.swows.graph.MultiUnion;
+import org.swows.graph.algebra.MultiUnion;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.swows.graph;
+package org.swows.graph.algebra;
 
 import java.util.Iterator;
 import java.util.List;
