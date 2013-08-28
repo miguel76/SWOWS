@@ -39,7 +39,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
  */
 public class XML {
 
-	private static final String uri = "http://www.swows.org/xml#";
+	private static final String uri = "http://www.swows.org/2013/07/xml-dom#";
 
 	/**
 	 * Gets the uRI.

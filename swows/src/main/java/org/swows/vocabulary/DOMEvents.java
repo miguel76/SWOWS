@@ -29,8 +29,8 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
  */
 public class DOMEvents {
 
-	private static final String uri = "http://www.swows.org/DOM/Events#";
-	private static final String instanceUri = "http://www.swows.org/DOM/Events/Instance#";
+	private static final String uri = "http://www.swows.org/2013/07/xml-dom-events#";
+	private static final String instanceUri = "http://www.swows.org/2013/07/xml-dom-events/instance#";
 
 	/**
 	 * Gets the uRI.
