@@ -251,6 +251,18 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 							namespaceAttr(graph, elementNode),
 							qNameAttr(graph, elementNode) );
 	}
+	
+	private void removeAttr(Graph graph, Element element, Node elementNode) {
+		String nsUri = namespaceAttr(graph, elementNode);
+		if (nsUri == null)
+			throw new RuntimeException("Namespace not found for attribute " + elementNode + " in graph " + graph);
+		if (nsUri.equals(VOID_NAMESPACE))
+			element.removeAttribute( qNameAttr(graph, elementNode) );
+		else
+			element.removeAttributeNS(
+						namespaceAttr(graph, elementNode),
+						qNameAttr(graph, elementNode) );
+	}
 
 	private void decodeElementAttrsAndChildren(final Element element, final Graph graph, final Node elementNode) {
 		ExtendedIterator<Triple> triples =
@@ -1106,29 +1118,37 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											org.w3c.dom.Node domSubj = domSubjIter.next();
 											domSubj.setNodeValue("");
 										}
-									} else if ( oldTriple.getPredicate().equals(XML.hasAttribute.asNode()) ) {
-										Set<org.w3c.dom.Node> domObjsOrig = graph2domNodeMapping.get(oldTriple.getObject());
-										if (domObjsOrig != null) {
-											Set<org.w3c.dom.Node> domObjs = new HashSet<org.w3c.dom.Node>();
-											domObjs.addAll(domObjsOrig);
-											while (domSubjIter.hasNext()) {
-												Element element = (Element) domSubjIter.next();
-												Iterator<org.w3c.dom.Node> domObjsIter = domObjs.iterator();
-												while (domObjsIter.hasNext()) {
-													try {
-														Attr oldAttr = (Attr) domObjsIter.next();
-														if ( oldAttr.getNamespaceURI() == null
-																? element.hasAttribute(oldAttr.getName())
-																: element.hasAttributeNS(oldAttr.getNamespaceURI(), oldAttr.getLocalName()))
-															element.removeAttributeNode(oldAttr);
-														newDom.removeSubtreeMapping(oldAttr);
-													} catch(DOMException e) {
-														if (!e.equals(DOMException.NOT_FOUND_ERR))
-															throw e;
-													}
-												}
-											}
+									} else if (
+											graph.contains(
+													oldTriple.getPredicate(),
+													RDFS.subClassOf.asNode(),
+													XML.Attr.asNode() ) ) {
+										while (domSubjIter.hasNext()) {
+											Element element = (Element) domSubjIter.next();
+											newDom.removeAttr(sourceGraph, element, oldTriple.getPredicate());
 										}
+//										Set<org.w3c.dom.Node> domObjsOrig = graph2domNodeMapping.get(oldTriple.getObject());
+//										if (domObjsOrig != null) {
+//											Set<org.w3c.dom.Node> domObjs = new HashSet<org.w3c.dom.Node>();
+//											domObjs.addAll(domObjsOrig);
+//											while (domSubjIter.hasNext()) {
+//												Element element = (Element) domSubjIter.next();
+//												Iterator<org.w3c.dom.Node> domObjsIter = domObjs.iterator();
+//												while (domObjsIter.hasNext()) {
+//													try {
+//														Attr oldAttr = (Attr) domObjsIter.next();
+//														if ( oldAttr.getNamespaceURI() == null
+//																? element.hasAttribute(oldAttr.getName())
+//																: element.hasAttributeNS(oldAttr.getNamespaceURI(), oldAttr.getLocalName()))
+//															element.removeAttributeNode(oldAttr);
+//														newDom.removeSubtreeMapping(oldAttr);
+//													} catch(DOMException e) {
+//														if (!e.equals(DOMException.NOT_FOUND_ERR))
+//															throw e;
+//													}
+//												}
+//											}
+//										}
 									} else if ( oldTriple.getPredicate().equals(XML.hasChild.asNode()) ) {
 										while (domSubjIter.hasNext()) {
 											org.w3c.dom.Node domSubj = domSubjIter.next();
