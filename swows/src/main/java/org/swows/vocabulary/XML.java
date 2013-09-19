@@ -109,6 +109,9 @@ public class XML {
     /** The Constant Text. */
     public static final Resource Text = resource( "Text" );
 
+    public static final Resource Descending = resource( "Descending" );
+    public static final Resource Ascending = resource( "Ascending" );
+
     /** The Constant hasChild. */
     public static final Property hasChild = property( "hasChild" );
     
@@ -118,6 +121,9 @@ public class XML {
     /** The Constant lastChild. */
     public static final Property lastChild = property( "lastChild" );
     
+    public static final Property orderKey = property( "orderKey" );
+    public static final Property childrenOrderType = property( "childrenOrderType" );
+
     /** The Constant nextSibling. */
     public static final Property nextSibling = property( "nextSibling" );
     

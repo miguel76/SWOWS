@@ -19,12 +19,15 @@
  */
 package org.swows.xmlinrdf;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
@@ -53,6 +56,7 @@ import org.w3c.dom.events.EventTarget;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.sparql.util.NodeComparator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -62,6 +66,14 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
 	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
     private static final Logger logger = Logger.getLogger(DomDecoder2.class);
+    private static final Comparator<Node> ascNodeComparator = new NodeComparator();
+    private static final Comparator<Node> descNodeComparator =
+    		new Comparator<Node>() {
+				@Override
+				public int compare(Node n1, Node n2) {
+					return ascNodeComparator.compare(n2, n1);
+				}
+			};
 
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
@@ -294,17 +306,40 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 				child = GraphUtils.getSingleValueOptProperty(graph, child, XML.nextSibling.asNode());
 			}
 		}
+		
+		boolean ascendingOrder =
+				!graph.contains(elementNode, XML.childrenOrderType.asNode(), XML.Descending.asNode());
+		
 		ExtendedIterator<Node> children = GraphUtils.getPropertyValues(graph, elementNode, XML.hasChild.asNode());
+		SortedMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren =
+				new TreeMap<Node, Set<org.w3c.dom.Node>>(ascendingOrder ? ascNodeComparator : descNodeComparator);
 		while (children.hasNext()) {
 			Node child = children.next();
 			if (!orderedChildren.contains(child)) {
 				org.w3c.dom.Node domChild = decodeNode(graph, child);
 				if (domChild != null) {
 					addNodeMapping(child, domChild);
-					element.appendChild(domChild);
+					Node orderKeyNode = GraphUtils.getSingleValueOptProperty(graph, child, XML.orderKey.asNode()); 
+					if (orderKeyNode == null) {
+						element.appendChild(domChild);
+					} else {
+						Set<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+						if (sameKeyBag == null) {
+							sameKeyBag = new HashSet<org.w3c.dom.Node>();
+							orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+						}
+						sameKeyBag.add(domChild);
+					}
 				}
 			}
 		}
+		for (Node orderKeyNode : orderedByKeyChildren.keySet()) {
+			for (org.w3c.dom.Node child : orderedByKeyChildren.get(orderKeyNode)) {
+				element.appendChild(child);
+			}
+		}
+		// TODO: gestire le diverse varianti a livello di update (in notifyUpdate() )
+		
 //		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
 		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, XML.listenedEventType.asNode());
 		while (eventTypeNodes.hasNext()) {
