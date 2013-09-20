@@ -19,11 +19,14 @@
  */
 package org.swows.xmlinrdf;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
@@ -86,6 +89,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private Map<Node, Set<org.w3c.dom.Node>> graph2domNodeMapping = new HashMap<Node, Set<org.w3c.dom.Node>>();
 	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
 	private Node docRootNode;
+	
+	private Map<org.w3c.dom.Node,NavigableMap<Node, Set<org.w3c.dom.Node>>> dom2orderedByKeyChildren = new HashMap<org.w3c.dom.Node, NavigableMap<Node,Set<org.w3c.dom.Node>>>();
+	private Set<org.w3c.dom.Node> dom2descendingOrder = new HashSet<org.w3c.dom.Node>();
 	
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
@@ -276,6 +282,20 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 						qNameAttr(graph, elementNode) );
 	}
 
+	public String md5(String md5) {
+	   try {
+	        java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+	        byte[] array = md.digest(md5.getBytes());
+	        StringBuffer sb = new StringBuffer();
+	        for (int i = 0; i < array.length; ++i) {
+	          sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+	       }
+	        return sb.toString();
+	    } catch (java.security.NoSuchAlgorithmException e) {
+	    }
+	    return null;
+	}
+	
 	private void decodeElementAttrsAndChildren(final Element element, final Graph graph, final Node elementNode) {
 		ExtendedIterator<Triple> triples =
 				graph.find(elementNode, Node.ANY, Node.ANY);
@@ -292,6 +312,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		}
 		if (elementNode.isURI()) {
 			element.setAttribute("resource", elementNode.getURI());
+			if (!element.hasAttribute("id"))
+				element.setAttribute("id", md5(elementNode.getURI()));
+//				element.setAttribute("id", elementNode.getURI());
 		}
 		Set<Node> orderedChildren = new HashSet<Node>();
 		{
@@ -309,19 +332,24 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		
 		boolean ascendingOrder =
 				!graph.contains(elementNode, XML.childrenOrderType.asNode(), XML.Descending.asNode());
+		if (!ascendingOrder)
+			dom2descendingOrder.add(element);
 		
 		ExtendedIterator<Node> children = GraphUtils.getPropertyValues(graph, elementNode, XML.hasChild.asNode());
-		SortedMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren =
-				new TreeMap<Node, Set<org.w3c.dom.Node>>(ascendingOrder ? ascNodeComparator : descNodeComparator);
+		NavigableMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren =
+				new TreeMap<Node, Set<org.w3c.dom.Node>>(ascNodeComparator);
+		Set<org.w3c.dom.Node> noKeyChildren = new HashSet<org.w3c.dom.Node>();
+		
 		while (children.hasNext()) {
 			Node child = children.next();
 			if (!orderedChildren.contains(child)) {
 				org.w3c.dom.Node domChild = decodeNode(graph, child);
 				if (domChild != null) {
 					addNodeMapping(child, domChild);
+					addNodeChildren(domChild, orderedByKeyChildren);
 					Node orderKeyNode = GraphUtils.getSingleValueOptProperty(graph, child, XML.orderKey.asNode()); 
 					if (orderKeyNode == null) {
-						element.appendChild(domChild);
+						noKeyChildren.add(domChild);
 					} else {
 						Set<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
 						if (sameKeyBag == null) {
@@ -333,8 +361,18 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 				}
 			}
 		}
-		for (Node orderKeyNode : orderedByKeyChildren.keySet()) {
+		if (ascendingOrder) {
+			for (org.w3c.dom.Node child : noKeyChildren) {
+				element.appendChild(child);
+			}
+		}
+		for (Node orderKeyNode : ascendingOrder ? orderedByKeyChildren.keySet() : orderedByKeyChildren.descendingKeySet() ) {
 			for (org.w3c.dom.Node child : orderedByKeyChildren.get(orderKeyNode)) {
+				element.appendChild(child);
+			}
+		}
+		if (!ascendingOrder) {
+			for (org.w3c.dom.Node child : noKeyChildren) {
 				element.appendChild(child);
 			}
 		}
@@ -856,6 +894,10 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		dom2graphNodeMapping.put(domNode, graphNode);
 	}
 	
+	private void addNodeChildren(org.w3c.dom.Node domNode, NavigableMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren)  {
+		dom2orderedByKeyChildren.put(domNode, orderedByKeyChildren);
+	}
+	
 	private void removeNodeMapping(org.w3c.dom.Node domNode) {
 		Node graphNode = dom2graphNodeMapping.get(domNode);
 		if (graphNode != null) {
@@ -865,6 +907,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 			if (domeNodeSet.isEmpty())
 				graph2domNodeMapping.remove(graphNode);
 		}
+		dom2orderedByKeyChildren.remove(domNode);
 	}
 	
 	private void removeSubtreeMapping(org.w3c.dom.Node domNode) {
@@ -1014,6 +1057,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 									Set<org.w3c.dom.Node> domSubjsTemp = new HashSet<org.w3c.dom.Node>();
 									domSubjsTemp.addAll(domSubjs);
 									Iterator<org.w3c.dom.Node> domSubjIter = domSubjsTemp.iterator();
+									
+									// Basic properties: DOM node must be recreated
 									if (newTriple.getPredicate().equals(RDF.type.asNode())
 											|| newTriple.getPredicate().equals(XML.nodeName.asNode())) {
 										//org.w3c.dom.Node parentNode = null;
@@ -1037,6 +1082,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											return;
 										}
 										
+									// Predicate is a DOM Attribute
 									} else if (
 											graph.contains(
 													newTriple.getPredicate(),
@@ -1049,6 +1095,8 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											newAttr.setValue(newTriple.getObject().getLiteralLexicalForm());
 											element.setAttributeNodeNS(newAttr);
 										}
+
+									// Predicate is xml:hasChild
 									} else if ( newTriple.getPredicate().equals(XML.hasChild.asNode()) ) {
 										Node nodeType =
 												sourceGraph
@@ -1068,12 +1116,16 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
+
+									// Predicate is xml:nodeValue
 									} else if ( newTriple.getPredicate().equals(XML.nodeValue.asNode()) ) {
 										logger.trace("Managing add nodeValue (" + newTriple + ") for domSubjs " + domSubjs);
 										while (domSubjIter.hasNext()) {
 											org.w3c.dom.Node node = domSubjIter.next();
 											node.setNodeValue(newTriple.getObject().getLiteralLexicalForm());
 										}
+
+									// Predicate is xml:listenedEventType
 									} else if ( newTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = newTriple.getObject();
 										if (eventTypeNode.isLiteral()) {
