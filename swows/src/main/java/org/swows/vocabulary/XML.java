@@ -123,6 +123,7 @@ public class XML {
     
     public static final Property orderKey = property( "orderKey" );
     public static final Property childrenOrderType = property( "childrenOrderType" );
+    public static final Property childrenOrderedBy = property( "childrenOrderedBy" );
 
     /** The Constant nextSibling. */
     public static final Property nextSibling = property( "nextSibling" );

@@ -19,18 +19,17 @@
  */
 package org.swows.xmlinrdf;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
@@ -69,14 +68,7 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	
 	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
     private static final Logger logger = Logger.getLogger(DomDecoder2.class);
-    private static final Comparator<Node> ascNodeComparator = new NodeComparator();
-    private static final Comparator<Node> descNodeComparator =
-    		new Comparator<Node>() {
-				@Override
-				public int compare(Node n1, Node n2) {
-					return ascNodeComparator.compare(n2, n1);
-				}
-			};
+    private static final Comparator<Node> nodeComparator = new NodeComparator();
 
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
@@ -90,8 +82,9 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private Map<org.w3c.dom.Node, Node> dom2graphNodeMapping = new HashMap<org.w3c.dom.Node, Node>();
 	private Node docRootNode;
 	
-	private Map<org.w3c.dom.Node,NavigableMap<Node, Set<org.w3c.dom.Node>>> dom2orderedByKeyChildren = new HashMap<org.w3c.dom.Node, NavigableMap<Node,Set<org.w3c.dom.Node>>>();
-	private Set<org.w3c.dom.Node> dom2descendingOrder = new HashSet<org.w3c.dom.Node>();
+	private Map<Element,NavigableMap<Node, Vector<org.w3c.dom.Node>>> dom2orderedByKeyChildren = new HashMap<Element, NavigableMap<Node,Vector<org.w3c.dom.Node>>>();
+	private Set<Element> dom2descendingOrder = new HashSet<Element>();
+	private Map<Element, Node> dom2childrenOrderProperty = new HashMap<Element, Node>();
 	
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
@@ -296,6 +289,78 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	    return null;
 	}
 	
+	private void reorder(
+//			Set<org.w3c.dom.Node> noKeyChildren,
+			boolean ascendingOrder,
+			Element element, 
+			NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren ) {
+//		if (ascendingOrder) {
+//			for (org.w3c.dom.Node child : noKeyChildren) {
+//				element.appendChild(child);
+//			}
+//		}
+		for (Node orderKeyNode : ascendingOrder ? orderedByKeyChildren.keySet() : orderedByKeyChildren.descendingKeySet() ) {
+			for (org.w3c.dom.Node child : orderedByKeyChildren.get(orderKeyNode)) {
+				element.appendChild(child);
+			}
+		}
+//		if (!ascendingOrder) {
+//			for (org.w3c.dom.Node child : noKeyChildren) {
+//				element.appendChild(child);
+//			}
+//		}
+	}
+	
+	private int elementCount = 0;
+	private synchronized String newElementId() {
+		return "n_" + Integer.toHexString(elementCount++);
+	}
+	
+	private void setupElementChildren(Node elementNode, Element element) {
+		Node childrenOrderProperty =
+				GraphUtils.getSingleValueOptProperty(graph, elementNode, XML.childrenOrderedBy.asNode());
+		if (childrenOrderProperty != null)
+			dom2childrenOrderProperty.put(element, childrenOrderProperty);
+		
+		boolean ascendingOrder =
+				!graph.contains(elementNode, XML.childrenOrderType.asNode(), XML.Descending.asNode());
+		if (!ascendingOrder)
+			dom2descendingOrder.add(element);
+		
+		ExtendedIterator<Node> children = GraphUtils.getPropertyValues(graph, elementNode, XML.hasChild.asNode());
+		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
+				new TreeMap<Node, Vector<org.w3c.dom.Node>>(nodeComparator);
+		dom2orderedByKeyChildren.put(element, orderedByKeyChildren);
+//		Set<org.w3c.dom.Node> noKeyChildren = new HashSet<org.w3c.dom.Node>();
+		
+		while (children.hasNext()) {
+			Node child = children.next();
+//			if (!orderedChildren.contains(child)) {
+				org.w3c.dom.Node domChild = decodeNode(graph, child);
+				if (domChild != null) {
+					addNodeMapping(child, domChild);
+					Node orderKeyNode =
+							( childrenOrderProperty != null ) ?
+									GraphUtils.getSingleValueOptProperty(graph, child, childrenOrderProperty) :
+									GraphUtils.getSingleValueOptProperty(graph, child, XML.orderKey.asNode()); 
+					if (orderKeyNode == null) {
+//						noKeyChildren.add(domChild);
+						orderKeyNode = Node.NULL;
+					} //else {
+						Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+						if (sameKeyBag == null) {
+							sameKeyBag = new Vector<org.w3c.dom.Node>();
+							orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+						}
+						sameKeyBag.add(domChild);
+//					}
+				}
+//			}
+		}
+		reorder(/*noKeyChildren, */ascendingOrder, element, orderedByKeyChildren);
+
+	}
+	
 	private void decodeElementAttrsAndChildren(final Element element, final Graph graph, final Node elementNode) {
 		ExtendedIterator<Triple> triples =
 				graph.find(elementNode, Node.ANY, Node.ANY);
@@ -313,70 +378,24 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		if (elementNode.isURI()) {
 			element.setAttribute("resource", elementNode.getURI());
 			if (!element.hasAttribute("id"))
-				element.setAttribute("id", md5(elementNode.getURI()));
+				element.setAttribute("id", newElementId());
 //				element.setAttribute("id", elementNode.getURI());
 		}
-		Set<Node> orderedChildren = new HashSet<Node>();
-		{
-			Node child = GraphUtils.getSingleValueOptProperty(graph, elementNode, XML.firstChild.asNode());
-			while (child != null) {
-				orderedChildren.add(child);
-				org.w3c.dom.Node newChild = decodeNode(graph, child);
-				if (newChild != null) {
-					addNodeMapping(child, newChild);
-					element.appendChild(newChild);
-				}
-				child = GraphUtils.getSingleValueOptProperty(graph, child, XML.nextSibling.asNode());
-			}
-		}
-		
-		boolean ascendingOrder =
-				!graph.contains(elementNode, XML.childrenOrderType.asNode(), XML.Descending.asNode());
-		if (!ascendingOrder)
-			dom2descendingOrder.add(element);
-		
-		ExtendedIterator<Node> children = GraphUtils.getPropertyValues(graph, elementNode, XML.hasChild.asNode());
-		NavigableMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren =
-				new TreeMap<Node, Set<org.w3c.dom.Node>>(ascNodeComparator);
-		Set<org.w3c.dom.Node> noKeyChildren = new HashSet<org.w3c.dom.Node>();
-		
-		while (children.hasNext()) {
-			Node child = children.next();
-			if (!orderedChildren.contains(child)) {
-				org.w3c.dom.Node domChild = decodeNode(graph, child);
-				if (domChild != null) {
-					addNodeMapping(child, domChild);
-					addNodeChildren(domChild, orderedByKeyChildren);
-					Node orderKeyNode = GraphUtils.getSingleValueOptProperty(graph, child, XML.orderKey.asNode()); 
-					if (orderKeyNode == null) {
-						noKeyChildren.add(domChild);
-					} else {
-						Set<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
-						if (sameKeyBag == null) {
-							sameKeyBag = new HashSet<org.w3c.dom.Node>();
-							orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
-						}
-						sameKeyBag.add(domChild);
-					}
-				}
-			}
-		}
-		if (ascendingOrder) {
-			for (org.w3c.dom.Node child : noKeyChildren) {
-				element.appendChild(child);
-			}
-		}
-		for (Node orderKeyNode : ascendingOrder ? orderedByKeyChildren.keySet() : orderedByKeyChildren.descendingKeySet() ) {
-			for (org.w3c.dom.Node child : orderedByKeyChildren.get(orderKeyNode)) {
-				element.appendChild(child);
-			}
-		}
-		if (!ascendingOrder) {
-			for (org.w3c.dom.Node child : noKeyChildren) {
-				element.appendChild(child);
-			}
-		}
-		// TODO: gestire le diverse varianti a livello di update (in notifyUpdate() )
+//		Set<Node> orderedChildren = new HashSet<Node>();
+//		{
+//			Node child = GraphUtils.getSingleValueOptProperty(graph, elementNode, XML.firstChild.asNode());
+//			while (child != null) {
+//				orderedChildren.add(child);
+//				org.w3c.dom.Node newChild = decodeNode(graph, child);
+//				if (newChild != null) {
+//					addNodeMapping(child, newChild);
+//					element.appendChild(newChild);
+//				}
+//				child = GraphUtils.getSingleValueOptProperty(graph, child, XML.nextSibling.asNode());
+//			}
+//		}
+
+		setupElementChildren(elementNode, element);
 		
 //		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
 		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, XML.listenedEventType.asNode());
@@ -894,10 +913,6 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 		dom2graphNodeMapping.put(domNode, graphNode);
 	}
 	
-	private void addNodeChildren(org.w3c.dom.Node domNode, NavigableMap<Node, Set<org.w3c.dom.Node>> orderedByKeyChildren)  {
-		dom2orderedByKeyChildren.put(domNode, orderedByKeyChildren);
-	}
-	
 	private void removeNodeMapping(org.w3c.dom.Node domNode) {
 		Node graphNode = dom2graphNodeMapping.get(domNode);
 		if (graphNode != null) {
@@ -1020,6 +1035,36 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 	private Document getDocument() {
 		return document;
 	}
+	
+	private void reorderChild(org.w3c.dom.Node node, org.w3c.dom.Node parent, Node orderKeyNode) {
+		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
+				dom2orderedByKeyChildren.get(parent);
+		
+		Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+		if (sameKeyBag == null) {
+			sameKeyBag = new Vector<org.w3c.dom.Node>();
+			orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+		}
+		sameKeyBag.add(node);
+		
+		if (!dom2descendingOrder.contains(parent)) {
+			Entry<Node, Vector<org.w3c.dom.Node>> nextEntry =
+					orderedByKeyChildren.higherEntry(orderKeyNode);
+			if (nextEntry == null) {
+				parent.appendChild(node);
+			} else {
+				parent.insertBefore(node, nextEntry.getValue().firstElement());
+			}
+		} else {
+			Entry<Node, Vector<org.w3c.dom.Node>> nextEntry =
+					orderedByKeyChildren.lowerEntry(orderKeyNode);
+			if (nextEntry == null) {
+				parent.appendChild(node);
+			} else {
+				parent.insertBefore(node, nextEntry.getValue().firstElement());
+			}
+		}
+	}
 
 	@Override
 	public synchronized void notifyUpdate(final Graph sourceGraph, final GraphUpdate update) {
@@ -1125,7 +1170,44 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 											node.setNodeValue(newTriple.getObject().getLiteralLexicalForm());
 										}
 
-									// Predicate is xml:listenedEventType
+									// Predicate is orderKey
+									} else if ( newTriple.getPredicate().equals(XML.orderKey.asNode()) ) {
+										logger.trace("Managing add orderKey (" + newTriple + ") for domSubjs " + domSubjs);
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											org.w3c.dom.Node parent = node.getParentNode();
+											Node orderKeyNode = newTriple.getObject();
+											reorderChild(node, parent, orderKeyNode);
+										}
+
+									// Predicate xml:childrenOrderType and object xml:Descending
+									} else if (
+											newTriple.getPredicate().equals(XML.childrenOrderType.asNode())
+											&& newTriple.getObject().equals(XML.Descending)
+											&& !update.getAddedGraph().contains(newTriple.getSubject(), XML.childrenOrderedBy.asNode(), Node.ANY)) {
+										logger.trace("Managing add childrenOrderType (" + newTriple + ") for domSubjs " + domSubjs);
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											if (node instanceof Element) {
+												NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
+														dom2orderedByKeyChildren.get(node);
+												if (!dom2descendingOrder.contains(node)) {
+													dom2descendingOrder.add((Element) node);
+													reorder(false, (Element) node, orderedByKeyChildren);
+												}
+											}
+										}
+
+									// Predicate xml:childrenOrderedBy
+									} else if (	newTriple.getPredicate().equals(XML.childrenOrderedBy.asNode()) ) {
+										logger.trace("Managing add childrenOrderedBy (" + newTriple + ") for domSubjs " + domSubjs);
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											if (node instanceof Element)
+												setupElementChildren(newTriple.getSubject(), (Element) node);
+										}
+
+										// Predicate is xml:listenedEventType
 									} else if ( newTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = newTriple.getObject();
 										if (eventTypeNode.isLiteral()) {
@@ -1155,10 +1237,27 @@ public class DomDecoder2 implements Listener, RunnableContext, EventListener {
 //												eventTypesForElement.add(eventType);
 											}
 										}
-									}
+									}	
+									// Predicate is the childrenOrderedBy for some parent
+//									} else {
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											org.w3c.dom.Node parent = node.getParentNode();
+											if (parent != null && parent instanceof Element ) {
+												Node childrenOrderProperty = dom2childrenOrderProperty.get((Element) parent);
+												if ( childrenOrderProperty != null && childrenOrderProperty.equals(newTriple.getObject()) ) {
+													logger.trace("Managing predicate is the childrenOrderedBy for some parent (" + newTriple + ")");
+													Node orderKeyNode = newTriple.getObject();
+													reorderChild(node, parent, orderKeyNode);
+												}
+											}
+										}
+
+//									}
 								}			
 							}
 
+							// TODO: manage delete of things related to ordering
 							ExtendedIterator<Triple> deleteEventsIter =
 									update.getDeletedGraph().find(Node.ANY, Node.ANY, Node.ANY);
 							while (deleteEventsIter.hasNext()) {
