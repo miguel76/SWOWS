@@ -26,6 +26,8 @@ import java.io.PrintWriter;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFLib;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.swows.graph.events.DynamicGraphFromGraph;
@@ -40,6 +42,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class XmlInRdfTest {
 
@@ -70,7 +73,9 @@ public class XmlInRdfTest {
 		System.out.println("");
 		System.out.println("*** Output RDF ***");
 		
-		Graph rdfGraph = DomEncoder.encode(inputXML, xmlUri);
+		Graph rdfGraph = GraphFactory.createGraphMem();
+		StreamRDF streamRDF = StreamRDFLib.graph(rdfGraph);
+		DomEncoder.encode(inputXML, xmlUri, streamRDF);
 		Model model = ModelFactory.createModelForGraph(rdfGraph);
 		OutputStream out = new FileOutputStream("/home/miguel/BlankMapWithRadioBox.n3");
 		model.write(out, "N3");

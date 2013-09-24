@@ -33,7 +33,6 @@ import org.swows.reader.ReaderFactory;
 import org.swows.spinx.SpinxFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-import org.swows.xmlinrdf.DomEncoder;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;

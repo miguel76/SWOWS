@@ -829,7 +829,7 @@ public class RDFDataMgr
             if ( canCtStr != null )
             	ctStr = canCtStr;
         }
-        ContentType ct = (ctStr==null) ? null : ContentType.parse(ctStr) ;
+        ContentType ct = (ctStr==null) ? null : ContentType.create(ctStr) ;
         
         // If it's text plain, we ignore it because a lot of naive
         // server setups return text/plain for any file type.
