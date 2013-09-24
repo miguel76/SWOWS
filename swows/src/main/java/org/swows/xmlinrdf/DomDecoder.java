@@ -83,6 +83,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private Node docRootNode;
 	
 	private Map<Element,NavigableMap<Node, Vector<org.w3c.dom.Node>>> dom2orderedByKeyChildren = new HashMap<Element, NavigableMap<Node,Vector<org.w3c.dom.Node>>>();
+	private Map<Element,Map<org.w3c.dom.Node, Node>> dom2childrenKeys = new HashMap<Element, Map<org.w3c.dom.Node, Node>>();
 	private Set<Element> dom2descendingOrder = new HashSet<Element>();
 	private Map<Element, Node> dom2childrenOrderProperty = new HashMap<Element, Node>();
 	
@@ -316,10 +317,67 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return "n_" + Integer.toHexString(elementCount++);
 	}
 	
+	private void putChildByKey(Element parent, org.w3c.dom.Node node, Node orderKeyNode) {
+
+		Map<org.w3c.dom.Node, Node> childrenKeys = dom2childrenKeys.get(parent);
+		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren = dom2orderedByKeyChildren.get(parent);
+		
+		Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+		if (sameKeyBag == null) {
+			sameKeyBag = new Vector<org.w3c.dom.Node>();
+			orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+		}
+		sameKeyBag.add(node);
+
+		childrenKeys.put(node, orderKeyNode);
+		
+	}
+	
+	private void removeChildByKey(Element parent, org.w3c.dom.Node node) {
+
+		Map<org.w3c.dom.Node, Node> childrenKeys = dom2childrenKeys.get(parent);
+		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren = dom2orderedByKeyChildren.get(parent);
+		
+		Node prevOrderKeyNode = childrenKeys.get(node);
+		if (prevOrderKeyNode != null) {
+			Vector<org.w3c.dom.Node> oldKeyBag = orderedByKeyChildren.get(prevOrderKeyNode);
+			oldKeyBag.remove(node);
+			if (oldKeyBag.isEmpty())
+				orderedByKeyChildren.remove(prevOrderKeyNode);
+		}
+
+		childrenKeys.remove(node);
+
+	}
+	
+	private void updateChildByKey(Element parent, org.w3c.dom.Node node, Node orderKeyNode) {
+
+		Map<org.w3c.dom.Node, Node> childrenKeys = dom2childrenKeys.get(parent);
+		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren = dom2orderedByKeyChildren.get(parent);
+		
+		Node prevOrderKeyNode = childrenKeys.get(node);
+		if (prevOrderKeyNode != null) {
+			Vector<org.w3c.dom.Node> oldKeyBag = orderedByKeyChildren.get(prevOrderKeyNode);
+			oldKeyBag.remove(node);
+			if (oldKeyBag.isEmpty())
+				orderedByKeyChildren.remove(prevOrderKeyNode);
+		}
+
+		Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+		if (sameKeyBag == null) {
+			sameKeyBag = new Vector<org.w3c.dom.Node>();
+			orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+		}
+		sameKeyBag.add(node);
+
+		childrenKeys.put(node, orderKeyNode);
+		
+	}
+	
 	private void setupElementChildren(Node elementNode, Element element) {
 		Node childrenOrderProperty =
 				GraphUtils.getSingleValueOptProperty(graph, elementNode, XML.childrenOrderedBy.asNode());
-		if (childrenOrderProperty != null)
+		if (childrenOrderProperty != null) 
 			dom2childrenOrderProperty.put(element, childrenOrderProperty);
 		
 		boolean ascendingOrder =
@@ -328,9 +386,15 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			dom2descendingOrder.add(element);
 		
 		ExtendedIterator<Node> children = GraphUtils.getPropertyValues(graph, elementNode, XML.hasChild.asNode());
+		
+		{
 		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
 				new TreeMap<Node, Vector<org.w3c.dom.Node>>(nodeComparator);
+		Map<org.w3c.dom.Node, Node> childrenKeys =
+				new HashMap<org.w3c.dom.Node, Node>();
 		dom2orderedByKeyChildren.put(element, orderedByKeyChildren);
+		dom2childrenKeys.put(element, childrenKeys);
+		}
 //		Set<org.w3c.dom.Node> noKeyChildren = new HashSet<org.w3c.dom.Node>();
 		
 		while (children.hasNext()) {
@@ -347,17 +411,18 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 ////						noKeyChildren.add(domChild);
 //						orderKeyNode = Node.NULL;
 //					} //else {
-						Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
-						if (sameKeyBag == null) {
-							sameKeyBag = new Vector<org.w3c.dom.Node>();
-							orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
-						}
-						sameKeyBag.add(domChild);
+					updateChildByKey(element, domChild, orderKeyNode);
+//						Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
+//						if (sameKeyBag == null) {
+//							sameKeyBag = new Vector<org.w3c.dom.Node>();
+//							orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
+//						}
+//						sameKeyBag.add(domChild);
 //					}
 				}
 //			}
 		}
-		reorder(/*noKeyChildren, */ascendingOrder, element, orderedByKeyChildren);
+		reorder(/*noKeyChildren, */ascendingOrder, element, dom2orderedByKeyChildren.get(element));
 
 	}
 	
@@ -1038,17 +1103,10 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return document;
 	}
 	
-	private void reorderChild(org.w3c.dom.Node node, Element parent, Node orderKeyNode) {
+	private void orderChild(org.w3c.dom.Node node, Element parent, Node orderKeyNode) {
+		putChildByKey(parent, node, orderKeyNode);
 		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
 				dom2orderedByKeyChildren.get(parent);
-		
-		Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
-		if (sameKeyBag == null) {
-			sameKeyBag = new Vector<org.w3c.dom.Node>();
-			orderedByKeyChildren.put(orderKeyNode, sameKeyBag);
-		}
-		sameKeyBag.add(node);
-		
 		if (!dom2descendingOrder.contains(parent)) {
 			Entry<Node, Vector<org.w3c.dom.Node>> nextEntry =
 					orderedByKeyChildren.higherEntry(orderKeyNode);
@@ -1068,19 +1126,21 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		}
 	}
 	
+	private void reorderChild(org.w3c.dom.Node node, Element parent, Node orderKeyNode) {
+		orderChild(node, parent, orderKeyNode);
+	}
+	
 	private void insertChildInOrder(org.w3c.dom.Node child, Node childNode, Element parent) {
 		Node childrenOrderProperty = dom2childrenOrderProperty.get(parent);
 		Node orderKeyNode =
 				( childrenOrderProperty != null ) ?
 						GraphUtils.getSingleValueOptProperty(graph, childNode, childrenOrderProperty) :
 						GraphUtils.getSingleValueOptProperty(graph, childNode, XML.orderKey.asNode()); 
-		reorderChild(child, parent, orderKeyNode);
+		orderChild(child, parent, orderKeyNode);
 	}
 	
 	private void removeChild(org.w3c.dom.Node node, Element parent) {
-		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren =
-				dom2orderedByKeyChildren.get(parent);
-		orderedByKeyChildren.remove(node);
+		removeChildByKey(parent, node);
 		parent.removeChild(node);
 	}
 	
@@ -1123,8 +1183,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //								org.w3c.dom.Node xmlSubj = nodeMapping.get(newTriple.getSubject());
 								//System.out.println("Checking add event " + newTriple);
 								Set<org.w3c.dom.Node> domSubjs = graph2domNodeMapping.get(newTriple.getSubject());
-								if (domSubjs == null)
-									logger.warn(this + ": managing add event " + newTriple + ", domSubjs is null");
+//								if (domSubjs == null)
+//									logger.warn(this + ": managing add event " + newTriple + ", domSubjs is null");
 								if (domSubjs != null) {
 									logger.trace("Managing add event " + newTriple + " for domSubjs " + domSubjs);
 									Set<org.w3c.dom.Node> domSubjsTemp = new HashSet<org.w3c.dom.Node>();
@@ -1295,7 +1355,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 								}			
 							}
 
-							// TODO: manage delete of things related to ordering
 							ExtendedIterator<Triple> deleteEventsIter =
 									update.getDeletedGraph().find(Node.ANY, Node.ANY, Node.ANY);
 							while (deleteEventsIter.hasNext()) {
