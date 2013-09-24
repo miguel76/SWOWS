@@ -38,7 +38,7 @@ import org.swows.runnable.RunnableContext;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.SystemTime;
 import org.swows.xmlinrdf.DocumentReceiver;
-import org.swows.xmlinrdf.DomDecoder2;
+import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -148,7 +148,7 @@ public class FileApp extends JFrame {
 //		domEventListeners.put("mouseup", domEventListenerSet);
                 
 		Document xmlDoc =
-				DomDecoder2.decodeOne(
+				DomDecoder.decodeOne(
 						cachingGraph,
 //						outputGraph,
 //						new LoggingGraph(cachingGraph, Logger.getRootLogger(), true, true),

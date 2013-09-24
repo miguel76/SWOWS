@@ -29,8 +29,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.swows.graph.events.DynamicGraphFromGraph;
-import org.swows.xmlinrdf.DomDecoder2;
-import org.swows.xmlinrdf.DomEncoder2;
+import org.swows.xmlinrdf.DomDecoder;
+import org.swows.xmlinrdf.DomEncoder;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -70,13 +70,13 @@ public class XmlInRdfTest {
 		System.out.println("");
 		System.out.println("*** Output RDF ***");
 		
-		Graph rdfGraph = DomEncoder2.encode(inputXML, xmlUri);
+		Graph rdfGraph = DomEncoder.encode(inputXML, xmlUri);
 		Model model = ModelFactory.createModelForGraph(rdfGraph);
 		OutputStream out = new FileOutputStream("/home/miguel/BlankMapWithRadioBox.n3");
 		model.write(out, "N3");
 		//model.write(System.out);
 		
-		Document doc = DomDecoder2.decodeOne(new DynamicGraphFromGraph(rdfGraph));
+		Document doc = DomDecoder.decodeOne(new DynamicGraphFromGraph(rdfGraph));
 		PrintWriter out2 =
 				new PrintWriter(
 						new FileOutputStream("/home/miguel/BlankMapWithRadioBox.xml") );

@@ -30,7 +30,7 @@ import org.apache.jena.riot.RDFParserRegistry;
 import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.system.StreamRDF;
-import org.swows.xmlinrdf.DomEncoder2;
+import org.swows.xmlinrdf.DomEncoder;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -87,7 +87,7 @@ public class HtmlReaderRIOTFactory implements ReaderRIOTFactory {
 //					dom2sax.setContentHandler( DomEncoder2.encode(baseURI, output) );
 //					dom2sax.parse();
 					XMLReader xmlReader = XMLReaderFactory.createXMLReader ("org.ccil.cowan.tagsoup.Parser");
-					xmlReader.setContentHandler( DomEncoder2.encode(baseURI, output) );
+					xmlReader.setContentHandler( DomEncoder.encode(baseURI, output) );
 //					//xmlReader.setFeature("XML 2.0", true);
 					xmlReader.parse(xmlInputSource);
 				} catch(SAXException e) {

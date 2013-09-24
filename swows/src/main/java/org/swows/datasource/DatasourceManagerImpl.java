@@ -11,8 +11,8 @@ public class DatasourceManagerImpl implements DatasourceManager {
 
 	@Override
 	public void toStreamRDF(Datasource ds, StreamRDF streamRDF) {
-		if (openStreams.containsKey(ds))
-			return openStreams.get(ds);
+//		if (openStreams.containsKey(ds))
+//			return openStreams.get(ds);
 	}
 
 }

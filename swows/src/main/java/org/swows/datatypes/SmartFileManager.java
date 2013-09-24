@@ -69,7 +69,7 @@ public class SmartFileManager extends FileManager {
     private static void smartClosure(Model model) {
     	Graph newGraph = model.getGraph();
     	SparqlJenaQuery.developInRDF(newGraph);
-    	DomEncoder.developInRDF(newGraph);
+//    	DomEncoder.developInRDF(newGraph);
     }
     
     public static void includeAllInAGraph(final Graph graph, final DatasetGraph ds) {

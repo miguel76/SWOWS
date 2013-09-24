@@ -52,7 +52,7 @@ import org.swows.runnable.RunnableContextFactory;
 import org.swows.time.SystemTime;
 import org.swows.vocabulary.SWI;
 import org.swows.xmlinrdf.DocumentReceiver;
-import org.swows.xmlinrdf.DomDecoder2;
+import org.swows.xmlinrdf.DomDecoder;
 import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -234,7 +234,7 @@ public class MouseApp extends JFrame {
 		domEventListeners.put("mouseup", domEventListenerSet);
                 
 		final Document xmlDoc =
-				DomDecoder2.decodeOne(
+				DomDecoder.decodeOne(
 						cachingGraph,
 //						outputGraph,
 //						new LoggingGraph(cachingGraph, Logger.getRootLogger(), true, true),
@@ -330,7 +330,7 @@ public class MouseApp extends JFrame {
     	DynamicGraph outputGraph = applyOps.createGraph(inputDatasetGraph);
     	DynamicGraph cachingGraph = new EventCachingGraph(outputGraph);
 		final Document xmlDoc =
-				DomDecoder2.decodeOne(
+				DomDecoder.decodeOne(
 						cachingGraph,
 						domImpl
 //						,new DocumentReceiver() {

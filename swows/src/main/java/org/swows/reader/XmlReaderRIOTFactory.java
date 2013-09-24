@@ -29,7 +29,7 @@ import org.apache.jena.riot.RDFParserRegistry;
 import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.system.StreamRDF;
-import org.swows.xmlinrdf.DomEncoder2;
+import org.swows.xmlinrdf.DomEncoder;
 import org.xml.sax.InputSource;
 
 import com.hp.hpl.jena.sparql.util.Context;
@@ -77,7 +77,7 @@ public class XmlReaderRIOTFactory implements ReaderRIOTFactory {
 				xmlInputSource.setSystemId(baseURI);
 				output.start();
 				output.base(baseURI);
-				DomEncoder2.encode(xmlInputSource, baseURI, output);
+				DomEncoder.encode(xmlInputSource, baseURI, output);
 				output.finish();
 			}
 		};
