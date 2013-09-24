@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
@@ -61,7 +62,8 @@ public class DomEncoder {
 		
 		private StreamRDF outputStream;
 		private Stack<Node> nodeStack = new Stack<Node>();
-		private Stack<Node> lastSiblingStack = new Stack<Node>();
+//		private Stack<Node> lastSiblingStack = new Stack<Node>();
+		private Stack<Integer> childrenCountStack = new Stack<Integer>();
 		private String docURI;
 		private Node docNode = null;
 		
@@ -188,15 +190,18 @@ public class DomEncoder {
 		private void push(Node node) {
 			textBufferFlush();
 			nodeStack.push(node);
-			lastSiblingStack.push(null);
+//			lastSiblingStack.push(null);
+			childrenCountStack.push(0);
 		}
 		
 		private void pop() {
 			textBufferFlush();
-			Node node = nodeStack.pop();
-			Node lastSibling = lastSiblingStack.pop();
-			if (lastSibling != null)
-				outputStream.triple(new Triple(node, XML.lastChild.asNode(), lastSibling));
+//			Node node = nodeStack.pop();
+//			Node lastSibling = lastSiblingStack.pop();
+//			if (lastSibling != null)
+//				outputStream.triple(new Triple(node, XML.lastChild.asNode(), lastSibling));
+			nodeStack.pop();
+			childrenCountStack.pop();
 		}
 
 		@Override
@@ -224,14 +229,20 @@ public class DomEncoder {
 				Node parentNode = nodeStack.peek();
 				outputStream.triple(new Triple(newNode, XML.parentNode.asNode(), parentNode));
 				outputStream.triple(new Triple(parentNode, XML.hasChild.asNode(), newNode));
-				Node lastSibling = lastSiblingStack.pop();
-				if (lastSibling == null) {
-					outputStream.triple(new Triple(parentNode, XML.firstChild.asNode(), newNode));
-				} else {
-					outputStream.triple(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
-					outputStream.triple(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
-				}
-				lastSiblingStack.push(newNode);
+//				Node lastSibling = lastSiblingStack.pop();
+//				if (lastSibling == null) {
+//					outputStream.triple(new Triple(parentNode, XML.firstChild.asNode(), newNode));
+//				} else {
+//					outputStream.triple(new Triple(lastSibling, XML.nextSibling.asNode(), newNode));
+//					outputStream.triple(new Triple(newNode, XML.previousSibling.asNode(), lastSibling));
+//				}
+//				lastSiblingStack.push(newNode);
+				int childrenCount = childrenCountStack.pop();
+				outputStream.triple(new Triple(
+						newNode,
+						XML.orderKey.asNode(),
+						NodeFactory.createLiteral(Integer.toString(childrenCount), XSDDatatype.XSDinteger) ));
+				childrenCountStack.push(childrenCount + 1);
 			}
 		}
 		

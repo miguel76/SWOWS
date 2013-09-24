@@ -343,10 +343,10 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 							( childrenOrderProperty != null ) ?
 									GraphUtils.getSingleValueOptProperty(graph, child, childrenOrderProperty) :
 									GraphUtils.getSingleValueOptProperty(graph, child, XML.orderKey.asNode()); 
-					if (orderKeyNode == null) {
-//						noKeyChildren.add(domChild);
-						orderKeyNode = Node.NULL;
-					} //else {
+//					if (orderKeyNode == null) {
+////						noKeyChildren.add(domChild);
+//						orderKeyNode = Node.NULL;
+//					} //else {
 						Vector<org.w3c.dom.Node> sameKeyBag = orderedByKeyChildren.get(orderKeyNode);
 						if (sameKeyBag == null) {
 							sameKeyBag = new Vector<org.w3c.dom.Node>();
@@ -1488,7 +1488,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 													&& !update.getAddedGraph().contains(oldTriple.getSubject(), childrenOrderProperty, Node.ANY)
 													&& !mustReorderAllChildrenOf((Element) parent, update) ) {
 												logger.trace("Managing delete predicate that is the childrenOrderedBy for some parent (" + oldTriple + ")");
-												reorderChild(node, (Element) parent, Node.NULL);
+												reorderChild(node, (Element) parent, null);
 											}
 										}
 									}
