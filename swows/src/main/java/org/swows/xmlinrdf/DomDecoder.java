@@ -252,7 +252,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				value(graph, elementNode) );
 	}
 	
-	private Attr decodeAttr(Graph graph, Node elementNode) {
+	private Attr decodeAttr(Node elementNode) {
 		String nsUri = namespaceAttr(graph, elementNode);
 		if (nsUri == null)
 			throw new RuntimeException("Namespace not found for attribute " + elementNode + " in graph " + graph);
@@ -264,7 +264,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 							qNameAttr(graph, elementNode) );
 	}
 	
-	private void removeAttr(Graph graph, Element element, Node elementNode) {
+	private void removeAttr(Element element, Node elementNode) {
 		String nsUri = namespaceAttr(graph, elementNode);
 		if (nsUri == null)
 			throw new RuntimeException("Namespace not found for attribute " + elementNode + " in graph " + graph);
@@ -400,7 +400,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		while (children.hasNext()) {
 			Node child = children.next();
 //			if (!orderedChildren.contains(child)) {
-				org.w3c.dom.Node domChild = decodeNode(graph, child);
+				org.w3c.dom.Node domChild = decodeNode(child);
 				if (domChild != null) {
 					addNodeMapping(child, domChild);
 					Node orderKeyNode =
@@ -426,7 +426,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 
 	}
 	
-	private void decodeElementAttrsAndChildren(final Element element, final Graph graph, final Node elementNode) {
+	private void decodeElementAttrsAndChildren(final Element element, final Node elementNode) {
 		ExtendedIterator<Triple> triples =
 				graph.find(elementNode, Node.ANY, Node.ANY);
 		while (triples.hasNext()) {
@@ -435,7 +435,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 					t.getPredicate(),
 					RDFS.subClassOf.asNode(),
 					XML.Attr.asNode())) {
-				Attr attr = decodeAttr(graph, t.getPredicate());
+				Attr attr = decodeAttr(t.getPredicate());
 				attr.setValue(t.getObject().getLiteralLexicalForm());
 				element.setAttributeNodeNS(attr);
 			}
@@ -491,21 +491,21 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		}
 	}
 
-	private Element decodeElement(final Graph graph, final Node elementNode) {
+	private Element decodeElement(final Node elementNode) {
 		Element element =
 				document.createElementNS(
 						namespaceElement(graph, elementNode),
 						qNameElement(graph, elementNode) );
 		addNodeMapping(elementNode, element);
-		decodeElementAttrsAndChildren(element, graph, elementNode);
+		decodeElementAttrsAndChildren(element, elementNode);
 		return element;
 	}
 
-	private org.w3c.dom.Node decodeNode(Graph graph, Node elementNode) {
+	private org.w3c.dom.Node decodeNode(Node elementNode) {
 		try {
 			Node nodeType = GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode());
 			if ( graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) )
-				return decodeElement(graph, elementNode);
+				return decodeElement(elementNode);
 			if ( nodeType.equals( XML.Text.asNode() ) )
 				return decodeText(graph, elementNode);
 			throw new RuntimeException("Type not recognised for node " + elementNode);
@@ -530,7 +530,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				Element docElement = document.getDocumentElement();
 				addNodeMapping(docRootNode, document);
 				addNodeMapping(elementNode, docElement);
-				decodeElementAttrsAndChildren( docElement, graph, elementNode );
+				decodeElementAttrsAndChildren( docElement, elementNode );
 //			} catch(RuntimeException e) { }
 		}
 	}
@@ -1168,7 +1168,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 							ExtendedIterator<Triple> addEventsIter =
 									update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);
 							
-							DomDecoder newDom = new DomDecoder(sourceGraph);
+							DomDecoder newDom = new DomDecoder(graph);
 							newDom.dom2graphNodeMapping =
 									(Map<org.w3c.dom.Node, Node>) ((HashMap<org.w3c.dom.Node, Node>) dom2graphNodeMapping).clone();
 //							newDom.graph2domNodeMapping = (Map<Node, Set<org.w3c.dom.Node>>) ((HashMap<Node, Set<org.w3c.dom.Node>>) graph2domNodeMapping).clone();
@@ -1202,7 +1202,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 												org.w3c.dom.Node domSubj = domSubjIter.next();
 												org.w3c.dom.Node parentNode = domSubj.getParentNode();
 												if (parentNode != null) {
-													org.w3c.dom.Node newNode = newDom.decodeNode(graph, newTriple.getSubject());
+													org.w3c.dom.Node newNode = newDom.decodeNode(newTriple.getSubject());
 													parentNode.replaceChild(newNode, domSubj);
 													newDom.removeSubtreeMapping(domSubj);
 													newDom.addNodeMapping(newTriple.getSubject(), newNode);
@@ -1223,7 +1223,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 													XML.Attr.asNode() ) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
-											Attr newAttr = newDom.decodeAttr(sourceGraph, newTriple.getPredicate());
+											Attr newAttr = newDom.decodeAttr(newTriple.getPredicate());
 //											newDom.addNodeMapping(newTriple.getPredicate(), newAttr);
 											newAttr.setValue(newTriple.getObject().getLiteralLexicalForm());
 											element.setAttributeNodeNS(newAttr);
@@ -1232,14 +1232,14 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 									// Predicate is xml:hasChild
 									} else if ( newTriple.getPredicate().equals(XML.hasChild.asNode()) ) {
 										Node nodeType =
-												sourceGraph
+												graph
 												.find(newTriple.getSubject(), XML.nodeType.asNode(), Node.ANY)
 												.next().getObject();
 										logger.trace("Managing add hasChild (" + newTriple + ") for domSubjs " + domSubjs + " and node type " + nodeType);
 										if (nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
-												org.w3c.dom.Node newChild = newDom.decodeNode(sourceGraph, newTriple.getObject());
+												org.w3c.dom.Node newChild = newDom.decodeNode(newTriple.getObject());
 												newDom.addNodeMapping(newTriple.getObject(), newChild);
 //												element.appendChild(newChild);
 												insertChildInOrder(newChild, newTriple.getObject(), element);
@@ -1362,7 +1362,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 								//org.w3c.dom.Node xmlSubj = nodeMapping.get(oldTriple.getSubject());
 								Set<org.w3c.dom.Node> domSubjs = graph2domNodeMapping.get(oldTriple.getSubject());
 								//System.out.println("Checking for " + oldTriple.getSubject() + " contained in " + sourceGraph);
-								if (domSubjs != null && sourceGraph.contains(oldTriple.getSubject(), RDF.type.asNode(), Node.ANY)) {
+								if (domSubjs != null && graph.contains(oldTriple.getSubject(), RDF.type.asNode(), Node.ANY)) {
 									//System.out.println("Found " + oldTriple.getSubject() + " contained in " + sourceGraph);
 									//System.out.println("Managing " + oldTriple.getPredicate() + "/" + oldTriple.getObject());
 									Iterator<org.w3c.dom.Node> domSubjIter = domSubjs.iterator();
@@ -1396,7 +1396,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 										}
 									} else if (
 											oldTriple.getPredicate().equals(XML.nodeValue.asNode())
-											&& !sourceGraph.contains(oldTriple.getSubject(), XML.nodeValue.asNode(), Node.ANY)) {
+											&& !graph.contains(oldTriple.getSubject(), XML.nodeValue.asNode(), Node.ANY)) {
 										while (domSubjIter.hasNext()) {
 											org.w3c.dom.Node domSubj = domSubjIter.next();
 											domSubj.setNodeValue("");
@@ -1408,7 +1408,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 													XML.Attr.asNode() ) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
-											newDom.removeAttr(sourceGraph, element, oldTriple.getPredicate());
+											newDom.removeAttr(element, oldTriple.getPredicate());
 										}
 //										Set<org.w3c.dom.Node> domObjsOrig = graph2domNodeMapping.get(oldTriple.getObject());
 //										if (domObjsOrig != null) {
