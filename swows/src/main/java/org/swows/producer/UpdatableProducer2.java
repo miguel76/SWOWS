@@ -66,7 +66,6 @@ public class UpdatableProducer2 extends GraphProducer {
 			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 	}
 
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return
 //				baseGraphProducer.equals(producer)

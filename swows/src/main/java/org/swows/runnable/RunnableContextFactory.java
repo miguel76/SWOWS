@@ -22,7 +22,6 @@ package org.swows.runnable;
 public class RunnableContextFactory {
 	
 	private static RunnableContext defaultRunnableContext = new RunnableContext() {
-		@Override
 		public void run(Runnable runnable) {
 //			runnable.run();
 		}

@@ -204,23 +204,19 @@ public class DomEncoder {
 			childrenCountStack.pop();
 		}
 
-		@Override
 		public void setDocumentLocator(Locator locator) {
 		}
 
 		private boolean nextIsRootElement = true;
 		
-		@Override
 		public void startDocument() throws SAXException {
 			docNode = NodeFactory.createURI(docURI);
 			outputStream.triple(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
 		}
 
-		@Override
 		public void startPrefixMapping(String prefix, String uri)
 				throws SAXException { }
 
-		@Override
 		public void endPrefixMapping(String prefix) throws SAXException { }
 
 		private void connectNode(Node newNode) {
@@ -254,7 +250,6 @@ public class DomEncoder {
 					+ ln;
 		}
 		
-		@Override
 		public void startElement(
 				String uri, String localName,
 				String qName,
@@ -306,31 +301,25 @@ public class DomEncoder {
 			push(newNode);
 		}
 
-		@Override
 		public void endElement(String uri, String localName, String qName)
 				throws SAXException {
 			pop();
 		}
 
-		@Override
 		public void characters(char[] ch, int start, int length)
 				throws SAXException {
 			textBuffer.append(ch, start, length);
 		}
 
-		@Override
 		public void endDocument() throws SAXException {
 		}
 
-		@Override
 		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
 				throws SAXException { }
 
-		@Override
 		public void processingInstruction(String target, String data)
 				throws SAXException { }
 
-		@Override
 		public void skippedEntity(String name) throws SAXException { }
 
 	};

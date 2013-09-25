@@ -63,7 +63,6 @@ public class SelectGraphProducer extends GraphProducer {
 		this.graphNameNode = graphNameNode;
 	}
 
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return ( inputProducer != null && ( producer == inputProducer || inputProducer.dependsFrom(producer) ) );
 	}

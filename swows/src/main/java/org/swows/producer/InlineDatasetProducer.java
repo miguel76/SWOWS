@@ -53,7 +53,6 @@ public class InlineDatasetProducer extends DatasetProducer {
 						GraphUtils
 						.getPropertyValues(conf, confRoot, DF.input.asNode())
 						.mapWith(new Map1<Node, Producer>() {
-							@Override
 							public Producer map1(Node graphNode) {
 								Producer producer = map.getProducer(graphNode);
 								if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
@@ -83,7 +82,6 @@ public class InlineDatasetProducer extends DatasetProducer {
 		}
 	}
 	
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		if ( producer == inputProducer || inputProducer.dependsFrom(producer) )
 			return true;

@@ -88,7 +88,6 @@ public class BuildingDatasetProducer extends DatasetProducer {
 		connectedProducer = prod;
 		prod.registerListener(
 				new DatasetProducerListener() {
-					@Override
 					public void notifyDatasetCreation(DynamicDataset inputDataset, DynamicDataset dataset) {
 						getLocalDefaultGraph(inputDataset).setBaseGraph(dataset.getDefaultGraph());
 						if (graphNameSet == null) {
@@ -109,7 +108,6 @@ public class BuildingDatasetProducer extends DatasetProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return (producer == connectedProducer || connectedProducer.dependsFrom(producer));
 	}

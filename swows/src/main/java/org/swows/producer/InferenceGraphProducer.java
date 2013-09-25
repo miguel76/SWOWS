@@ -93,7 +93,6 @@ public class InferenceGraphProducer extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return
 			(producer == schemaProd

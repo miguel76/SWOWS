@@ -73,7 +73,6 @@ public class LoadGraphProducer extends GraphProducer {
 		this.pollingPeriod = pollingPeriod;
 	}
 	
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return false;
 	}

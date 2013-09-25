@@ -34,7 +34,6 @@ public abstract class GraphProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public abstract DynamicGraph createGraph(DynamicDataset inputDataset);
 
 	/**
@@ -46,7 +45,6 @@ public abstract class GraphProducer implements Producer {
 	 * @return the dataset with the single graph
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public DynamicDataset createDataset(final DynamicDataset inputDataset) {
 		return new SingleGraphDataset(createGraph(inputDataset));
 	}

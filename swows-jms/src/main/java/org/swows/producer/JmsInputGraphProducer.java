@@ -77,12 +77,10 @@ public class JmsInputGraphProducer extends GraphProducer {
 //		this.pollingPeriod = pollingPeriod;
 //	}
 //	
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return false;
 	}
 
-	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return new JmsInputGraph(url, user, password, subject, baseURI, syntax);
 	}

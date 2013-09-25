@@ -57,7 +57,6 @@ public class UpdatableProducer extends GraphProducer {
 			deleteGraphProducer = map.getProducer(deleteGraphTriples.next().getObject());
 	}
 
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return
 				producer.equals(baseGraphProducer) || baseGraphProducer.dependsFrom(producer)

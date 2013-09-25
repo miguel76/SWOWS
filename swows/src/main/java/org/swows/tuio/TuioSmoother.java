@@ -92,7 +92,6 @@ public class TuioSmoother implements TuioListener {
 		notifyingThread.start();
 	}
 	
-	@Override
 	public void addTuioObject(TuioObject tobj) {
 		synchronized (this) {
 			if (!deletedObjects.contains(tobj) && !ghostObjects.contains(tobj)) {
@@ -102,7 +101,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void updateTuioObject(TuioObject tobj) {
 		synchronized (this) {
 //			System.out.println(
@@ -115,7 +113,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void removeTuioObject(TuioObject tobj) {
 		synchronized (this) {
 			if (!ghostObjects.contains(tobj)) {
@@ -130,7 +127,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void addTuioCursor(TuioCursor tcur) {
 		synchronized (this) {
 			//System.out.println("Adding cursor " + tcur + " in TUIO smoother");
@@ -142,7 +138,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void updateTuioCursor(TuioCursor tcur) {
 		synchronized (this) {
 //			System.out.println(
@@ -156,7 +151,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void removeTuioCursor(TuioCursor tcur) {
 		synchronized (this) {
 			//System.out.println("Removing cursor " + tcur + " in TUIO smoother");
@@ -173,7 +167,6 @@ public class TuioSmoother implements TuioListener {
 		}
 	}
 
-	@Override
 	public void refresh(TuioTime ftime) {
 		//System.out.println("Refresh called in TUIO smoother");
 		lastRefreshTime = ftime;

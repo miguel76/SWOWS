@@ -41,7 +41,6 @@ public class Factory implements PropertyFunctionFactory {
 		return BASE_URI;
 	}
 
-	@Override
 	public PropertyFunction create(String uri) {
 		if (uri.startsWith(BASE_URI)) {
 			String pfunctionName = uri.substring(BASE_URI_LENGTH);

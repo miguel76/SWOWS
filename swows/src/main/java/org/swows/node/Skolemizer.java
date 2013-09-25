@@ -191,7 +191,6 @@ public class Skolemizer {
 							return bnode;
 						}
 					}
-					@Override
 					public Triple map1(Triple inTriple) {
 						return new Triple(
 								convert(inTriple.getSubject()),
@@ -224,7 +223,6 @@ public class Skolemizer {
 							return id;
 						}
 					}
-					@Override
 					public Triple map1(Triple inTriple) {
 						return new Triple(
 								convert(inTriple.getSubject()),

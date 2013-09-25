@@ -76,7 +76,6 @@ public class TimedApp extends JFrame {
 			setUndecorated(true);
 		
 		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
-			@Override
 			public void run(Runnable runnable) {
 				try {
 					while (batikRunnableQueue == null) Thread.yield();

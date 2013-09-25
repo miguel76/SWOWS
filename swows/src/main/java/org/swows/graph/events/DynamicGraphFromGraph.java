@@ -64,178 +64,146 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
 
-	@Override
 	public boolean dependsOn(Graph other) {
 		return baseGraph.dependsOn(other);
 	}
 
-	@Override
 	public TransactionHandler getTransactionHandler() {
 		return baseGraph.getTransactionHandler();
 	}
 
-	@Override
 	@Deprecated
 	public BulkUpdateHandler getBulkUpdateHandler() {
 		return new BulkUpdateHandler() {
 			BulkUpdateHandler buh = baseGraph.getBulkUpdateHandler();
-			@Override
-			public void removeAll() {
+					public void removeAll() {
 				getCurrGraphUpdate().putDeletedTriples(baseGraph);
 				buh.removeAll();
 			}
 			
-			@Override
-			public void remove(Node s, Node p, Node o) {
+					public void remove(Node s, Node p, Node o) {
 				getCurrGraphUpdate().putDeletedTriples(baseGraph.find(s, p, o));
 				buh.remove(s, p, o);
 			}
 			
-			@Override
-			public void delete(Graph g, boolean withReifications) {
+					public void delete(Graph g, boolean withReifications) {
 				getCurrGraphUpdate().putDeletedTriples(g);
 				buh.delete(g, withReifications);
 			}
 			
-			@Override
-			public void delete(Graph g) {
+					public void delete(Graph g) {
 				getCurrGraphUpdate().putDeletedTriples(g);
 				buh.delete(g);
 			}
 			
-			@Override
-			public void delete(Iterator<Triple> it) {
+					public void delete(Iterator<Triple> it) {
 				getCurrGraphUpdate().putDeletedTriples(it);
 				buh.delete(it);
 			}
 			
-			@Override
-			public void delete(List<Triple> triples) {
+					public void delete(List<Triple> triples) {
 				getCurrGraphUpdate().putDeletedTriples(triples);
 				buh.delete(triples);
 			}
 			
-			@Override
-			public void delete(Triple[] triples) {
+					public void delete(Triple[] triples) {
 				getCurrGraphUpdate().putDeletedTriples(triples);
 				buh.delete(triples);
 			}
 			
-			@Override
-			public void add(Graph g, boolean withReifications) {
+					public void add(Graph g, boolean withReifications) {
 				getCurrGraphUpdate().putAddedTriples(g);
 				buh.add(g, withReifications);
 			}
 			
-			@Override
-			public void add(Graph g) {
+					public void add(Graph g) {
 				getCurrGraphUpdate().putAddedTriples(g);
 				buh.add(g);
 			}
 			
-			@Override
-			public void add(Iterator<Triple> it) {
+					public void add(Iterator<Triple> it) {
 				getCurrGraphUpdate().putAddedTriples(it);
 				buh.add(it);
 			}
 			
-			@Override
-			public void add(List<Triple> triples) {
+					public void add(List<Triple> triples) {
 				getCurrGraphUpdate().putAddedTriples(triples);
 				buh.add(triples);
 			}
 			
-			@Override
-			public void add(Triple[] triples) {
+					public void add(Triple[] triples) {
 				getCurrGraphUpdate().putAddedTriples(triples);
 				buh.add(triples);
 			}
 		};
 	}
 
-	@Override
 	public Capabilities getCapabilities() {
 		return baseGraph.getCapabilities();
 	}
 
-	@Override
 	public GraphEventManager getEventManager() {
 		return baseGraph.getEventManager();
 	}
 
-	@Override
 	public GraphStatisticsHandler getStatisticsHandler() {
 		return baseGraph.getStatisticsHandler();
 	}
 
-	@Override
 	public PrefixMapping getPrefixMapping() {
 		return baseGraph.getPrefixMapping();
 	}
 
-	@Override
 	public void delete(Triple t) throws DeleteDeniedException {
 		getCurrGraphUpdate().putDeletedTriple(t);
 		baseGraph.delete(t);
 	}
 
-	@Override
 	public ExtendedIterator<Triple> find(TripleMatch m) {
 		return baseGraph.find(m);
 	}
 
-	@Override
 	public ExtendedIterator<Triple> find(Node s, Node p, Node o) {
 		return baseGraph.find(s, p, o);
 	}
 
-	@Override
 	public boolean isIsomorphicWith(Graph g) {
 		return baseGraph.isIsomorphicWith(g);
 	}
 
-	@Override
 	public boolean contains(Node s, Node p, Node o) {
 		return baseGraph.contains(s, p, o);
 	}
 
-	@Override
 	public boolean contains(Triple t) {
 		return baseGraph.contains(t);
 	}
 
-	@Override
 	public void close() {
 		baseGraph.close();
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return baseGraph.isEmpty();
 	}
 
-	@Override
 	public int size() {
 		return baseGraph.size();
 	}
 
-	@Override
 	public boolean isClosed() {
 		return baseGraph.isClosed();
 	}
 
-	@Override
 	public void add(Triple t) throws AddDeniedException {
 		getCurrGraphUpdate().putAddedTriple(t);
 		baseGraph.add(t);
 	}
 
-	@Override
 	public EventManager getEventManager2() {
 		return eventManager;
 	}
 	
-	@Override
 	public String toString() {
 		return baseGraph.toString();
 	}
@@ -253,13 +221,11 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		return modified;
 	}
 
-	@Override
 	public void clear() {
 		getCurrGraphUpdate().putDeletedTriples(baseGraph);
 		baseGraph.clear();
 	}
 
-	@Override
 	public void remove(Node s, Node p, Node o) {
 		getCurrGraphUpdate().putDeletedTriples(find(s,p,o));
 		baseGraph.remove(s, p, o);

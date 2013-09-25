@@ -89,7 +89,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
-				@Override
 				public void removeEventListener(
 						Node targetNode,
 						org.w3c.dom.Node target, String type,
@@ -97,7 +96,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 					if (target instanceof EventTarget)
 						((EventTarget) target).removeEventListener(type, listener, useCapture);
 				}
-				@Override
 				public void addEventListener(
 						Node targetNode,
 						org.w3c.dom.Node target, String type,
@@ -134,7 +132,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		}
 	}
 
-	@Override
 	public synchronized void handleEvent(Event evt) {
 		logger.debug("In DOM decoder handling event " + evt + " of type " + evt.getType());
 //		System.out.println("In DOM decoder handling event " + evt + " of type " + evt.getType());
@@ -173,7 +170,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return graph
 				.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
 				.mapWith(new Map1<Triple, Document>() {
-					@Override
 					public Document map1(Triple triple) {
 						return decode(graph, triple.getSubject());
 					}
@@ -550,7 +546,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				graph
 					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
 					.mapWith( new Map1<Triple, Node>() {
-						@Override
 						public Node map1(Triple t) {
 							return t.getObject();
 						}
@@ -559,7 +554,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 					graph
 						.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
 						.mapWith( new Map1<Triple, Node>() {
-							@Override
 							public Node map1(Triple t) {
 								return t.getSubject();
 							}
@@ -945,7 +939,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				graph
 					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
 					.mapWith( new Map1<Triple, Node>() {
-						@Override
 						public Node map1(Triple t) {
 							return t.getObject();
 						}
@@ -954,13 +947,11 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 						graph
 							.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
 							.mapWith( new Map1<Triple, Node>() {
-								@Override
 								public Node map1(Triple t) {
 									return t.getSubject();
 								}
 							}))
 					.mapWith( new Map1<Node, Document>() {
-						@Override
 						public Document map1(Node node) {
 							return decode(graph, node, domImpl, updatesContext, docReceiver, domEventListeners, eventManager);
 						}
@@ -1154,7 +1145,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 
 	}
 	
-	@Override
 	public synchronized void notifyUpdate(final Graph sourceGraph, final GraphUpdate update) {
 		
 		logger.debug("Begin of Notify Update in DOM Decoder");
@@ -1163,7 +1153,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			updatesContext.run(
 					new Runnable() {
 						@SuppressWarnings("unchecked")
-						@Override
 						public void run() {
 							ExtendedIterator<Triple> addEventsIter =
 									update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);

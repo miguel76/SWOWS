@@ -188,7 +188,6 @@ public class SparqlConstructFunction extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return
 				(inputProducer != null && inputProducer.dependsFrom(producer))

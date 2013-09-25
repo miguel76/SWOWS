@@ -73,7 +73,6 @@ public class InlineGraphProducer extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return false;
 	}

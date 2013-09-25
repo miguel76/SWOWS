@@ -75,7 +75,6 @@ public class EmptyGraphProducer extends GraphProducer {
 	 * @return false
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return false;
 	}

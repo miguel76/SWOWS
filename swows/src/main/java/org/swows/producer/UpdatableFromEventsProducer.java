@@ -72,7 +72,6 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 		}
 	}
 
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		for (Producer inputProducer : addEventProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))

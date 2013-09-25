@@ -250,7 +250,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		return pointNode;
 	}
 
-	@Override
 	public synchronized void addTuioCursor(TuioCursor cursor) {
 		logger.debug("Adding cursor " + cursor + " in TUIO gateway");
 		Node cursorNode = addTuioPoint(cursor);
@@ -264,7 +263,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		//debugSubtreeExceptSource(cursorNode);
 	}
 
-	@Override
 	public synchronized void addTuioObject(TuioObject object) {
 		logger.debug(
 				"TUIO Gateway: adding object " + object
@@ -294,7 +292,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		Iterator<Node> trackedIterator =
 				tuioGraph.find(Node.ANY, RDF.type.asNode(), TUIO.Tracked.asNode())
 				.mapWith(new Map1<Triple, Node>() {
-					@Override
 					public Node map1(Triple t) {
 						return t.getSubject();
 					}
@@ -327,7 +324,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		});
 	}
 
-	@Override
 	public synchronized void refresh(TuioTime time) {
 		//debugAllTracked();
 //		logger.debug(this + ": begin of refresh");
@@ -374,7 +370,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		point2nodeMapping.remove(point);
 	}
 
-	@Override
 	public synchronized void removeTuioCursor(TuioCursor cursor) {
 		logger.debug("Removing cursor " + cursor + " in TUIO gateway");
 		removeTuioPoint(cursor);
@@ -385,7 +380,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		logger.debug("Removed cursor " + cursor + " in TUIO gateway");
 	}
 
-	@Override
 	public synchronized void removeTuioObject(TuioObject object) {
 		logger.debug("Removing object " + object + " in TUIO gateway");
 		removeTuioPoint(object);
@@ -431,7 +425,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		return pointNode;
 	}
 
-	@Override
 	public synchronized void updateTuioCursor(TuioCursor cursor) {
 		logger.debug(
 				"TUIO Gateway: updating cursor " + cursor
@@ -448,7 +441,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 //						+ " " + point2nodeMapping.get(cursor));
 	}
 
-	@Override
 	public synchronized void updateTuioObject(TuioObject object) {
 		logger.debug(
 				"TUIO Gateway: updating object " + object
@@ -465,7 +457,6 @@ public class TuioGateway implements TuioListener, DomEventListener {
 				"TUIO Gateway: updated object " + object);
 	}
 
-	@Override
 	public void handleEvent(Event event, Node targetNode, Node currTargetNode) {
 //		TuioEvent tuioEvent = (TuioEvent) event;
 //		TuioPoint tuioPoint = tuioEvent.getTuioPoint();

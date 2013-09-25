@@ -88,7 +88,6 @@ public class DataflowProducer extends DatasetProducer {
 	public DataflowProducer(final DynamicGraph confGraph, DatasetProducer inputProd) {
 		this(
 				new GraphProducer() {
-					@Override
 					public boolean dependsFrom(Producer producer) {
 						return false;
 					}
@@ -110,7 +109,6 @@ public class DataflowProducer extends DatasetProducer {
 		this(
 				confGraph,
 				new DatasetProducer() {
-					@Override
 					public boolean dependsFrom(Producer producer) {
 						return false;
 					}
@@ -176,8 +174,8 @@ public class DataflowProducer extends DatasetProducer {
 			return RangeProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.IntegerRangeFromGraph.asNode()))
 			return RangeFunction.class;
-		else if (conf.contains(graphId, RDF.type.asNode(), DF.JmsInputGraph.asNode()))
-			return JmsInputGraphProducer.class;
+//		else if (conf.contains(graphId, RDF.type.asNode(), DF.JmsInputGraph.asNode()))
+//			return JmsInputGraphProducer.class;
 		throw new RuntimeException("Unrecognized Graph Producer for node " + graphId + " in graph " + conf);
 		//return null;
 	}
@@ -201,7 +199,6 @@ public class DataflowProducer extends DatasetProducer {
 			this.conf = conf;
 		}
 		
-		@Override
 		public Producer getRecProducer(Node graphId) {
 			if (graphId.equals(specialProducerNode)) {
 				found = true;
@@ -213,7 +210,6 @@ public class DataflowProducer extends DatasetProducer {
 							: innerProducerMap.getRecProducer(graphId);
 		}
 		
-		@Override
 		public Producer getProducer(Node graphId) {
 			Producer recProducer = getRecProducer(graphId);
 			if (recProducer != null)
@@ -238,7 +234,6 @@ public class DataflowProducer extends DatasetProducer {
 //		}
 			if (node.equals(SWI.InputDataset.asNode()))
 				return new DatasetProducer() {
-					@Override
 					public boolean dependsFrom(Producer producer) {
 						return false;
 					}
@@ -358,7 +353,6 @@ public class DataflowProducer extends DatasetProducer {
 		final RecursionDataset outputDataset = new RecursionDataset(outputProducer.createDataset(inputDataset));
 		
 		configGraph.getEventManager2().register(new Listener() {
-			@Override
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 //				System.out.println("Start of notifyUpdate()");
 				innerProds = new ConcurrentHashMap<Node, Producer>();
@@ -374,7 +368,6 @@ public class DataflowProducer extends DatasetProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return (producer == inputProd || producer == confProducer || inputProd.dependsFrom(producer) || confProducer.dependsFrom(producer));
 	}

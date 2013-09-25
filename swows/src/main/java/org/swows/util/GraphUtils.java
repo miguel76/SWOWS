@@ -62,7 +62,6 @@ public class GraphUtils {
 	
 	public static ExtendedIterator<Node> getPropertyValues(Graph graph, Node subject, Node predicate, final Set<Triple> tripleSet) {
 		return graph.find(subject, predicate, Node.ANY).mapWith(new Map1<Triple, Node>() {
-			@Override
 			public Node map1(Triple t) {
 				if (tripleSet != null)
 					tripleSet.add(t);

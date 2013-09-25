@@ -62,11 +62,9 @@ public class XmlReaderRIOTFactory implements ReaderRIOTFactory {
 //        model2.write(System.out, "TTL") ;
 	}
 
-	@Override
 	public ReaderRIOT create(Lang language) {
 		return new ReaderRIOT() {
 			
-			@Override
 			public void read(
 					InputStream in,
 					String baseURI,

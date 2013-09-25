@@ -108,13 +108,11 @@ public class TuioApp extends JFrame {
 			final boolean fullscreen, int width, int height, boolean autoRefresh ) {
 		super(title, gc);
 		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
-			@Override
 			public synchronized void run(final Runnable runnable) {
 				try {
 					while (batikRunnableQueue == null || cachingGraph == null) Thread.yield();
 //					while (batikRunnableQueue == null) Thread.yield();
 					batikRunnableQueue.invokeAndWait(new Runnable() {
-						@Override
 						public void run() {
 							runnable.run();
 							cachingGraph.sendEvents();
@@ -251,7 +249,6 @@ public class TuioApp extends JFrame {
 //								}).start();
 //							}
 //							private Document newDocument = null;
-							@Override
 							public void sendDocument(Document doc) {
 								newDocument = doc;
                                                               	}

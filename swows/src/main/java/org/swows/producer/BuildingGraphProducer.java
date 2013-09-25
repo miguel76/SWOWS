@@ -65,7 +65,6 @@ public class BuildingGraphProducer extends GraphProducer {
 		connectedProducer = prod;
 		prod.registerListener(
 				new GraphProducerListener() {
-					@Override
 					public void notifyGraphCreation(DynamicDataset inputDataset, DynamicGraph graph) {
 						getLocalGraph(inputDataset).setBaseGraph(graph);
 					}
@@ -83,7 +82,6 @@ public class BuildingGraphProducer extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return (producer == connectedProducer || connectedProducer.dependsFrom(producer));
 	}

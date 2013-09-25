@@ -66,7 +66,6 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 		}
 	}
 
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		if (baseGraphProducer.equals(producer) || baseGraphProducer.dependsFrom(producer))
 			return true;

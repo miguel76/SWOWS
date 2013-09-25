@@ -92,7 +92,6 @@ public class MouseInput implements DomEventListener {
 		return mouseEventGraph;
 	}
 	
-	@Override
 	public synchronized void handleEvent(Event event, Node currentTargetGraphNode , Node targetGraphNode ) {
 //		logger.debug("In " + this + " received event " + event);
 		MouseEvent mouseEvent = (MouseEvent) event;
@@ -170,7 +169,6 @@ public class MouseInput implements DomEventListener {
 						public void run() {
 							RunnableContextFactory.getDefaultRunnableContext().run(
 									new Runnable() {
-										@Override
 										public void run() {
 											logger.debug("Sending update events ... ");
 											mouseEventGraph.sendUpdateEvents();

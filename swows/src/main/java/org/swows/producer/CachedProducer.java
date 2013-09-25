@@ -57,7 +57,6 @@ public class CachedProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return (producer == connectedProducer || connectedProducer.dependsFrom(producer));
 	}
@@ -65,7 +64,6 @@ public class CachedProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		if (cachedGraphs.containsKey(inputDataset)) {
 			return cachedGraphs.get(inputDataset);
@@ -83,7 +81,6 @@ public class CachedProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		if (cachedDatasets.containsKey(inputDataset)) {
 			return cachedDatasets.get(inputDataset);

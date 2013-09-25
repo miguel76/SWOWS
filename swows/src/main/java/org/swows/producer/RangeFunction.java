@@ -81,17 +81,14 @@ public class RangeFunction extends GraphToSetFunction {
 //		final BigInteger start, end;
 		return new Iterator<Node>() {
 			private BigInteger index = start;
-			@Override
 			public boolean hasNext() {
 				return index.compareTo(end) <= 0;
 			}
-			@Override
 			public Node next() {
 				Node currNode = NodeFactory.createLiteral(index.toString(),XSDDatatype.XSDinteger);
 				index = index.add(BigInteger.ONE);
 				return currNode;
 			}
-			@Override
 			public void remove() {
 				throw new UnsupportedOperationException("Read-only Iterator");
 			}

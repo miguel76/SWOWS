@@ -605,77 +605,64 @@ public class SasFactory {
 //				fromElement(query.getQueryPattern()) ) );
 		update.visit(new UpdateVisitor() {
 			
-			@Override
 			public void visit(UpdateModify update) {
 				fromDeleteInsert(update, queryRootNode);
 			}
 			
-			@Override
 			public void visit(UpdateDeleteWhere update) {
 //				fromDeleteWhere(update, queryRootNode);
 			}
 			
-			@Override
 			public void visit(UpdateDataDelete update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateDataInsert update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateMove update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateCopy update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateAdd update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateLoad update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateCreate update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateClear update) {
 				// TODO Auto-generated method stub
 				
 			}
 			
-			@Override
 			public void visit(UpdateDrop update) {
 				// TODO Auto-generated method stub
 				
 			}
 
-			@Override
 			public Sink<Quad> createDeleteDataSink() {
 				// TODO Auto-generated method stub
 				return null;
 			}
 
-			@Override
 			public Sink<Quad> createInsertDataSink() {
 				// TODO Auto-generated method stub
 				return null;

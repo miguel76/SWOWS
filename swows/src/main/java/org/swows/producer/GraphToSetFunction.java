@@ -55,7 +55,6 @@ public abstract class GraphToSetFunction extends GraphFunction {
 	public DynamicGraph exec(final DynamicGraph input) {
 		final DynamicChangingGraph buildingGraph = new DynamicChangingGraph(execWorker(input));
 		input.getEventManager2().register(new Listener() {
-			@Override
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 				buildingGraph.setBaseGraph(execWorker(input));
 			}

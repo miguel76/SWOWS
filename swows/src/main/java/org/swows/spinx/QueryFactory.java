@@ -127,7 +127,6 @@ public class QueryFactory {
 	private ExtendedIterator<Node> getObjects(Node subjNode, Node predNode) {
 		return graph.find(subjNode, predNode, Node.ANY)
 				.mapWith(new Map1<Triple, Node>() {
-					@Override
 					public Node map1(Triple triple) {
 						return triple.getObject();
 					}
@@ -687,7 +686,6 @@ public class QueryFactory {
 		public int getPriority() {
 			return priority;
 		}
-		@Override
 		public int compareTo(ElementContext other) {
 			int priorityDiff = this.priority - other.priority;
 			return (priorityDiff != 0) ? priorityDiff : this.id - other.id;
@@ -887,45 +885,29 @@ public class QueryFactory {
 			if (tripleSubjNode instanceof Var)
 				producedVars.add((Var) tripleSubjNode);
 			triplePathNode.visit(new PathVisitor() {
-				@Override
 				public void visit(P_Seq pathSeq) {}
-				@Override
 				public void visit(P_Alt pathAlt) {}
-				@Override
 				public void visit(P_ZeroOrOne path) {}
-				@Override
 				public void visit(P_FixedLength pFixedLength) {}
-				@Override
 				public void visit(P_Mod pathMod) {}
-				@Override
 				public void visit(P_Inverse inversePath) {}
-				@Override
 				public void visit(P_NegPropSet pathNotOneOf) {}
-				@Override
 				public void visit(P_ReverseLink pathNode) {
 					Node predNode = pathNode.getNode();
 					if (predNode instanceof Var)
 						producedVars.add((Var) predNode);
 				}
-				@Override
 				public void visit(P_Link pathNode) {
 					Node predNode = pathNode.getNode();
 					if (predNode instanceof Var)
 						producedVars.add((Var) predNode);
 				}
-				@Override
 				public void visit(P_Distinct arg0) {}
-				@Override
 				public void visit(P_Multi arg0) {}
-				@Override
 				public void visit(P_Shortest arg0) {}
-				@Override
 				public void visit(P_ZeroOrMore1 arg0) {}
-				@Override
 				public void visit(P_ZeroOrMoreN arg0) {}
-				@Override
 				public void visit(P_OneOrMore1 arg0) {}
-				@Override
 				public void visit(P_OneOrMoreN arg0) {}
 			});
 			if (tripleObjNode instanceof Var)
@@ -1318,7 +1300,6 @@ public class QueryFactory {
 //					}
 //				})
 				.mapWith(new Map1<Triple, Triple>() {
-					@Override
 					public Triple map1(Triple triple) {
 						Node queryNode = triple.getSubject();
 						String queryString = toQuery(graph, queryNode).toString();

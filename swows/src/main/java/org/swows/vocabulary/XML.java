@@ -197,15 +197,12 @@ public class XML {
     public static final Iterator<com.hp.hpl.jena.graph.Node> nodeProperties() {
     	final Iterator<Property> propertyIterator = allProperties.iterator();
     	return new Iterator<com.hp.hpl.jena.graph.Node>() {
-			@Override
 			public boolean hasNext() {
 				return propertyIterator.hasNext();
 			}
-			@Override
 			public com.hp.hpl.jena.graph.Node next() {
 				return propertyIterator.next().asNode();
 			}
-			@Override
 			public void remove() {
 				propertyIterator.remove();
 			}
@@ -245,11 +242,9 @@ public class XML {
     
     private static final NodeList emptyNodeList =
     		new NodeList() {
-    			@Override
     			public Node item(int index) {
     				return null;
     			}
-    			@Override
     			public int getLength() {
     				return 0;
     			}
@@ -260,11 +255,9 @@ public class XML {
 		public SingleNodeList(Node node) {
 			this.node = node;
 		}
-		@Override
 		public int getLength() {
 			return 1;
 		}
-		@Override
 		public Node item(int index) {
 			return (index == 0) ? node : null;
 		}
@@ -312,11 +305,9 @@ public class XML {
 			if (attrMap == null)
 				return emptyNodeList;
 			return new NodeList() {
-				@Override
 				public Node item(int index) {
 					return attrMap.item(index);
 				}
-				@Override
 				public int getLength() {
 					return attrMap.getLength();
 				}
@@ -341,7 +332,6 @@ public class XML {
 						while (docNodes.hasNext())
 							nodeVector.add( docNodes.next() );
 					}
-					@Override
 					public Node item(int index) {
 						try {
 							return nodeVector.get(index);
@@ -349,7 +339,6 @@ public class XML {
 							return null;
 						}
 					}
-					@Override
 					public int getLength() {
 						return nodeVector.size();
 					}

@@ -32,7 +32,6 @@ public abstract class SimpleListener implements Listener {
 	protected abstract void notifyDelete(Graph source, Triple triple);
 	protected abstract void notifyAdd(Graph source, Triple triple);
 
-	@Override
 	public synchronized void notifyUpdate(Graph source, GraphUpdate update) {
 		beginNotify(source);
 		Iterator<Triple> addedTriples = update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);

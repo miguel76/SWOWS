@@ -103,12 +103,10 @@ public class SimpleGraphUpdate implements GraphUpdate {
 		return addedGraph.isEmpty() && deletedGraph.isEmpty();
 	}
 	
-	@Override
 	public Graph getAddedGraph() {
 		return addedGraph;
 	}
 
-	@Override
 	public Graph getDeletedGraph() {
 		return deletedGraph;
 	}

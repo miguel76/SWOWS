@@ -95,7 +95,6 @@ public class NotifyingProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		DynamicDataset innerDataset = innerProducer.createDataset(inputDataset);
 		notifyDatasetCreation(inputDataset, innerDataset);
@@ -105,7 +104,6 @@ public class NotifyingProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
-	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		DynamicGraph innerGraph = innerProducer.createGraph(inputDataset);
 		notifyGraphCreation(inputDataset, innerGraph);
@@ -115,7 +113,6 @@ public class NotifyingProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	@Override
 	public boolean dependsFrom(Producer producer) {
 		return (producer == innerProducer || innerProducer.dependsFrom(producer));
 	}
