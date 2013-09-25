@@ -1015,8 +1015,21 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //		}
 	}
 	
-	private DomDecoder(DynamicGraph graph) {
-		this.graph = graph;
+//	private DomDecoder(DynamicGraph graph) {
+//		this.graph = graph;
+//		this.updatesContext = this;
+//	}
+//
+	private DomDecoder(DomDecoder domDecoder) {
+		this.graph = domDecoder.graph;
+		this.elementCount = domDecoder.elementCount;
+		this.docRootNode = domDecoder.docRootNode;
+		this.domImplementation = domDecoder.domImplementation;
+		this.dom2childrenKeys = domDecoder.dom2childrenKeys;
+		this.dom2childrenOrderProperty = domDecoder.dom2childrenOrderProperty;
+		this.dom2descendingOrder = domDecoder.dom2descendingOrder;
+		this.dom2graphNodeMapping = domDecoder.dom2graphNodeMapping;
+		this.dom2orderedByKeyChildren = domDecoder.dom2orderedByKeyChildren;
 		this.updatesContext = this;
 	}
 
@@ -1157,7 +1170,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 							ExtendedIterator<Triple> addEventsIter =
 									update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);
 							
-							DomDecoder newDom = new DomDecoder(graph);
+							DomDecoder newDom = new DomDecoder(DomDecoder.this);
 							newDom.dom2graphNodeMapping =
 									(Map<org.w3c.dom.Node, Node>) ((HashMap<org.w3c.dom.Node, Node>) dom2graphNodeMapping).clone();
 //							newDom.graph2domNodeMapping = (Map<Node, Set<org.w3c.dom.Node>>) ((HashMap<Node, Set<org.w3c.dom.Node>>) graph2domNodeMapping).clone();
