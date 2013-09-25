@@ -35,6 +35,7 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
+import org.swows.graph.DynamicChangingGraph;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.SWI;
 
@@ -59,8 +60,7 @@ public class JmsInputGraph extends DynamicChangingGraph {
 //	private String filenameOrURI, baseURI, rdfSyntax;
 	
 	private ExceptionListener exceptionListener = new ExceptionListener() {
-		@Override
-	    public void onException(JMSException ex) {
+		public void onException(JMSException ex) {
 	        System.out.println("[" + this + "] Caught: " + ex);
 	        ex.printStackTrace();
 	    }
@@ -89,7 +89,6 @@ public class JmsInputGraph extends DynamicChangingGraph {
         	Destination destination = session.createQueue(subject);
         	MessageConsumer consumer = session.createConsumer(destination);
         	consumer.setMessageListener(new MessageListener() {
-        		@Override
         		public void onMessage(Message message) {
         	        try {
         	            if (message instanceof TextMessage) {
@@ -100,7 +99,6 @@ public class JmsInputGraph extends DynamicChangingGraph {
         	                model.read(new StringReader(msg), baseURI == null ? SWI.getURI() : baseURI, syntax);
         	                final Graph newGraph = model.getGraph();
         	                RunnableContextFactory.getDefaultRunnableContext().run(new Runnable() {
-        						@Override
         						public void run() {
         							setBaseGraph(newGraph);
         						}

@@ -17,11 +17,13 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.swows.producer;
+package org.swows.jms;
 
-import org.swows.graph.JmsInputGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
+import org.swows.producer.GraphProducer;
+import org.swows.producer.Producer;
+import org.swows.producer.ProducerMap;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
