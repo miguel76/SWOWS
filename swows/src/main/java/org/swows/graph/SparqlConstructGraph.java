@@ -47,7 +47,6 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
     private static final Logger logger = Logger.getLogger(SparqlConstructGraph.class);
 	
 	private Listener listener = new Listener() {
-		@Override
 		public void notifyUpdate(Graph source, GraphUpdate update) {
 			update();
 		}

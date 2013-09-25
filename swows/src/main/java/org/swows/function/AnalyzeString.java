@@ -139,7 +139,6 @@ public class AnalyzeString extends GraphReturningFunction {
 				return node;
 			}
 			
-			@Override
 			public void run() {
 				while (matcher.find()) {
 					if (matcher.start() > lastMatchedPos) {

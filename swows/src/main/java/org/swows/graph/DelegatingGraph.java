@@ -73,7 +73,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#close()
 	 */
-	@Override
 	public void close() {
 		getLocalBaseGraph().close();
 	}
@@ -81,7 +80,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#contains(com.hp.hpl.jena.graph.Triple)
 	 */
-	@Override
 	public boolean contains(Triple triple) {
 		return getLocalBaseGraph().contains(triple);
 	}
@@ -89,7 +87,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#contains(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public boolean contains(Node subject, Node predicate, Node object) {
 		return getLocalBaseGraph().contains(subject, predicate, object);
 	}
@@ -97,7 +94,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#delete(com.hp.hpl.jena.graph.Triple)
 	 */
-	@Override
 	public void delete(Triple triple) throws DeleteDeniedException {
 		getLocalBaseGraph().delete(triple);
 	}
@@ -105,7 +101,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#dependsOn(com.hp.hpl.jena.graph.Graph)
 	 */
-	@Override
 	public boolean dependsOn(Graph graph) {
 		return ( graph == getLocalBaseGraph() || getLocalBaseGraph().dependsOn(graph) );
 	}
@@ -113,7 +108,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#find(com.hp.hpl.jena.graph.TripleMatch)
 	 */
-	@Override
 	public ExtendedIterator<Triple> find(final TripleMatch tripleMatch) {
 		return getLocalBaseGraph().find(tripleMatch);
 	}
@@ -121,7 +115,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#find(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public ExtendedIterator<Triple> find(Node subject, Node predicate, Node object) {
 		return getLocalBaseGraph().find(subject, predicate, object);
 	}
@@ -129,7 +122,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getBulkUpdateHandler()
 	 */
-	@Override
 	@Deprecated
 	public BulkUpdateHandler getBulkUpdateHandler() {
 		return getLocalBaseGraph().getBulkUpdateHandler();
@@ -138,7 +130,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getCapabilities()
 	 */
-	@Override
 	public Capabilities getCapabilities() {
 		return getLocalBaseGraph().getCapabilities();
 	}
@@ -146,7 +137,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getEventManager()
 	 */
-	@Override
 	public GraphEventManager getEventManager() {
 		return getLocalBaseGraph().getEventManager();
 	}
@@ -154,7 +144,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getPrefixMapping()
 	 */
-	@Override
 	public PrefixMapping getPrefixMapping() {
 		return getLocalBaseGraph().getPrefixMapping();
 	}
@@ -162,7 +151,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getStatisticsHandler()
 	 */
-	@Override
 	public GraphStatisticsHandler getStatisticsHandler() {
 		return getLocalBaseGraph().getStatisticsHandler();
 	}
@@ -170,7 +158,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#getTransactionHandler()
 	 */
-	@Override
 	public TransactionHandler getTransactionHandler() {
 		return getLocalBaseGraph().getTransactionHandler();
 	}
@@ -178,7 +165,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#isClosed()
 	 */
-	@Override
 	public boolean isClosed() {
 		return getLocalBaseGraph().isClosed();
 	}
@@ -186,7 +172,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#isEmpty()
 	 */
-	@Override
 	public boolean isEmpty() {
 		return getLocalBaseGraph().isEmpty();
 	}
@@ -194,7 +179,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#isIsomorphicWith(com.hp.hpl.jena.graph.Graph)
 	 */
-	@Override
 	public boolean isIsomorphicWith(Graph graph) {
 		return getLocalBaseGraph().isIsomorphicWith(graph);
 	}
@@ -202,7 +186,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.Graph#size()
 	 */
-	@Override
 	public int size() {
 		return getLocalBaseGraph().size();
 	}
@@ -210,7 +193,6 @@ public abstract class DelegatingGraph implements Graph {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.graph.GraphAdd#add(com.hp.hpl.jena.graph.Triple)
 	 */
-	@Override
 	public void add(Triple triple) throws AddDeniedException {
 		getLocalBaseGraph().add(triple);
 	}

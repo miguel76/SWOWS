@@ -91,11 +91,9 @@ public class RecursionGraph extends DelegatingDynamicGraph {
 
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
 			localEventManager.notifyUpdate(new GraphUpdate() {
-				@Override
 				public Graph getAddedGraph() {
 					return addedGraph;
 				}
-				@Override
 				public Graph getDeletedGraph() {
 					return deletedGraph;
 				}

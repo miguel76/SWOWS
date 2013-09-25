@@ -63,7 +63,6 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 			final DynamicDataset originalInputDataset = inputDatasetIter.next();
 			eventGraph.getEventManager2().register(
 					new Listener() {
-						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate update) {
 							System.out.println("Start Add notifyUpdate");
 							System.out.println("This graph: " + baseGraphCopy);
@@ -115,7 +114,6 @@ public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 			final DynamicDataset originalInputDataset = inputDatasetIter.next();
 			eventGraph.getEventManager2().register(
 					new Listener() {
-						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate update) {
 //							System.out.println("Start Delete notifyUpdate");
 //							System.out.println("This graph: " + baseGraphCopy);

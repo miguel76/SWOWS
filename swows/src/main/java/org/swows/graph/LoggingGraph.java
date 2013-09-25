@@ -64,7 +64,6 @@ public class LoggingGraph extends DelegatingDynamicGraph {
 		graphListener =
 				new Listener() {
 
-					@Override
 					public void notifyUpdate(Graph source, GraphUpdate update) {
 						logger.debug("Notifying events");
 						traceGraph("Add Events Graph", update.getAddedGraph());

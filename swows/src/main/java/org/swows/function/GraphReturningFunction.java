@@ -67,7 +67,6 @@ public abstract class GraphReturningFunction implements Function {
 		return exec(params);
 	}
 
-    @Override
 	public NodeValue exec(
 			Binding binding,
             ExprList args,
@@ -115,7 +114,6 @@ public abstract class GraphReturningFunction implements Function {
             throw new QueryBuildException("Function '"+Utils.className(this)+"' takes " + getWantedArgNum() + " arguments") ;
     }
 
-	@Override
 	public void build(String uri, ExprList args) {
         //this.uri = uri ;
         //arguments = args ;

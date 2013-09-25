@@ -83,11 +83,9 @@ public class DynamicChangingGraph extends DynamicGraphFromGraph {
 						newGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
 		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
 			eventManager.notifyUpdate(new GraphUpdate() {
-				@Override
 				public Graph getAddedGraph() {
 					return addedGraph;
 				}
-				@Override
 				public Graph getDeletedGraph() {
 					return deletedGraph;
 				}

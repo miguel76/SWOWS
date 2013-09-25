@@ -62,7 +62,6 @@ public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 			final DynamicDataset originalInputDataset = inputDatasetIter.next();
 			eventGraph.getEventManager2().register(
 					new Listener() {
-						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
 //							System.out.println("Start Add notifyUpdate");
 //							System.out.println("This graph: " + baseGraphCopy);

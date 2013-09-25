@@ -89,14 +89,12 @@ public class FileApp extends JFrame {
 			final boolean fullscreen, int width, int height, Color bgColor) {
 		super(title, gc);
 		RunnableContextFactory.setDefaultRunnableContext(new RunnableContext() {
-			@Override
 			public synchronized void run(final Runnable runnable) {
 				try {
 					while (batikRunnableQueue == null || cachingGraph == null) Thread.yield();
 //					while (batikRunnableQueue == null) Thread.yield();
 					final long start = System.currentTimeMillis();
 					batikRunnableQueue.invokeAndWait(new Runnable() {
-						@Override
 						public void run() {
 							long runEntered = System.currentTimeMillis();
 							System.out.println(
@@ -182,7 +180,6 @@ public class FileApp extends JFrame {
 //								}).start();
 //							}
 //							private Document newDocument = null;
-							@Override
 							public void sendDocument(Document doc) {
 								newDocument = doc;
 							}

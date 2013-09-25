@@ -41,16 +41,13 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 		GraphUtil.deleteFrom(baseGraphCopy, deleteGraph);
 		baseGraph.getEventManager2().register(
 				new Listener() {
-					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
 						GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
 						GraphUtil.deleteFrom(baseGraphCopy, update.getDeletedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
-							@Override
 							public Graph getAddedGraph() {
 								return update.getAddedGraph();
 							}
-							@Override
 							public Graph getDeletedGraph() {
 								return update.getDeletedGraph();
 							}
@@ -59,15 +56,12 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 				} );
 		addGraph.getEventManager2().register(
 				new Listener() {
-					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
 						GraphUtil.addInto(baseGraphCopy, update.getAddedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
-							@Override
 							public Graph getAddedGraph() {
 								return update.getAddedGraph();
 							}
-							@Override
 							public Graph getDeletedGraph() {
 								return Graph.emptyGraph;
 							}
@@ -76,15 +70,12 @@ public class UpdatableGraph extends DelegatingDynamicGraph {
 				} );
 		deleteGraph.getEventManager2().register(
 				new Listener() {
-					@Override
 					public void notifyUpdate(Graph source, final GraphUpdate update) {
 						GraphUtil.deleteFrom(baseGraphCopy, update.getAddedGraph());
 						getEventManager2().notifyUpdate(new GraphUpdate() {
-							@Override
 							public Graph getAddedGraph() {
 								return Graph.emptyGraph;
 							}
-							@Override
 							public Graph getDeletedGraph() {
 								return update.getAddedGraph();
 							}

@@ -51,7 +51,6 @@ public class Factory implements FunctionFactory {
 		return BASE_URI;
 	}
 
-	@Override
 	public Function create(String uri) {
 		if (uri.startsWith(BASE_URI)) {
 			String functionName = uri.substring(BASE_URI_LENGTH);

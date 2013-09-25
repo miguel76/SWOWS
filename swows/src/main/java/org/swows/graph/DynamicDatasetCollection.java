@@ -41,24 +41,18 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
     private final Lock lock = new LockMRSW() ;
     private Context context = new Context() ;
 
-    @Override
     public void add(Node g, Node s, Node p, Node o)     { add(new Quad(g,s,p,o)) ; }  
-    @Override
     public void delete(Node g, Node s, Node p, Node o)  { delete(new Quad(g,s,p,o)) ; }
     
-    @Override
     public void removeGraph(Node graphName)
     { throw new UnsupportedOperationException("DatasetGraph.removeGraph") ; }
 
-    @Override
     public void addGraph(Node graphName, DynamicGraph graph)
     { throw new UnsupportedOperationException("DatasetGraph.addGraph") ; }
 
-    @Override
     public void setDefaultGraph(DynamicGraph g)
     { throw new UnsupportedOperationException("DatasetGraph.setDefaultGraph") ; }
     
-    @Override
     /** Simple implementation */
     public void deleteAny(Node g, Node s, Node p, Node o)
     { 
@@ -68,22 +62,18 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
             delete(q) ;
     }
     
-    @Override
     public Iterator<Quad> find()
     { return find(Node.ANY, Node.ANY, Node.ANY, Node.ANY) ; }
 
     
-    @Override
     public Iterator<Quad> find(Quad quad)
     { 
         if ( quad == null )
             return find() ;
         return find(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ; }
     
-    @Override
     public boolean contains(Quad quad) { return contains(quad.getGraph(), quad.getSubject(), quad.getPredicate(), quad.getObject()) ; }
 
-    @Override
     public boolean contains(Node g, Node s, Node p , Node o)
     {
         Iterator<Quad> iter = find(g, s, p, o) ;
@@ -97,28 +87,23 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
         return g == null || g == Node.ANY ;
     }
     
-    @Override
     public boolean isEmpty()
     {
         return ! contains(Node.ANY, Node.ANY, Node.ANY, Node.ANY) ;
     }
 
-    @Override
     public long size() { return -1 ; } 
     
-    @Override
     public Lock getLock()
     {
         return lock ;
     }
     
-    @Override
     public Context getContext()
     {
         return context ;
     }
     
-    @Override
     public void close()
     { }
     
@@ -143,7 +128,6 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
     protected static Iter<Quad> triples2quads(final Node graphNode, Iterator<Triple> iter)
     {
         Transform<Triple, Quad> transformNamedGraph = new Transform<Triple, Quad>() {
-            @Override
             public Quad convert(Triple triple)
             {
                 return new Quad(graphNode, triple) ;
@@ -153,11 +137,9 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
         return Iter.iter(iter).map(transformNamedGraph) ;
     }
 
-    @Override
     public boolean containsGraph(Node graphNode)
     { return contains(graphNode, Node.ANY, Node.ANY, Node.ANY) ; }
 
-    @Override
     public void add(Quad quad)
     {
         DynamicGraph g = fetchGraph(quad.getGraph()) ;
@@ -167,14 +149,12 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
         g.add(quad.asTriple()) ;
     }
 
-    @Override
     public void delete(Quad quad)
     {
     	DynamicGraph g = fetchGraph(quad.getGraph()) ;
         g.delete(quad.asTriple()) ;
     }
     
-    @Override
     public Iterator<Quad> find(Node g, Node s, Node p , Node o)
     {
         if ( ! isWildcard(g) )
@@ -190,7 +170,6 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
         return findAny(s, p, o) ;
     }
     
-    @Override
     public Iterator<Quad> findNG(Node g, Node s, Node p , Node o)
     {
         Iterator<Quad> qIter ;
@@ -244,7 +223,6 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
         return iter ;
     }
     
-    @Override
     public abstract Iterator<Node> listGraphNodes() ;
 
     protected DynamicGraph fetchGraph(Node gn)

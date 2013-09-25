@@ -59,7 +59,6 @@ public class LocalGraphStore extends DelegatingDynamicDataset {
 							inputDataset.getGraph(nextGraphNode);
 			eventGraph.getEventManager2().register(
 					new Listener() {
-						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
 							update(updateEvent);
 						}

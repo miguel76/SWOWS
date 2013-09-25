@@ -49,15 +49,12 @@ public class SingleGraphDataset extends DynamicDatasetCollection {
 	@Override
 	public Iterator<Node> listGraphNodes() {
 		return new Iterator<Node>() {
-			@Override
 			public boolean hasNext() {
 				return false;
 			}
-			@Override
 			public Node next() {
 				throw new NoSuchElementException();
 			}
-			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}

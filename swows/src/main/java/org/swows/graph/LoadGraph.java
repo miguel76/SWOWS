@@ -87,7 +87,6 @@ public class LoadGraph extends DynamicChangingGraph {
 				@Override
 				public void run() {
 					RunnableContextFactory.getDefaultRunnableContext().run(new Runnable() {
-						@Override
 						public void run() {
 							update();
 						}

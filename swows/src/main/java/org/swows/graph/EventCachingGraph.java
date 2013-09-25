@@ -70,7 +70,6 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 //					}
 //				};
 		connectedGraph.getEventManager2().register(new Listener() {
-			@Override
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 				getCachedGraphUpdates().add(update);
 			}

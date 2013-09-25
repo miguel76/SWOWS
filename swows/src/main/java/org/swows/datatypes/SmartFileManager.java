@@ -78,8 +78,7 @@ public class SmartFileManager extends FileManager {
     					RDF.type.asNode(),
     					DF.IncludedGraph.asNode()).mapWith(
     							new Map1<Triple, Node>() {
-    								@Override
-    								public Node map1(Triple t) {
+     								public Node map1(Triple t) {
     									Node graphNode = t.getSubject();
     									return graphNode;
     								}
@@ -118,7 +117,6 @@ public class SmartFileManager extends FileManager {
     	graph.add(new Triple (graphNode, RDF.type.asNode(), DF.InlineGraph.asNode()));
     	Iterator<Node> iter = includedGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(
     			new Map1<Triple, Node>() {
-					@Override
 					public Node map1(Triple t) {
 						Node tripleNode = Skolemizer.getInstance().getNode();
 				    	graph.add(new Triple (graphNode, DF.triple.asNode(), tripleNode));
@@ -161,7 +159,6 @@ public class SmartFileManager extends FileManager {
     					RDF.type.asNode(),
     					DF.IncludedGraph.asNode()).mapWith(
     							new Map1<Triple, Node>() {
-    								@Override
     								public Node map1(Triple t) {
     									triplesToDelete.add(t);
     									Node graphNode = t.getSubject();
@@ -191,7 +188,6 @@ public class SmartFileManager extends FileManager {
     	List<Node> nodesConfiguredBy =
     			graph.find(Node.ANY, DF.config.asNode(), graphNode)
     			.mapWith(new Map1<Triple, Node>() {
-					@Override
 					public Node map1(Triple t) {
 						triplesToDelete.add(t);
 						return t.getSubject();

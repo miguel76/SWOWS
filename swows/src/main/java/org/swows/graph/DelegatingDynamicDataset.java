@@ -59,7 +59,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#add(com.hp.hpl.jena.sparql.core.Quad)
 	 */
-	@Override
 	public void add(Quad quad) {
 		getLocalDataset().add(quad);
 	}
@@ -75,7 +74,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#close()
 	 */
-	@Override
 	public void close() {
 		getLocalDataset().close();
 	}
@@ -83,7 +81,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#contains(com.hp.hpl.jena.sparql.core.Quad)
 	 */
-	@Override
 	public boolean contains(Quad quad) {
 		return getLocalDataset().contains(quad);
 	}
@@ -91,7 +88,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#contains(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public boolean contains(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().contains(g, s, p, o);
 	}
@@ -99,7 +95,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#containsGraph(com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public boolean containsGraph(Node graphNode) {
 		return getLocalDataset().containsGraph(graphNode);
 	}
@@ -107,7 +102,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#delete(com.hp.hpl.jena.sparql.core.Quad)
 	 */
-	@Override
 	public void delete(Quad quad) {
 		getLocalDataset().delete(quad);
 	}
@@ -115,7 +109,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#deleteAny(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public void deleteAny(Node g, Node s, Node p, Node o) {
 		getLocalDataset().deleteAny(g, s, p, o);
 	}
@@ -123,7 +116,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find()
 	 */
-	@Override
 	public Iterator<Quad> find() {
 		return getLocalDataset().find();
 	}
@@ -131,7 +123,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find(com.hp.hpl.jena.sparql.core.Quad)
 	 */
-	@Override
 	public Iterator<Quad> find(Quad quad) {
 		return getLocalDataset().find(quad);
 	}
@@ -139,7 +130,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public Iterator<Quad> find(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().find(g, s, p, o);
 	}
@@ -147,7 +137,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#findNG(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public Iterator<Quad> findNG(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().findNG(g, s, p, o);
 	}
@@ -155,7 +144,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getContext()
 	 */
-	@Override
 	public Context getContext() {
 		return getLocalDataset().getContext();
 	}
@@ -163,7 +151,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getDefaultGraph()
 	 */
-	@Override
 	public DynamicGraph getDefaultGraph() {
 		return getLocalDataset().getDefaultGraph();
 	}
@@ -171,7 +158,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getGraph(com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public DynamicGraph getGraph(Node graphNode) {
 		return getLocalDataset().getGraph(graphNode);
 	}
@@ -179,7 +165,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getLock()
 	 */
-	@Override
 	public Lock getLock() {
 		return getLocalDataset().getLock();
 	}
@@ -187,7 +172,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#isEmpty()
 	 */
-	@Override
 	public boolean isEmpty() {
 		return getLocalDataset().isEmpty();
 	}
@@ -195,7 +179,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#listGraphNodes()
 	 */
-	@Override
 	public Iterator<Node> listGraphNodes() {
 		return getLocalDataset().listGraphNodes();
 	}
@@ -203,7 +186,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#removeGraph(com.hp.hpl.jena.graph.Node)
 	 */
-	@Override
 	public void removeGraph(Node graphName) {
 		getLocalDataset().removeGraph(graphName);
 	}
@@ -211,7 +193,6 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#setDefaultGraph(com.hp.hpl.jena.graph.Graph)
 	 */
-	@Override
 	public void setDefaultGraph(DynamicGraph g) {
 		getLocalDataset().setDefaultGraph(g);
 	}
@@ -219,17 +200,14 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#size()
 	 */
-	@Override
 	public long size() {
 		return getLocalDataset().size();
 	}
 
-	@Override
 	public void add(Node g, Node s, Node p, Node o) {
 		getLocalDataset().add(g, s, p, o);
 	}
 
-	@Override
 	public void delete(Node g, Node s, Node p, Node o) {
 		getLocalDataset().delete(g, s, p, o);
 	}

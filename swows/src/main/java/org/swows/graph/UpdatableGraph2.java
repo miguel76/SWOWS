@@ -77,7 +77,6 @@ public class UpdatableGraph2 extends DelegatingDynamicGraph {
 			graphStore.addGraph(nextGraphNode, currGraph);
 			currGraph.getEventManager2().register(
 					new Listener() {
-						@Override
 						public synchronized void notifyUpdate(Graph source, final GraphUpdate updateEvent) {
 							update(updateEvent);
 //							((DynamicGraphFromGraph) baseGraphCopy).sendUpdateEvents();
