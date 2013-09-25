@@ -1015,8 +1015,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //		}
 	}
 	
-	private DomDecoder(Graph graph) {
-		//this.graph = graph;
+	private DomDecoder(DynamicGraph graph) {
+		this.graph = graph;
 		this.updatesContext = this;
 	}
 
