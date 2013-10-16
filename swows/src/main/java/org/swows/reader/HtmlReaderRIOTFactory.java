@@ -42,10 +42,11 @@ public class HtmlReaderRIOTFactory implements ReaderRIOTFactory {
 	
 //	public static final String XML_SYNTAX_URI = "http://www.swows.org/syntaxes/XML";
 
-	protected static void initialize() {
-//		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, HtmlReaderRIOTFactory.class.getCanonicalName());
+//	static boolean initialized = false;
+	
+	static {
 
-        Lang lang =
+		Lang lang =
         		LangBuilder
         		.create("HTML", "text/html")
         		.addFileExtensions("htm","html").build() ;
@@ -55,6 +56,22 @@ public class HtmlReaderRIOTFactory implements ReaderRIOTFactory {
         // Register the parser factory.
         ReaderRIOTFactory factory = new HtmlReaderRIOTFactory() ;
         RDFParserRegistry.registerLangTriples(lang, factory) ;
+		
+	}
+	
+	protected static void initialize() {
+//		RDFReaderFImpl.setBaseReaderClassName(XML_SYNTAX_URI, HtmlReaderRIOTFactory.class.getCanonicalName());
+
+//        Lang lang =
+//        		LangBuilder
+//        		.create("HTML", "text/html")
+//        		.addFileExtensions("htm","html").build() ;
+//        // This just registers the name, not the parser.
+//        RDFLanguages.register(lang) ;
+//        
+//        // Register the parser factory.
+//        ReaderRIOTFactory factory = new HtmlReaderRIOTFactory() ;
+//        RDFParserRegistry.registerLangTriples(lang, factory) ;
         
 //        // Optional extra:
 //        // If needed to set or override the syntax, register the name explicitly ...
