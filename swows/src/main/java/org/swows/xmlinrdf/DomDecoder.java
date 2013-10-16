@@ -69,6 +69,15 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
     private static final Logger logger = Logger.getLogger(DomDecoder.class);
     private static final Comparator<Node> nodeComparator = new NodeComparator();
+    
+    private static final String specialXmlNamespacesSeparator = "#";
+    private static final Set<String> specialXmlNamespaces = new HashSet<>(2);
+    static {
+    	specialXmlNamespaces.add("http://www.w3.org/1999/xhtml");
+    	specialXmlNamespaces.add("http://www.w3.org/2000/svg");
+    }
+    
+//    private static String specialNamespace(String )
 
 	private DocumentReceiver docReceiver;
 	private DOMImplementation domImplementation;
