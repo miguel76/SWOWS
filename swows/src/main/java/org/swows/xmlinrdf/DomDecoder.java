@@ -465,8 +465,6 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //			}
 //		}
 
-		setupElementChildren(elementNode, element);
-		
 //		System.out.println("Looking for eventListeners in element " + element + " (" + elementNode + ")");
 		Iterator<Node> eventTypeNodes = GraphUtils.getPropertyValues(graph, elementNode, XML.listenedEventType.asNode());
 		while (eventTypeNodes.hasNext()) {
@@ -494,6 +492,9 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				
 			}
 		}
+		setupElementChildren(elementNode, element);
+		
+
 	}
 
 	private Element decodeElement(final Node elementNode) {
