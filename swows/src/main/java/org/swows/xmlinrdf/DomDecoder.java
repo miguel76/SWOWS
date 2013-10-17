@@ -113,7 +113,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 						((EventTarget) target).addEventListener(type, listener, useCapture);
 				}
 			};
-	private EventManager eventManager = DEFAULT_EVENT_MANAGER;
+	private EventManager eventManager;// = DEFAULT_EVENT_MANAGER;
 	
 //	private Map<String, Set<Element>> eventType2elements = new HashMap<String, Set<Element>>();
 //	private Map<Element, Set<String>> element2eventTypes = new HashMap<Element, Set<String>>();
@@ -473,6 +473,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				String eventType = eventTypeNode.getLiteralLexicalForm();
 //				System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
 //				((EventTarget) element).addEventListener(eventType, this, false);
+				logger.trace("Calling addEventListener() for new node");
 				eventManager.addEventListener(elementNode, element, eventType, this, false);
 				
 //				Set<Element> elemsForEventType = eventType2elements.get(eventType);
@@ -1040,6 +1041,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		this.dom2descendingOrder = domDecoder.dom2descendingOrder;
 		this.dom2graphNodeMapping = domDecoder.dom2graphNodeMapping;
 		this.dom2orderedByKeyChildren = domDecoder.dom2orderedByKeyChildren;
+		this.eventManager = domDecoder.eventManager;
 		this.updatesContext = this;
 	}
 
@@ -1075,7 +1077,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			DynamicGraph graph, Node docRootNode,
 			DOMImplementation domImpl,
 			RunnableContext updatesContext) {
-		this(graph, docRootNode, domImpl, updatesContext,(EventManager) null);
+		this(graph, docRootNode, domImpl, updatesContext,DEFAULT_EVENT_MANAGER);
 	}
 	
 	private DomDecoder(
@@ -1091,7 +1093,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			DOMImplementation domImpl,
 			RunnableContext updatesContext,
 			DocumentReceiver docReceiver) {
-		this(graph, docRootNode, domImpl, updatesContext, docReceiver, null);
+		this(graph, docRootNode, domImpl, updatesContext, docReceiver, DEFAULT_EVENT_MANAGER);
 	}
 	
 	private DomDecoder(
@@ -1321,7 +1323,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 										if (eventTypeNode.isLiteral()) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
-//												System.out.println("Registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element + " (" + elementNode + ")");
+												logger.trace("On add, registering eventListener for type " + eventTypeNode.getLiteralLexicalForm() + " in element " + element /*+ " (" + elementNode + ")"*/);
 //												((EventTarget) element).addEventListener(eventTypeNode.getLiteralLexicalForm(), DomDecoder2.this, false);
 												eventManager.addEventListener(
 													newTriple.getSubject(),
