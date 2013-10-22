@@ -1419,7 +1419,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 											graph.contains(
 													oldTriple.getPredicate(),
 													RDFS.subClassOf.asNode(),
-													XML.Attr.asNode() ) ) {
+													XML.Attr.asNode() )
+											&& !update.getAddedGraph().contains(oldTriple.getSubject(), oldTriple.getPredicate(), Node.ANY) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
 											newDom.removeAttr(element, oldTriple.getPredicate());
