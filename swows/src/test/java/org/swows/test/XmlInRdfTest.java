@@ -48,7 +48,7 @@ public class XmlInRdfTest {
 
 	public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
 //		String xmlUri = "/home/miguel/Scaricati/there.is.only.xul";
-		String xmlUri = "/home/miguel/worldInfo2/svg/BlankMapWithRadioBox.svg";
+		String xmlUri = "/home/miguel/Dropbox/Demo/fao/BlankMap-World-Microstates.svg";
 		
 //		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 //		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();

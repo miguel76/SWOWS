@@ -212,6 +212,7 @@ public class DomEncoder {
 		public void startDocument() throws SAXException {
 			docNode = NodeFactory.createURI(docURI);
 			outputStream.triple(new Triple(docNode, RDF.type.asNode(), XML.Document.asNode()));
+			childrenCountStack.push(0);
 		}
 
 		public void startPrefixMapping(String prefix, String uri)
@@ -269,6 +270,8 @@ public class DomEncoder {
 			
 			Node typeNode = getElementTypeNode(uri, localName);
 			outputStream.triple(new Triple(newNode, RDF.type.asNode(), typeNode));
+			// TODO: allow it to work as default or let it be generic to allow reuse of children
+			outputStream.triple(new Triple(newNode, XML.childrenOrderedBy.asNode(), XML.orderKey.asNode()));
 			
 			if (nextIsRootElement) {
 				outputStream.triple(new Triple(docNode, XML.hasChild.asNode(), newNode));

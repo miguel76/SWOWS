@@ -58,6 +58,7 @@ import org.w3c.dom.events.EventTarget;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.sparql.expr.NodeValue;
 import com.hp.hpl.jena.sparql.util.NodeComparator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
@@ -68,7 +69,13 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	
 	private static String VOID_NAMESPACE = "http://www.swows.org/xml/no-namespace";
     private static final Logger logger = Logger.getLogger(DomDecoder.class);
-    private static final Comparator<Node> nodeComparator = new NodeComparator();
+    private static final Comparator<Node> nodeComparator = new Comparator<Node>() {
+
+		@Override
+		public int compare(Node node1, Node node2) {
+			return NodeValue.compareAlways(NodeValue.makeNode(node1), NodeValue.makeNode(node2));
+		}
+	};
     
     private static final String specialXmlNamespacesSeparator = "#";
     private static final Set<String> specialXmlNamespaces = new HashSet<>(2);
