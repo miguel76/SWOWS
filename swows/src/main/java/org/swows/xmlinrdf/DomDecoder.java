@@ -73,7 +73,15 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 
 		@Override
 		public int compare(Node node1, Node node2) {
-			return NodeValue.compareAlways(NodeValue.makeNode(node1), NodeValue.makeNode(node2));
+			return
+					(node1 == null) ?
+							( (node2 == null) ? 0 : -1 ) :
+							( (node2 == null) ?
+									1 :
+									NodeValue.compareAlways(
+											NodeValue.makeNode(node1),
+											NodeValue.makeNode(node2)));
+							// TODO check > semantics in sparql
 		}
 	};
     

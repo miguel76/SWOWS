@@ -271,7 +271,8 @@ public class DomEncoder {
 			Node typeNode = getElementTypeNode(uri, localName);
 			outputStream.triple(new Triple(newNode, RDF.type.asNode(), typeNode));
 			// TODO: allow it to work as default or let it be generic to allow reuse of children
-			outputStream.triple(new Triple(newNode, XML.childrenOrderedBy.asNode(), XML.orderKey.asNode()));
+			//outputStream.triple(new Triple(newNode, XML.childrenOrderedBy.asNode(), XML.orderKey.asNode()));
+			// TODO: drop workaround to avoid multiple values
 			
 			if (nextIsRootElement) {
 				outputStream.triple(new Triple(docNode, XML.hasChild.asNode(), newNode));
