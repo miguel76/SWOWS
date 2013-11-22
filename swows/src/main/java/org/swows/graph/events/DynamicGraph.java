@@ -25,6 +25,6 @@ public interface DynamicGraph extends Graph {
 	
 	public EventManager getEventManager2();
 	
-	public DynamicGraph emptyGraph = new DynamicGraphFromGraph(Graph.emptyGraph);
-
+	public static DynamicGraph emptyGraph = new DynamicGraphFromGraph(Graph.emptyGraph, Transaction.newTransaction());
+	
 }

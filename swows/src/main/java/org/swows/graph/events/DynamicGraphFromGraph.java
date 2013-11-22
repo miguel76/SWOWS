@@ -44,22 +44,29 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	protected Graph baseGraph;
 	protected EventManager eventManager;
 	private SimpleGraphUpdate currGraphUpdate = null;
+	private Transaction currTransaction = null;
 	protected Logger logger = Logger.getLogger(this.getClass());
+	
+	public synchronized void setCurrTransaction(Transaction transaction) {
+		currTransaction = transaction;
+	}
 			
 	private SimpleGraphUpdate getCurrGraphUpdate() {
 		if (currGraphUpdate == null)
-			currGraphUpdate = new SimpleGraphUpdate(baseGraph);
+			currGraphUpdate = new SimpleGraphUpdate(currTransaction, baseGraph);
 		return currGraphUpdate;
 	}
 	
-	public DynamicGraphFromGraph(Graph graph) {
+	public DynamicGraphFromGraph(Graph graph, Transaction transaction) {
 		baseGraph = graph;
+		currTransaction = transaction;
 		this.eventManager = new SimpleEventManager(this);
 		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
 
-	public DynamicGraphFromGraph(Graph graph, EventManager eventManager) {
+	public DynamicGraphFromGraph(Graph graph, Transaction transaction, EventManager eventManager) {
 		baseGraph = graph;
+		currTransaction = transaction;
 		this.eventManager = eventManager;
 		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}

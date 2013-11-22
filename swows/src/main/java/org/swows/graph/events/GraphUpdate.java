@@ -25,8 +25,6 @@ public interface GraphUpdate {
 	
 	public Graph getAddedGraph();
 	public Graph getDeletedGraph();
-//	public Set<Triple> getAddedTriples();
-//	public Set<Triple> getRemovedTriples();
-//	public Transaction getTransaction();
+	public Transaction getTransaction();
 
 }

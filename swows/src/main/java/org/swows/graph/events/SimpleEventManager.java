@@ -83,4 +83,12 @@ public class SimpleEventManager implements EventManager {
 //		logger.debug("Ended notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
 	}
 
+	@Override
+	public void commit(Transaction transaction) {
+		for (Listener l:listeners) {
+			logger.debug("commit " + transaction + " to " + Utils.standardStr(l));
+			l.commit(transaction);
+		}
+	}
+
 }

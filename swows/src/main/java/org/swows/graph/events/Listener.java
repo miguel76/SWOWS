@@ -24,5 +24,6 @@ import com.hp.hpl.jena.graph.Graph;
 public interface Listener {
 
     public void notifyUpdate( Graph source, GraphUpdate update );
-
+    public void commit( Transaction transaction );
+    
 }

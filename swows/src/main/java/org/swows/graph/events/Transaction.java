@@ -20,5 +20,24 @@
 package org.swows.graph.events;
 
 public class Transaction {
-
+	
+	static private int transactionCount = 0;
+	
+	private int id;
+//	private boolean open = true;
+	
+	private Transaction(int id) {
+		this.id = id;
+	}
+	
+	public static synchronized Transaction newTransaction() {
+		return new Transaction(transactionCount++);
+	}
+	
+	public boolean equals(Object obj) {
+		if (! (obj instanceof Transaction) )
+			return false;
+		return ((Transaction) obj).id == id;
+	}
+	
 }

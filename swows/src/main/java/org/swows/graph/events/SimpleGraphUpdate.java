@@ -29,15 +29,16 @@ import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class SimpleGraphUpdate implements GraphUpdate {
 	
+	private Transaction transaction;
 	private Graph baseGraph;
 	private Graph addedGraph = GraphFactory.createGraphMem();
 	private Graph deletedGraph = GraphFactory.createGraphMem();
 	
-	public SimpleGraphUpdate() {
-		this(null);
+	public SimpleGraphUpdate(Transaction transaction) {
+		this(transaction,null);
 	}
 
-	public SimpleGraphUpdate(Graph baseGraph) {
+	public SimpleGraphUpdate(Transaction transaction, Graph baseGraph) {
 		this.baseGraph = baseGraph;
 	}
 
@@ -109,6 +110,11 @@ public class SimpleGraphUpdate implements GraphUpdate {
 
 	public Graph getDeletedGraph() {
 		return deletedGraph;
+	}
+
+	@Override
+	public Transaction getTransaction() {
+		return transaction;
 	}
 
 }
