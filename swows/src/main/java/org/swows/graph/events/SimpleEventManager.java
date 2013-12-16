@@ -71,14 +71,19 @@ public class SimpleEventManager implements EventManager {
 		return listeners.size() > 0;
 	}
 
-	public void notifyUpdate(GraphUpdate update) {
-	    notifyUpdate(graph, update); 
+	@Override
+	public void startTransaction(Transaction transaction) {
+		for (Listener l:listeners) {
+			logger.debug("start transaction " + transaction + " to " + Utils.standardStr(l));
+			l.startTransaction(transaction);
+		}
 	}
 
-	public void notifyUpdate(Graph source, GraphUpdate update) {
+	@Override
+	public void notifyUpdate(Transaction transaction) {
 		for (Listener l:listeners) {
-			logger.debug("notifying update " + update + " from " + Utils.standardStr(source) + " to " + Utils.standardStr(l));
-			l.notifyUpdate( source, update ); 
+			logger.debug("notifying update for " + transaction + " to " + Utils.standardStr(l));
+			l.notifyUpdate( transaction ); 
 		}
 //		logger.debug("Ended notifying update " + update + " from " + Utils.standardStr(source) + " in " + this);
 	}

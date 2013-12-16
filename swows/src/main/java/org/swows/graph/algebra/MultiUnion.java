@@ -19,17 +19,24 @@
  */
 package org.swows.graph.algebra;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.Vector;
 
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
+import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.graph.events.SimpleGraphUpdate;
 import org.swows.graph.events.SimpleListener;
+import org.swows.graph.events.Transaction;
 import org.swows.util.Utils;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
 /**
@@ -37,66 +44,91 @@ import com.hp.hpl.jena.graph.Triple;
  * events management functionality.
  */
 public class MultiUnion extends DynamicGraphFromGraph {
+	
+	private ArrayList<DynamicGraph> inputGraphs = new ArrayList<DynamicGraph>();
+	
+	// TODO: move to DynamicGraphFromGraph?
+	private Queue<Transaction> transactionQueue = new ArrayDeque<Transaction>();
 
-	private Listener localListener = new SimpleListener() {
+	private void registerListener(final DynamicGraph source) {
+		source.getEventManager().register(
+   			 new Listener() {
+   					
+   					SimpleGraphUpdate currGraphUpdate;
+
+   					protected void notifyDelete(Triple triple) {
+   				        for (DynamicGraph currGraph: inputGraphs ) {
+  							if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
+   								return;
+   						}
+   						currGraphUpdate.putDeletedTriple(triple);
+   					}
+
+   					protected void notifyAdd(Triple triple) {
+   				        for (DynamicGraph currGraph: inputGraphs ) {
+   							if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
+   								return;
+   						}
+   						currGraphUpdate.putAddedTriple(triple);
+   					}
+
+   					protected void beginNotify(Transaction transaction) {
+   						currGraphUpdate = new SimpleGraphUpdate(transaction);
+   					}
+
+   					protected void endNotify(Transaction transaction) {
+   						if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
+   							logger.debug("sending update events in " + Utils.standardStr(this));
+   							eventManager.notifyUpdate(transaction);
+   						}
+   						currGraphUpdate = null;
+   					}
+
+   					public synchronized void notifyUpdate(Transaction transaction) {
+   						beginNotify(transaction);
+   						GraphUpdate update = source.getCurrentGraphUpdate();
+   						Iterator<Triple> addedTriples = update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);
+   						while( addedTriples.hasNext() )
+   							notifyAdd( addedTriples.next() );
+   						Iterator<Triple> deletedTriples = update.getDeletedGraph().find(Node.ANY, Node.ANY, Node.ANY);
+   						while( deletedTriples.hasNext() )
+   							notifyDelete( deletedTriples.next() );
+   						endNotify(transaction);
+   					}
+
+					@Override
+					public void startTransaction(Transaction transaction) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void commit(Transaction transaction) {
+						// TODO Auto-generated method stub
+						
+					}
+
+   				}
+   			);
 		
-		SimpleGraphUpdate currGraphUpdate;
-
-		@Override
-		protected void notifyDelete(Graph source, Triple triple) {
-			for (Graph currGraph: getSubGraphs()) {
-				if (currGraph != source && currGraph.contains(triple))
-					return;
-			}
-			currGraphUpdate.putDeletedTriple(triple);
-		}
-
-		@Override
-		protected void notifyAdd(Graph source, Triple triple) {
-			for (Graph currGraph: getSubGraphs()) {
-				if (currGraph != source && currGraph.contains(triple))
-					return;
-			}
-			currGraphUpdate.putAddedTriple(triple);
-		}
-
-		@Override
-		protected void beginNotify(Graph source) {
-			currGraphUpdate = new SimpleGraphUpdate();
-		}
-
-		@Override
-		protected void endNotify(Graph source) {
-			if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
-				logger.debug("sending update events in " + Utils.standardStr(this));
-				eventManager.notifyUpdate(currGraphUpdate);
-			}
-			currGraphUpdate = null;
-		}
-
-	};
-
+	}
+	
 	private void registerListener() {
-        for (Graph g: getSubGraphs() ) {
-        	( (DynamicGraph) g ).getEventManager2().register(localListener);
+        for (DynamicGraph g: inputGraphs ) {
+        	registerListener(g);
         }
 	}
 	
 	private com.hp.hpl.jena.graph.compose.MultiUnion getBaseMultiUnion() {
-		return (com.hp.hpl.jena.graph.compose.MultiUnion) baseGraph;
-	}
-
-	private List<Graph> getSubGraphs() {
-		List<Graph> subGraphs = getBaseMultiUnion().getSubGraphs();
-		subGraphs.add(getBaseMultiUnion().getBaseGraph());
-		return subGraphs;
+		return (com.hp.hpl.jena.graph.compose.MultiUnion) getBaseGraph();
 	}
 
 	/**
 	 * Instantiates a new multi union with event management.
 	 */
-	public MultiUnion() {
-		super( new com.hp.hpl.jena.graph.compose.MultiUnion() );
+	public MultiUnion(Transaction transaction) {
+        super( new com.hp.hpl.jena.graph.compose.MultiUnion(), transaction );
+        transactionQueue.add(transaction);
 	}
 
     /**
@@ -104,8 +136,11 @@ public class MultiUnion extends DynamicGraphFromGraph {
      *
      * @param graphs the input graphs
      */
-    public MultiUnion( Graph[] graphs) {
-        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+    public MultiUnion( DynamicGraph[] dynamicGraphs, Transaction transaction) {
+        super( new com.hp.hpl.jena.graph.compose.MultiUnion(), transaction );
+        for (int dgIndex = 0; dgIndex < dynamicGraphs.length; dgIndex++ )
+        	addGraph(dynamicGraphs[dgIndex]);
+        transactionQueue.add(transaction);
         registerListener();
     }
 
@@ -114,8 +149,10 @@ public class MultiUnion extends DynamicGraphFromGraph {
      *
      * @param graphs the input graphs
      */
-    public MultiUnion( Iterator<Graph> graphs ) {
-        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+    public MultiUnion( Iterator<DynamicGraph> dynamicGraphs, Transaction transaction ) {
+        super( new com.hp.hpl.jena.graph.compose.MultiUnion(), transaction );
+        for (; dynamicGraphs.hasNext(); addGraph(dynamicGraphs.next()) );
+        transactionQueue.add(transaction);
         registerListener();
     }
 
@@ -123,10 +160,10 @@ public class MultiUnion extends DynamicGraphFromGraph {
      * @see com.hp.hpl.jena.graph.compose.MultiUnion#addGraph(com.hp.hpl.jena.graph.Graph)
      */
     public void addGraph( DynamicGraph graph ) {
-        if (! getSubGraphs().contains( graph ) ) {
-        	getBaseMultiUnion().addGraph( graph );
-        	graph.getEventManager2().register(localListener);
-        }
+        if (! inputGraphs.contains( graph ) ) {
+        	getBaseMultiUnion().addGraph( graph.getCurrentGraph() );
+        	inputGraphs.add(graph);
+         }
     }
 
 }

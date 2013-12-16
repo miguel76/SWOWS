@@ -60,7 +60,7 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 		super();
 //		this.connectedGraph = connectedGraph;
 		Graph initialGraph = GraphFactory.createGraphMem();
-		GraphUtil.addInto(initialGraph, connectedGraph);
+		GraphUtil.addInto(initialGraph, connectedGraph.getCurrentGraph());
 		baseGraphCopy =	new DynamicGraphFromGraph( initialGraph );
 //		graphListener =
 //				new Listener() {
@@ -69,7 +69,7 @@ public class EventCachingGraph extends DelegatingDynamicGraph {
 //						cachedGraphUpdates.add(update);
 //					}
 //				};
-		connectedGraph.getEventManager2().register(new Listener() {
+		connectedGraph.getEventManager().register(new Listener() {
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 				getCachedGraphUpdates().add(update);
 			}

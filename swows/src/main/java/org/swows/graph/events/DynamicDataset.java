@@ -23,7 +23,7 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
-public abstract class DynamicDataset implements DatasetGraph {
+public abstract class DynamicDataset {
 
     /** Get the default graph as a DynamicGraph */
     public abstract DynamicGraph getDefaultGraph() ;

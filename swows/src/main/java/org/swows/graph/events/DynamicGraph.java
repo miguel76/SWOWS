@@ -21,9 +21,12 @@ package org.swows.graph.events;
 
 import com.hp.hpl.jena.graph.Graph;
 
-public interface DynamicGraph extends Graph {
+public interface DynamicGraph {
 	
-	public EventManager getEventManager2();
+	public Transaction getCurrentTransaction();
+	public Graph getCurrentGraph();
+	public GraphUpdate getCurrentGraphUpdate();
+	public EventManager getEventManager();
 	
 	public static DynamicGraph emptyGraph = new DynamicGraphFromGraph(Graph.emptyGraph, Transaction.newTransaction());
 	
