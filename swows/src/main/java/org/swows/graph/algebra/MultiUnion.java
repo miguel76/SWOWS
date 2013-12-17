@@ -46,54 +46,15 @@ import com.hp.hpl.jena.graph.Triple;
 public class MultiUnion extends DynamicGraphFromGraph {
 	
 	private ArrayList<DynamicGraph> inputGraphs = new ArrayList<DynamicGraph>();
-	
-	// TODO: move to DynamicGraphFromGraph?
-	private Queue<Transaction> transactionQueue = new ArrayDeque<Transaction>();
+	private SimpleGraphUpdate currGraphUpdate;
 
+	
 	private void registerListener(final DynamicGraph source) {
 		source.getEventManager().register(
    			 new Listener() {
    					
-   					SimpleGraphUpdate currGraphUpdate;
-
-   					protected void notifyDelete(Triple triple) {
-   				        for (DynamicGraph currGraph: inputGraphs ) {
-  							if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
-   								return;
-   						}
-   						currGraphUpdate.putDeletedTriple(triple);
-   					}
-
-   					protected void notifyAdd(Triple triple) {
-   				        for (DynamicGraph currGraph: inputGraphs ) {
-   							if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
-   								return;
-   						}
-   						currGraphUpdate.putAddedTriple(triple);
-   					}
-
-   					protected void beginNotify(Transaction transaction) {
-   						currGraphUpdate = new SimpleGraphUpdate(transaction);
-   					}
-
-   					protected void endNotify(Transaction transaction) {
-   						if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
-   							logger.debug("sending update events in " + Utils.standardStr(this));
-   							eventManager.notifyUpdate(transaction);
-   						}
-   						currGraphUpdate = null;
-   					}
-
    					public synchronized void notifyUpdate(Transaction transaction) {
-   						beginNotify(transaction);
-   						GraphUpdate update = source.getCurrentGraphUpdate();
-   						Iterator<Triple> addedTriples = update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);
-   						while( addedTriples.hasNext() )
-   							notifyAdd( addedTriples.next() );
-   						Iterator<Triple> deletedTriples = update.getDeletedGraph().find(Node.ANY, Node.ANY, Node.ANY);
-   						while( deletedTriples.hasNext() )
-   							notifyDelete( deletedTriples.next() );
-   						endNotify(transaction);
+   						MultiUnion.this.notifyUpdate(source, transaction);
    					}
 
 					@Override
@@ -113,6 +74,50 @@ public class MultiUnion extends DynamicGraphFromGraph {
 		
 	}
 	
+	private void notifyDelete(DynamicGraph source, Triple triple) {
+		for (DynamicGraph currGraph: inputGraphs ) {
+					if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
+						return;
+				}
+				currGraphUpdate.putDeletedTriple(triple);
+			}
+
+	private void notifyAdd(DynamicGraph source, Triple triple) {
+		        for (DynamicGraph currGraph: inputGraphs ) {
+					if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
+						return;
+				}
+				currGraphUpdate.putAddedTriple(triple);
+			}
+
+	private void beginNotify(Transaction transaction) {
+				currGraphUpdate = new SimpleGraphUpdate(transaction);
+			}
+
+	private void endNotify(Transaction transaction) {
+				if (currGraphUpdate != null && !currGraphUpdate.isEmpty()) {
+					logger.debug("sending update events in " + Utils.standardStr(this));
+					eventManager.notifyUpdate(transaction);
+				}
+				currGraphUpdate = null;
+			}
+
+	private synchronized void notifyUpdateWorker(DynamicGraph source, Transaction transaction) {
+		beginNotify(transaction);
+		GraphUpdate update = source.getCurrentGraphUpdate();
+		Iterator<Triple> addedTriples = update.getAddedGraph().find(Node.ANY, Node.ANY, Node.ANY);
+		while( addedTriples.hasNext() )
+			notifyAdd( source, addedTriples.next() );
+		Iterator<Triple> deletedTriples = update.getDeletedGraph().find(Node.ANY, Node.ANY, Node.ANY);
+		while( deletedTriples.hasNext() )
+			notifyDelete( source, deletedTriples.next() );
+		endNotify(transaction);
+	}
+
+	private synchronized void notifyUpdate(DynamicGraph source, Transaction transaction) {
+		notifyUpdateWorker(source, transaction);
+	}
+
 	private void registerListener() {
         for (DynamicGraph g: inputGraphs ) {
         	registerListener(g);

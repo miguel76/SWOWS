@@ -19,8 +19,10 @@
  */
 package org.swows.graph.events;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 
 import org.apache.log4j.Logger;
 import org.swows.util.Utils;
@@ -44,23 +46,29 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 	protected DelegatingInnerGraph baseGraph;
 	protected EventManager eventManager;
 	private SimpleGraphUpdate currGraphUpdate = null;
-	private Transaction currTransaction = null;
+//	private Transaction currTransaction = null;
 	protected Logger logger = Logger.getLogger(this.getClass());
 	
-	public synchronized void setCurrentTransaction(Transaction transaction) {
-		currTransaction = transaction;
+	private Queue<Transaction> transactionQueue = new ArrayDeque<Transaction>();
+
+//	public synchronized void setCurrentTransaction(Transaction transaction) {
+//		currTransaction = transaction;
+//	}
+			
+	public synchronized void addTransaction(Transaction transaction) {
+		transactionQueue.add(transaction);
 	}
 			
 	public DynamicGraphFromGraph(Graph graph, Transaction transaction) {
 		baseGraph = new DelegatingInnerGraph(graph);
-		currTransaction = transaction;
+		addTransaction(transaction);
 		this.eventManager = new SimpleEventManager(baseGraph);
 		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
 
 	public DynamicGraphFromGraph(Graph graph, Transaction transaction, EventManager eventManager) {
 		baseGraph = new DelegatingInnerGraph(graph);
-		currTransaction = transaction;
+		addTransaction(transaction);
 		this.eventManager = eventManager;
 		logger.debug("Graph " + Utils.standardStr(this) + " created");
 	}
@@ -74,7 +82,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 		public SimpleGraphUpdate getCurrGraphUpdate() {
 			if (currGraphUpdate == null)
-				currGraphUpdate = new SimpleGraphUpdate(currTransaction, baseGraph);
+				currGraphUpdate = new SimpleGraphUpdate(getCurrentTransaction(), baseGraph);
 			return currGraphUpdate;
 		}
 
@@ -245,7 +253,11 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 
 	@Override
 	public Transaction getCurrentTransaction() {
-		return currTransaction;
+		return transactionQueue.peek();
+	}
+
+	public Transaction endCurrentTransaction() {
+		return transactionQueue.poll();
 	}
 
 	@Override
