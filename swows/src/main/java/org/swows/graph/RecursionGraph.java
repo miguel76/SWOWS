@@ -24,6 +24,7 @@ import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.EventManager;
 import org.swows.graph.events.GraphUpdate;
+import org.swows.graph.events.Listener;
 import org.swows.graph.events.SimpleEventManager;
 
 import com.hp.hpl.jena.graph.Graph;
@@ -99,6 +100,15 @@ public class RecursionGraph extends DelegatingDynamicGraph {
 				}
 			});
 		}
+	}
+	
+	public void addAsResetGraph(DynamicGraph graph) {
+		graph.getEventManager2().register(new Listener() {
+			@Override
+			public synchronized void notifyUpdate(Graph source, GraphUpdate update) {
+				baseGraphCopy = new DynamicGraphFromGraph( Graph.emptyGraph );
+			}
+		});
 	}
 
 	/* (non-Javadoc)

@@ -21,6 +21,7 @@ package org.swows.producer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.swows.graph.RecursionDataset;
@@ -77,6 +78,17 @@ public class DataflowProducer extends DatasetProducer {
 	public DataflowProducer(Producer confProducer, Producer inputProd) {
 		this.confProducer = confProducer;
 		this.inputProd = inputProd;
+		innerProds.put(
+				SWI.InputDataset.asNode(),
+				new DatasetProducer() {
+					public boolean dependsFrom(Producer producer) {
+						return false;
+					}
+					@Override
+					public DynamicDataset createDataset(DynamicDataset inputDataset) {
+						return inputDataset;
+					}
+				} );
 	}
 
 	/**
@@ -184,25 +196,26 @@ public class DataflowProducer extends DatasetProducer {
 		
 		private ProducerMap innerProducerMap;
 		private Node specialProducerNode;
-		private Producer specialProducer;
+		private RecursiveDatasetProducer recursiveProducer;
 		private boolean found = false;
 		private Graph conf;
 		
 		public ProducerMapWithMemory(
 				ProducerMap innerProducerMap,
 				Node specialProducerNode,
-				Producer specialProducer,
+				Set<Node> resetProducerNodes,
+				RecursiveDatasetProducer recursiveProducer,
 				Graph conf) {
 			this.innerProducerMap = innerProducerMap;
 			this.specialProducerNode = specialProducerNode;
-			this.specialProducer = specialProducer;
+			this.recursiveProducer = recursiveProducer;
 			this.conf = conf;
 		}
 		
 		public Producer getRecProducer(Node graphId) {
 			if (graphId.equals(specialProducerNode)) {
 				found = true;
-				return specialProducer;
+				return recursiveProducer;
 			}
 			else
 				return (innerProducerMap == null)
@@ -210,11 +223,17 @@ public class DataflowProducer extends DatasetProducer {
 							: innerProducerMap.getRecProducer(graphId);
 		}
 		
-		public Producer getProducer(Node graphId) {
+		private Producer getProducerWorker(Node graphId) {
 			Producer recProducer = getRecProducer(graphId);
 			if (recProducer != null)
 				return recProducer;
 			return getInnerProducer(conf, graphId, this);
+		}
+		
+		public Producer getProducer(Node graphId) {
+			NotifyingProducer producer = new NotifyingProducer(getProducerWorker(graphId));
+			recursiveProducer.attacheToReset(producer);
+			return producer;
 		}
 		
 		public boolean getFound() {
@@ -232,16 +251,6 @@ public class DataflowProducer extends DatasetProducer {
 //			if (existingProducer != null)
 //				return existingProducer;
 //		}
-			if (node.equals(SWI.InputDataset.asNode()))
-				return new DatasetProducer() {
-					public boolean dependsFrom(Producer producer) {
-						return false;
-					}
-					@Override
-					public DynamicDataset createDataset(DynamicDataset inputDataset) {
-						return inputDataset;
-					}
-				};
 			try {
 				/*
 				Producer newProducer =
@@ -284,9 +293,9 @@ public class DataflowProducer extends DatasetProducer {
 					*/
 //				final BuildingGraphProducer buildingGraphProducer = new BuildingGraphProducer();
 //				innerProds.put(node, buildingGraphProducer); // prova
-				final BuildingDatasetProducer buildingDatasetProducer = new BuildingDatasetProducer();
+				final RecursiveDatasetProducer recursiveDatasetProducer = new RecursiveDatasetProducer();
 				//innerProds.put(node, buildingDatasetProducer);
-				ProducerMapWithMemory tempProdMap = new ProducerMapWithMemory(map, node, buildingDatasetProducer, conf);
+				ProducerMapWithMemory tempProdMap = new ProducerMapWithMemory(map, node, innerProds.keySet(),recursiveDatasetProducer, conf);
 				Producer newProducer =
 							(Producer)
 							prodClass
@@ -312,7 +321,7 @@ public class DataflowProducer extends DatasetProducer {
 								);
 				if (tempProdMap.getFound()) {
 					NotifyingProducer notifyingProducer = new NotifyingProducer( newProducer );
-					buildingDatasetProducer.attacheTo(notifyingProducer);
+					recursiveDatasetProducer.attacheToValue(notifyingProducer);
 					newProducer = notifyingProducer;
 				}
 				newProducer = new CachedProducer(newProducer);
