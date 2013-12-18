@@ -56,6 +56,6 @@ public interface EventManager extends Listener {
 	*/
 	boolean listening();
 	
-//    public void notifyUpdate( GraphUpdate update );
+    public void notifyUpdate( GraphUpdate update );
 
 }

@@ -19,7 +19,19 @@
  */
 package org.swows.graph.events;
 
+import com.hp.hpl.jena.graph.BulkUpdateHandler;
+import com.hp.hpl.jena.graph.Capabilities;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.GraphEventManager;
+import com.hp.hpl.jena.graph.GraphStatisticsHandler;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.TransactionHandler;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.TripleMatch;
+import com.hp.hpl.jena.shared.AddDeniedException;
+import com.hp.hpl.jena.shared.DeleteDeniedException;
+import com.hp.hpl.jena.shared.PrefixMapping;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 /**
  * The Class DelegatingGraph is a graph that delegates the
@@ -52,31 +64,153 @@ public abstract class DelegatingDynamicGraph implements DynamicGraph {
 		return baseGraphCopy;
 	}
 
-	@Override
-	public Transaction getCurrentTransaction() {
-		return getLocalBaseGraph().getCurrentTransaction();
-	}
-
-	@Override
-	public Graph getCurrentGraph() {
-		return getLocalBaseGraph().getCurrentGraph();
-	}
-
-	@Override
-	public GraphUpdate getCurrentGraphUpdate() {
-		return getLocalBaseGraph().getCurrentGraphUpdate();
-	}
-
-	@Override
-	public EventManager getEventManager() {
-		return getLocalBaseGraph().getEventManager();
-	}
-
 	/*
 	protected void invalidateLocalCopy() {
 		baseGraphCopy = null;
 	}
 	 */
 
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#close()
+	 */
+	public void close() {
+		getLocalBaseGraph().close();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#contains(com.hp.hpl.jena.graph.Triple)
+	 */
+	public boolean contains(Triple triple) {
+		return getLocalBaseGraph().contains(triple);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#contains(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 */
+	public boolean contains(Node subject, Node predicate, Node object) {
+		return getLocalBaseGraph().contains(subject, predicate, object);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#delete(com.hp.hpl.jena.graph.Triple)
+	 */
+	public void delete(Triple triple) throws DeleteDeniedException {
+		getLocalBaseGraph().delete(triple);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#dependsOn(com.hp.hpl.jena.graph.Graph)
+	 */
+	public boolean dependsOn(Graph graph) {
+		return ( graph == getLocalBaseGraph() || getLocalBaseGraph().dependsOn(graph) );
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#find(com.hp.hpl.jena.graph.TripleMatch)
+	 */
+	public ExtendedIterator<Triple> find(final TripleMatch tripleMatch) {
+		return getLocalBaseGraph().find(tripleMatch);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#find(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 */
+	public ExtendedIterator<Triple> find(Node subject, Node predicate, Node object) {
+		return getLocalBaseGraph().find(subject, predicate, object);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getBulkUpdateHandler()
+	 */
+	@Deprecated
+	public BulkUpdateHandler getBulkUpdateHandler() {
+		return getLocalBaseGraph().getBulkUpdateHandler();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getCapabilities()
+	 */
+	public Capabilities getCapabilities() {
+		return getLocalBaseGraph().getCapabilities();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getEventManager()
+	 */
+	public GraphEventManager getEventManager() {
+		return getLocalBaseGraph().getEventManager();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getPrefixMapping()
+	 */
+	public PrefixMapping getPrefixMapping() {
+		return getLocalBaseGraph().getPrefixMapping();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getStatisticsHandler()
+	 */
+	public GraphStatisticsHandler getStatisticsHandler() {
+		return getLocalBaseGraph().getStatisticsHandler();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#getTransactionHandler()
+	 */
+	public TransactionHandler getTransactionHandler() {
+		return getLocalBaseGraph().getTransactionHandler();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#isClosed()
+	 */
+	public boolean isClosed() {
+		return getLocalBaseGraph().isClosed();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#isEmpty()
+	 */
+	public boolean isEmpty() {
+		return getLocalBaseGraph().isEmpty();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#isIsomorphicWith(com.hp.hpl.jena.graph.Graph)
+	 */
+	public boolean isIsomorphicWith(Graph graph) {
+		return getLocalBaseGraph().isIsomorphicWith(graph);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.Graph#size()
+	 */
+	public int size() {
+		return getLocalBaseGraph().size();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.graph.GraphAdd#add(com.hp.hpl.jena.graph.Triple)
+	 */
+	public void add(Triple triple) throws AddDeniedException {
+		getLocalBaseGraph().add(triple);
+	}
+
+	public EventManager getEventManager2() {
+		return getLocalBaseGraph().getEventManager2();
+	}
+	
+	public String toString() {
+		return getLocalBaseGraph().toString();
+	}
+
+	public void clear() {
+		getLocalBaseGraph().clear();
+	}
+
+	public void remove(Node s, Node p, Node o) {
+		getLocalBaseGraph().remove(s, p, o);
+	}
 
 }
