@@ -48,32 +48,6 @@ public class MultiUnion extends DynamicGraphFromGraph {
 	private ArrayList<DynamicGraph> inputGraphs = new ArrayList<DynamicGraph>();
 	private SimpleGraphUpdate currGraphUpdate;
 
-	
-	private void registerListener(final DynamicGraph source) {
-		source.getEventManager().register(
-   			 new Listener() {
-   					
-   					public synchronized void notifyUpdate(Transaction transaction) {
-   						MultiUnion.this.notifyUpdate(source, transaction);
-   					}
-
-					@Override
-					public void startTransaction(Transaction transaction) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void commit(Transaction transaction) {
-						// TODO Auto-generated method stub
-						
-					}
-
-   				}
-   			);
-		
-	}
-	
 	private void notifyDelete(DynamicGraph source, Triple triple) {
 		for (DynamicGraph currGraph: inputGraphs ) {
 					if (currGraph != source && currGraph.getCurrentGraph().contains(triple))
@@ -112,10 +86,6 @@ public class MultiUnion extends DynamicGraphFromGraph {
 		while( deletedTriples.hasNext() )
 			notifyDelete( source, deletedTriples.next() );
 		endNotify(transaction);
-	}
-
-	private synchronized void notifyUpdate(DynamicGraph source, Transaction transaction) {
-		notifyUpdateWorker(source, transaction);
 	}
 
 	private void registerListener() {

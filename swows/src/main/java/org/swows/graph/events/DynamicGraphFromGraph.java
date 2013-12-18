@@ -19,10 +19,8 @@
  */
 package org.swows.graph.events;
 
-import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 
 import org.apache.log4j.Logger;
 import org.swows.util.Utils;
@@ -41,7 +39,7 @@ import com.hp.hpl.jena.shared.DeleteDeniedException;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
-public class DynamicGraphFromGraph implements DynamicGraph {
+public class DynamicGraphFromGraph extends DynamicGraphBase {
 	
 	protected DelegatingInnerGraph baseGraph;
 	protected EventManager eventManager;
@@ -49,16 +47,6 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 //	private Transaction currTransaction = null;
 	protected Logger logger = Logger.getLogger(this.getClass());
 	
-	private Queue<Transaction> transactionQueue = new ArrayDeque<Transaction>();
-
-//	public synchronized void setCurrentTransaction(Transaction transaction) {
-//		currTransaction = transaction;
-//	}
-			
-	public synchronized void addTransaction(Transaction transaction) {
-		transactionQueue.add(transaction);
-	}
-			
 	public DynamicGraphFromGraph(Graph graph, Transaction transaction) {
 		baseGraph = new DelegatingInnerGraph(graph);
 		addTransaction(transaction);
@@ -249,15 +237,6 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		}
 		currGraphUpdate = null;
 		return modified;
-	}
-
-	@Override
-	public Transaction getCurrentTransaction() {
-		return transactionQueue.peek();
-	}
-
-	public Transaction endCurrentTransaction() {
-		return transactionQueue.poll();
 	}
 
 	@Override

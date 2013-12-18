@@ -6,11 +6,11 @@ public interface Processor {
 	public void addOutput(String URI, OutputChannel channel );
 	public void addInputOutput(String URI, InputOutputChannel channel );
 	
-	public void deleteInput(String URI, InputChannel channel );
-	public void deleteOutput(String URI, OutputChannel channel );
-	public void deleteInputOutput(String URI, InputOutputChannel channel );
+	public void deleteInput(String URI);
+	public void deleteOutput(String URI);
+	public void deleteInputOutput(String URI);
 
-	public void writeOutput(String URI);
+//	public void writeOutput(int transactionId, String URI);
 	
 //	public void addInput(String URI);
 //	public void addOutput(String URI);
