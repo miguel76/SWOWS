@@ -20,6 +20,7 @@
 package org.swows.producer;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -196,7 +197,9 @@ public class DataflowProducer extends DatasetProducer {
 		
 		private ProducerMap innerProducerMap;
 		private Node specialProducerNode;
-		private RecursiveDatasetProducer recursiveProducer;
+		private Producer recursiveProducer;
+		private Set<Node> resetProducerNodes;
+		private Set<NotifyingProducer> resetProducerNodesFound = new HashSet<>();;
 		private boolean found = false;
 		private Graph conf;
 		
@@ -204,11 +207,12 @@ public class DataflowProducer extends DatasetProducer {
 				ProducerMap innerProducerMap,
 				Node specialProducerNode,
 				Set<Node> resetProducerNodes,
-				RecursiveDatasetProducer recursiveProducer,
+				Producer recursiveProducer,
 				Graph conf) {
 			this.innerProducerMap = innerProducerMap;
 			this.specialProducerNode = specialProducerNode;
 			this.recursiveProducer = recursiveProducer;
+			this.resetProducerNodes = resetProducerNodes;
 			this.conf = conf;
 		}
 		
@@ -217,10 +221,13 @@ public class DataflowProducer extends DatasetProducer {
 				found = true;
 				return recursiveProducer;
 			}
-			else
+			else {
+//				if (resetProducerNodes.contains(graphId) )
+//					resetProducerNodesFound.add(graphId);
 				return (innerProducerMap == null)
 							? null
 							: innerProducerMap.getRecProducer(graphId);
+			}
 		}
 		
 		private Producer getProducerWorker(Node graphId) {
@@ -231,13 +238,22 @@ public class DataflowProducer extends DatasetProducer {
 		}
 		
 		public Producer getProducer(Node graphId) {
-			NotifyingProducer producer = new NotifyingProducer(getProducerWorker(graphId));
-			recursiveProducer.attacheToReset(producer);
+			Producer producer = getProducerWorker(graphId);
+			if (resetProducerNodes.contains(graphId)) {
+				NotifyingProducer notifyingProducer = new NotifyingProducer(producer);
+				resetProducerNodesFound.add(notifyingProducer);
+				producer = notifyingProducer;
+			}
 			return producer;
+//			return getProducerWorker(graphId);
 		}
 		
 		public boolean getFound() {
 			return found;
+		}
+		
+		public Set<NotifyingProducer> getResetProducerNodesFound() {
+			return resetProducerNodesFound;
 		}
 		
 	}
@@ -320,9 +336,14 @@ public class DataflowProducer extends DatasetProducer {
 //								}
 								);
 				if (tempProdMap.getFound()) {
+					
 					NotifyingProducer notifyingProducer = new NotifyingProducer( newProducer );
 					recursiveDatasetProducer.attacheToValue(notifyingProducer);
 					newProducer = notifyingProducer;
+					
+					for (NotifyingProducer notifyingResetProducer : tempProdMap.getResetProducerNodesFound()) {
+						recursiveDatasetProducer.attacheToReset(notifyingResetProducer);
+					}
 				}
 				newProducer = new CachedProducer(newProducer);
 				innerProds.put(node, newProducer);
