@@ -376,8 +376,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		NavigableMap<Node, Vector<org.w3c.dom.Node>> orderedByKeyChildren = dom2orderedByKeyChildren.get(parent);
 		
 		Node prevOrderKeyNode = childrenKeys.get(node);
-		if (prevOrderKeyNode != null) {
-			Vector<org.w3c.dom.Node> oldKeyBag = orderedByKeyChildren.get(prevOrderKeyNode);
+		Vector<org.w3c.dom.Node> oldKeyBag = orderedByKeyChildren.get(prevOrderKeyNode);
+		if (oldKeyBag != null) {
 			oldKeyBag.remove(node);
 			if (oldKeyBag.isEmpty())
 				orderedByKeyChildren.remove(prevOrderKeyNode);
