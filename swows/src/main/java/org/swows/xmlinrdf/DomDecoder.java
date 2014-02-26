@@ -280,7 +280,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				(nsUri.equals(VOID_NAMESPACE))
 					? document.createAttribute( qNameAttr(graph, elementNode) )
 					: document.createAttributeNS(
-							namespaceAttr(graph, elementNode),
+							nsUri,
 							qNameAttr(graph, elementNode) );
 	}
 	
@@ -292,8 +292,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 			element.removeAttribute( qNameAttr(graph, elementNode) );
 		else
 			element.removeAttributeNS(
-						namespaceAttr(graph, elementNode),
-						qNameAttr(graph, elementNode) );
+					nsUri,
+					qNameAttr(graph, elementNode) );
 	}
 
 	public String md5(String md5) {
