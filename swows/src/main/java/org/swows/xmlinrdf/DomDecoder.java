@@ -86,10 +86,35 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	};
     
     private static final String specialXmlNamespacesSeparator = "#";
-    private static final Set<String> specialXmlNamespaces = new HashSet<>(2);
+    private static final Set<String> specialXmlNamespaces = new HashSet<>(50);
     static {
+    	
+    	specialXmlNamespaces.add(VOID_NAMESPACE);
+
+    	specialXmlNamespaces.add("http://www.w3.org/XML/1998/namespace");
+    	specialXmlNamespaces.add("http://www.w3.org/2000/xmlns/");
+
     	specialXmlNamespaces.add("http://www.w3.org/1999/xhtml");
+    	specialXmlNamespaces.add("http://www.w3.org/1999/xlink");
+    	specialXmlNamespaces.add("http://www.w3.org/2001/XInclude");
+    	
+    	specialXmlNamespaces.add("http://www.w3.org/1999/XSL/Format");
+    	specialXmlNamespaces.add("http://www.w3.org/1999/XSL/Transform");
+    	specialXmlNamespaces.add("http://www.w3.org/XSL/Transform/1.0");
+    	specialXmlNamespaces.add("http://www.w3.org/TR/WD-xsl");
+    	specialXmlNamespaces.add("http://icl.com/saxon");
+    	specialXmlNamespaces.add("http://xml.apache.org/xslt");
+    	specialXmlNamespaces.add("http://xmlns.opentechnology.org/xslt-extensions/common/");
+    	specialXmlNamespaces.add("http://xmlns.opentechnology.org/xslt-extensions/functions");
+    	specialXmlNamespaces.add("http://xmlns.opentechnology.org/xslt-extensions/math");
+    	specialXmlNamespaces.add("http://xmlns.opentechnology.org/xslt-extensions/sets");
+        
+        specialXmlNamespaces.add("http://www.w3.org/2001/08/xquery-operators");
     	specialXmlNamespaces.add("http://www.w3.org/2000/svg");
+        specialXmlNamespaces.add("http://www.w3.org/2001/SMIL20/");
+    	specialXmlNamespaces.add("http://www.w3.org/TR/REC-smil");
+        specialXmlNamespaces.add("http://www.w3.org/1998/Math/MathML");
+    	
     }
     
 //    private static String specialNamespace(String )
@@ -110,6 +135,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private Map<Element,Map<org.w3c.dom.Node, Node>> dom2childrenKeys = new HashMap<Element, Map<org.w3c.dom.Node, Node>>();
 	private Set<Element> dom2descendingOrder = new HashSet<Element>();
 	private Map<Element, Node> dom2childrenOrderProperty = new HashMap<Element, Node>();
+	private Map<Element, String> dom2textContent = new HashMap<Element, String>();
 	
 	private static EventManager DEFAULT_EVENT_MANAGER =
 			new EventManager() {
@@ -199,22 +225,52 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 					}
 				});
 	}
+	
+	private static String specialName(final Node elementNode) {
+		if (elementNode.isURI()) {
+			String uriStr = elementNode.getURI();
+			int sepPos = uriStr.indexOf(specialXmlNamespacesSeparator);
+			if (	sepPos > 0
+					&& specialXmlNamespaces.contains(uriStr.substring(0,sepPos)))
+				return uriStr.substring(sepPos+1);
+		}
+		return null;
+	}
+
+	private static String specialNamespace(final Node elementNode) {
+		if (elementNode.isURI()) {
+			String uriStr = elementNode.getURI();
+			int sepPos = uriStr.indexOf(specialXmlNamespacesSeparator);
+			if (	sepPos > 0
+					&& specialXmlNamespaces.contains(uriStr.substring(0,sepPos)))
+				return uriStr.substring(0,sepPos);
+		}
+		return null;
+	}
 
 	private static String qNameElement(final Graph graph, final Node elementNode) {
+		Node elementType = GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode());
+		String specialName = specialName(elementType);
+		if (specialName != null)
+			return specialName;
 		return
 				GraphUtils
 				.getSingleValueProperty(
 						graph,
-						GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode()),
+						elementType,
 						XML.nodeName.asNode() )
 				.getLiteralLexicalForm();
 	}
 	
 	private static String namespaceElement(final Graph graph, final Node elementNode) {
+		Node elementType = GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode());
+		String specialNamespace = specialNamespace(elementType);
+		if (specialNamespace != null)
+			return specialNamespace;
 		try {
 			return
 				graph.find(
-						GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode()),
+						elementType,
 						XML.namespace.asNode(),
 						Node.ANY)
 				.next().getObject().getURI();
@@ -223,7 +279,35 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		}
 	}
 	
+	private static boolean predicateIsAttr(final Graph graph, final Node predicate) {
+		if (predicate.isURI()) {
+			String uriStr = predicate.getURI();
+			int sepPos = uriStr.indexOf(specialXmlNamespacesSeparator);
+			if (	sepPos > 0
+					&& specialXmlNamespaces.contains(uriStr.substring(0,sepPos)))
+				return true;
+		}
+		return	graph.contains(
+				predicate,
+				RDFS.subClassOf.asNode(),
+				XML.Attr.asNode());
+	}
+	
+	private static boolean nodeTypeIsElementType(final Graph graph, final Node nodeType) {
+		if (nodeType.isURI()) {
+			String uriStr = nodeType.getURI();
+			int sepPos = uriStr.indexOf(specialXmlNamespacesSeparator);
+			if (	sepPos > 0
+					&& specialXmlNamespaces.contains(uriStr.substring(0,sepPos)))
+				return true;
+		}
+		return	graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode());
+	}
+	
 	private static String qNameAttr(final Graph graph, final Node elementNode) {
+		String specialName = specialName(elementNode);
+		if (specialName != null)
+			return specialName;
 		return
 				GraphUtils
 				.getSingleValueProperty(
@@ -234,6 +318,9 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	}
 	
 	private static String namespaceAttr(final Graph graph, final Node elementNode) {
+		String specialNamespace = specialNamespace(elementNode);
+		if (specialNamespace != null)
+			return specialNamespace;
 		try {
 			return
 				graph.find(
@@ -320,6 +407,9 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //				element.appendChild(child);
 //			}
 //		}
+		String textContent = dom2textContent.get(element);
+		if (textContent != null)
+			element.setTextContent(textContent);
 		for (Node orderKeyNode : ascendingOrder ? orderedByKeyChildren.keySet() : orderedByKeyChildren.descendingKeySet() ) {
 			for (org.w3c.dom.Node child : orderedByKeyChildren.get(orderKeyNode)) {
 				element.appendChild(child);
@@ -442,6 +532,18 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				}
 //			}
 		}
+
+		Iterator<Node> textContentNodes = GraphUtils.getPropertyValues(graph, elementNode, XML.textContent.asNode());
+		if (textContentNodes.hasNext()) {
+			String textContent = "";
+			while (textContentNodes.hasNext()) {
+				Node textContentNode = textContentNodes.next();
+				if (textContentNode.isLiteral())
+					textContent += textContentNode.getLiteralLexicalForm();
+			}
+			dom2textContent.put(element, textContent);
+		}
+		
 		reorder(/*noKeyChildren, */ascendingOrder, element, dom2orderedByKeyChildren.get(element));
 
 	}
@@ -451,10 +553,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				graph.find(elementNode, Node.ANY, Node.ANY);
 		while (triples.hasNext()) {
 			Triple t = triples.next();
-			if ( graph.contains(
-					t.getPredicate(),
-					RDFS.subClassOf.asNode(),
-					XML.Attr.asNode())) {
+			if ( predicateIsAttr(graph, t.getPredicate()) ) {
 				Attr attr = decodeAttr(t.getPredicate());
 				attr.setValue(t.getObject().getLiteralLexicalForm());
 				element.setAttributeNodeNS(attr);
@@ -508,8 +607,8 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				
 			}
 		}
-		setupElementChildren(elementNode, element);
 		
+		setupElementChildren(elementNode, element);
 
 	}
 
@@ -526,7 +625,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	private org.w3c.dom.Node decodeNode(Node elementNode) {
 		try {
 			Node nodeType = GraphUtils.getSingleValueProperty(graph, elementNode, RDF.type.asNode());
-			if ( graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) )
+			if ( nodeTypeIsElementType(graph, nodeType) )
 				return decodeElement(elementNode);
 			if ( nodeType.equals( XML.Text.asNode() ) )
 				return decodeText(graph, elementNode);
@@ -1007,6 +1106,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		dom2orderedByKeyChildren.remove(domNode);
 		dom2childrenOrderProperty.remove(domNode);
 		dom2descendingOrder.remove(domNode);
+		dom2textContent.remove(domNode);
 	}
 	
 	private void removeSubtreeMapping(org.w3c.dom.Node domNode) {
@@ -1053,6 +1153,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		this.domImplementation = domDecoder.domImplementation;
 		this.dom2childrenKeys = domDecoder.dom2childrenKeys;
 		this.dom2childrenOrderProperty = domDecoder.dom2childrenOrderProperty;
+		this.dom2textContent = domDecoder.dom2textContent;
 		this.dom2descendingOrder = domDecoder.dom2descendingOrder;
 		this.dom2graphNodeMapping = domDecoder.dom2graphNodeMapping;
 		this.dom2orderedByKeyChildren = domDecoder.dom2orderedByKeyChildren;
@@ -1245,11 +1346,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 										}
 										
 									// Predicate is a DOM Attribute
-									} else if (
-											graph.contains(
-													newTriple.getPredicate(),
-													RDFS.subClassOf.asNode(),
-													XML.Attr.asNode() ) ) {
+									} else if (	predicateIsAttr(graph, newTriple.getPredicate()) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
 											Attr newAttr = newDom.decodeAttr(newTriple.getPredicate());
@@ -1331,6 +1428,15 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 											if (node instanceof Element)
 												setupElementChildren(newTriple.getSubject(), (Element) node);
 										}
+
+										// Predicate textContent
+										} else if (	newTriple.getPredicate().equals(XML.textContent.asNode()) ) {
+											logger.trace("Managing add textContent (" + newTriple + ") for domSubjs " + domSubjs);
+											while (domSubjIter.hasNext()) {
+												org.w3c.dom.Node node = domSubjIter.next();
+												if (node instanceof Element)
+													setupElementChildren(newTriple.getSubject(), (Element) node);
+											}
 
 										// Predicate is xml:listenedEventType
 									} else if ( newTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
@@ -1431,10 +1537,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 											domSubj.setNodeValue("");
 										}
 									} else if (
-											graph.contains(
-													oldTriple.getPredicate(),
-													RDFS.subClassOf.asNode(),
-													XML.Attr.asNode() )
+											predicateIsAttr(graph, oldTriple.getPredicate())
 											&& !update.getAddedGraph().contains(oldTriple.getSubject(), oldTriple.getPredicate(), Node.ANY) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
@@ -1535,6 +1638,18 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 												setupElementChildren(oldTriple.getSubject(), (Element) node);
 										}
 										
+									// Predicate xml:textContent
+									} else if (
+											oldTriple.getPredicate().equals(XML.textContent.asNode())
+											&& !update.getAddedGraph().contains(oldTriple.getSubject(), XML.textContent.asNode(), Node.ANY)
+											&& !update.getAddedGraph().contains(oldTriple.getSubject(), XML.childrenOrderedBy.asNode(), Node.ANY) ) {
+										logger.trace("Managing delete textContent (" + oldTriple + ") for domSubjs " + domSubjs);
+										while (domSubjIter.hasNext()) {
+											org.w3c.dom.Node node = domSubjIter.next();
+											if (node instanceof Element)
+												setupElementChildren(oldTriple.getSubject(), (Element) node);
+										}
+											
 									} else if ( oldTriple.getPredicate().equals(XML.listenedEventType.asNode()) ) {
 										Node eventTypeNode = oldTriple.getObject();
 										if (eventTypeNode.isLiteral()) {

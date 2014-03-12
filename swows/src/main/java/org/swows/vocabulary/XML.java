@@ -159,6 +159,7 @@ public class XML {
     public static final Property documentURI = property( "documentURI" );
 
     public static final Property document = property( "document" );
+    public static final Property textContent = property( "textContent" );
 
     public static final Resource AttrType = resource( "AttrType" );
 
