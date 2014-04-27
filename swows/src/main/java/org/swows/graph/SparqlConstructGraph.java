@@ -123,6 +123,8 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		System.out.println("Query execution time: " + (queryEnd - queryStart) );
 //		System.out.println("**** QUERY " + queryExecution.hashCode() + " END ***");
 
+		logger.trace("Query Result: " + resGraph);
+		
 		logger.debug("End new graph construction in " + hashCode());
 		return resGraph;
 	}
