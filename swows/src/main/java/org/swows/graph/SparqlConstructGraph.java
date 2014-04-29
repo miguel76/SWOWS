@@ -33,6 +33,7 @@ import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.sparql.resultset.RDFOutput;
 
 /**
  * The Class SparqlConstructGraph it's the result of a
@@ -113,7 +114,19 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		}
 //		long queryStart = System.currentTimeMillis();
 		
-		Graph resGraph = queryExecution.execConstruct().getGraph();
+		Graph resGraph = null;
+		
+		if (query.isConstructType())
+			resGraph = queryExecution.execConstruct().getGraph();
+		else if (query.isDescribeType())
+			resGraph = queryExecution.execDescribe().getGraph();
+		else if (query.isSelectType()) {
+			RDFOutput rdfOutput = new RDFOutput();
+			resGraph = rdfOutput.toModel(queryExecution.execSelect()).getGraph();
+		} else if (query.isAskType()) {
+			RDFOutput rdfOutput = new RDFOutput();
+			resGraph = rdfOutput.toModel(queryExecution.execAsk()).getGraph();
+		}
 		queryExecution.close();
 
 //		System.out.println("The result of the query is the following graph...");
