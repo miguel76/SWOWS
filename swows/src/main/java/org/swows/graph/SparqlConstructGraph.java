@@ -19,21 +19,40 @@
  */
 package org.swows.graph;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Iterator;
 
+import org.apache.jena.atlas.io.OutStreamUTF8;
+import org.apache.jena.atlas.lib.Tuple;
+import org.apache.jena.riot.lang.PipedRDFIterator;
+import org.apache.jena.riot.lang.PipedTriplesStream;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
+import org.swows.xmlinrdf.DomEncoder;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.sparql.core.Quad;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.resultset.RDFOutput;
+import com.hp.hpl.jena.sparql.resultset.XMLOutput;
 
 /**
  * The Class SparqlConstructGraph it's the result of a
@@ -121,13 +140,54 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 		else if (query.isDescribeType())
 			resGraph = queryExecution.execDescribe().getGraph();
 		else if (query.isSelectType()) {
-			RDFOutput rdfOutput = new RDFOutput();
-			resGraph = rdfOutput.toModel(queryExecution.execSelect()).getGraph();
+			try {
+//				RDFOutput rdfOutput = new RDFOutput();
+				XMLOutput xmlOutput = new XMLOutput();
+//				resGraph = rdfOutput.toModel(queryExecution.execSelect()).getGraph();
+				final XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+				String baseURI = "";
+				final Graph newGraph = GraphFactory.createDefaultGraph();
+				StreamRDF rdfOutput = new StreamRDFBase() {
+					@Override
+					public void triple(Triple triple) {
+						newGraph.add(triple);
+					}
+				};
+				xmlReader.setContentHandler( DomEncoder.encode(baseURI, rdfOutput) );
+//				//xmlReader.setFeature("XML 2.0", true);
+				PipedInputStream pipedInputStream = new PipedInputStream();
+				PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
+				final InputSource xmlInputSource = new InputSource(pipedInputStream);
+//				xmlInputSource.setSystemId(baseURI);
+				Thread childThread = new Thread() {
+					public void run() {
+						try {
+							xmlReader.parse(xmlInputSource);
+						} catch(SAXException e) {
+							e.printStackTrace();
+						} catch(IOException e) {
+							e.printStackTrace();
+						} finally {
+						}
+					};
+				};
+				childThread.start();
+				xmlOutput.format(pipedOutputStream, queryExecution.execSelect());
+				while (!childThread.isAlive());
+				resGraph = newGraph;
+			} catch(SAXException e) {
+				e.printStackTrace();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		} else if (query.isAskType()) {
 			RDFOutput rdfOutput = new RDFOutput();
 			resGraph = rdfOutput.toModel(queryExecution.execAsk()).getGraph();
 		}
 		queryExecution.close();
+		
+		if (resGraph == null)
+			throw new RuntimeException("Error in generating query result graph");
 
 //		System.out.println("The result of the query is the following graph...");
 //		Model model = ModelFactory.createModelForGraph(resGraph);
