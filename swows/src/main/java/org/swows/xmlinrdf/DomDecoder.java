@@ -293,6 +293,11 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 				XML.Attr.asNode());
 	}
 	
+	private static boolean nodeIsRootDocument(final Graph graph, Node nodeType, Node node) {
+		return nodeType.equals(XML.Document.asNode())
+				&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), node);
+	}
+	
 	private static boolean nodeTypeIsElementType(final Graph graph, final Node nodeType) {
 		if (nodeType.isURI()) {
 			String uriStr = nodeType.getURI();
@@ -1327,7 +1332,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 										//org.w3c.dom.Node parentNode = null;
 										Node nodeType = newTriple.getObject();
 										
-										if ( nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
+										if ( nodeTypeIsElementType(graph,nodeType) ) {
 											while (domSubjIter.hasNext()) {
 												org.w3c.dom.Node domSubj = domSubjIter.next();
 												org.w3c.dom.Node parentNode = domSubj.getParentNode();
@@ -1338,9 +1343,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 													newDom.addNodeMapping(newTriple.getSubject(), newNode);
 												}
 											}
-										} else if (
-												nodeType.equals(XML.Document.asNode())
-												&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), newTriple.getSubject())) {
+										} else if (nodeIsRootDocument(graph,nodeType,newTriple.getSubject())) {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
@@ -1362,7 +1365,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 												.find(newTriple.getSubject(), XML.nodeType.asNode(), Node.ANY)
 												.next().getObject();
 										logger.trace("Managing add hasChild (" + newTriple + ") for domSubjs " + domSubjs + " and node type " + nodeType);
-										if (nodeType.equals(XML.Element.asNode()) || graph.contains(nodeType, RDFS.subClassOf.asNode(), XML.Element.asNode()) ) {
+										if (nodeTypeIsElementType(graph,nodeType)) {
 											while (domSubjIter.hasNext()) {
 												Element element = (Element) domSubjIter.next();
 												org.w3c.dom.Node newChild = newDom.decodeNode(newTriple.getObject());
@@ -1370,9 +1373,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 //												element.appendChild(newChild);
 												insertChildInOrder(newChild, newTriple.getObject(), element);
 											}
-										} else if (
-												nodeType.equals(XML.Document.asNode())
-												&& graph.contains(SWI.GraphRoot.asNode(), XML.document.asNode(), newTriple.getSubject())) {
+										} else if (nodeIsRootDocument(graph,nodeType,newTriple.getSubject())) {
 											redecodeDocument(newTriple.getSubject());
 											return;
 										}
