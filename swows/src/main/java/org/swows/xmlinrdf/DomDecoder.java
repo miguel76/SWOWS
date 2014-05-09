@@ -1410,10 +1410,11 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 									} else if (	predicateIsAttr(graph, newTriple.getPredicate()) ) {
 										while (domSubjIter.hasNext()) {
 											Element element = (Element) domSubjIter.next();
-											Attr newAttr = newDom.decodeAttr(newTriple.getPredicate());
+//											Attr newAttr = newDom.decodeAttr(newTriple.getPredicate());
 //											newDom.addNodeMapping(newTriple.getPredicate(), newAttr);
-											newAttr.setValue(newTriple.getObject().getLiteralLexicalForm());
-											element.setAttributeNodeNS(newAttr);
+											setAttr(element, newTriple.getPredicate(), newTriple.getObject());
+//											newAttr.setValue(newTriple.getObject().getLiteralLexicalForm());
+//											element.setAttributeNodeNS(newAttr);
 										}
 
 									// Predicate is xml:hasChild
