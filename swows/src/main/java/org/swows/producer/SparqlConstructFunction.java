@@ -19,19 +19,19 @@
  */
 package org.swows.producer;
 
+import java.net.URI;
+import java.util.Iterator;
+
 import org.swows.graph.SparqlConstructGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * The Class SparqlConstructFunction executes a SPARQL
@@ -46,9 +46,11 @@ public class SparqlConstructFunction extends GraphProducer {
 //	private Query query;
 //	private Map<Node, Producer> prodMap = new HashMap<Node, Producer>();
 	private Producer inputProducer = null;
-	private Producer configProducer = null;
-	private String queryTxt = null;
-	private String baseURI;
+//	private Producer configProducer = null;
+//	private String queryTxt = null;
+//	private String baseURI;
+	
+	private QueryProducer queryProducer = null;
 	// TODO: find a better way
 
 	/**
@@ -60,18 +62,45 @@ public class SparqlConstructFunction extends GraphProducer {
 	 * @see Producer
 	 */
 	public SparqlConstructFunction(Graph conf, Node confRoot, final ProducerMap map) {
+		URI baseURI = URI.create(confRoot.getURI());
+		
 		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
 		inputProducer =
 				(inputNode != null) ?
 						map.getProducer( inputNode ) :
 						EmptyGraphProducer.getInstance();
+		
+		Node queryAsInputNode = NodeFactory.createURI(baseURI.resolve("#query").toString());
+						
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
-		if (queryNode != null) {
-			queryTxt = queryNode.getLiteralLexicalForm();
-			baseURI = confRoot.getURI().split("#")[0]; // TODO definitely find a better way
+		String queryTxt = (queryNode != null) ? queryNode.getLiteralLexicalForm() : null;
+		
+		Node configNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.config.asNode());
+		Producer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
+		
+		Node configRootNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configRoot.asNode());
+		if (configRootNode == null) configRootNode = configNode;
+		if (configRootNode == null && inputNode != null) {
+			Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, inputNode, DF.namedInput.asNode());
+			while (namedInputNodes.hasNext()) {
+				Node namedInputNode = namedInputNodes.next();
+				if (conf.contains(namedInputNode, DF.id.asNode(), queryAsInputNode)) {
+					configRootNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.input.asNode());
+					break;
+				}
+			}
 		}
-		else
-			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
+		
+//		String configRootURI = (configRootNode != null && configRootNode.isURI()) ? configRootNode.getURI() : null;
+		
+		queryProducer =
+				new CoalesceQueryProducer(
+						new GraphQueryProducer(
+								new CoalesceGraphProducer(
+										configProducer,
+										new SelectGraphProducer(inputProducer, queryAsInputNode) ),
+										configRootNode/*NodeFactory.createURI(baseURI.resolve("").toString())*/),
+						new StringQueryProducer(queryTxt, baseURI.toString()));
 //		final Model confModel = ModelFactory.createModelForGraph(conf);
 //		Resource constructResource =
 //			confModel
@@ -190,8 +219,8 @@ public class SparqlConstructFunction extends GraphProducer {
 	 */
 	public boolean dependsFrom(Producer producer) {
 		return
-				(inputProducer != null && inputProducer.dependsFrom(producer))
-				|| (configProducer != null && configProducer.dependsFrom(producer));
+				(inputProducer != null && inputProducer.dependsFrom(producer));
+//				|| (queryProducer != null && configProducer.dependsFrom(producer));
 	}
 
 	/* (non-Javadoc)
@@ -200,20 +229,9 @@ public class SparqlConstructFunction extends GraphProducer {
 	@Override
 	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
 		
-		Graph conf = null;
-		Node constructNode = null;
-		if (configProducer != null) {
-			conf = configProducer.createGraph(inputDataset);
-			final Model confModel = ModelFactory.createModelForGraph(conf);
-			constructNode =
-					confModel.getRDFNode(SWI.GraphRoot.asNode()).asNode();
-		}
-		Query query =
-				(queryTxt != null) ?
-						com.hp.hpl.jena.query.QueryFactory.create(queryTxt, baseURI) :
-						QueryFactory.toQuery(conf, constructNode);
+		Query query = queryProducer.createQuery(inputDataset);
 		if (query == null)
-			throw new RuntimeException("Parsing Error");
+			throw new RuntimeException("Query not found");
 		
 //		DatasetGraph queryDatasetGraph =
 //			new DatasetGraphCollection() {

@@ -111,6 +111,7 @@ public class DF {
     /** The Constant config. */
     public final static Property config = property("config");
     public final static Property configTxt = property("configTxt");
+    public final static Property configRoot = property("configRoot");
     //public final static Property source = property("source");
     /** The Constant id. */
     public final static Property id = property("id");
