@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.jena.atlas.lib.Sink;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFBase;
 import org.swows.node.Skolemizer;
 import org.swows.vocabulary.SAS;
 import org.swows.vocabulary.SP;
@@ -147,7 +149,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class SpinxFactory {
 	
-	private Graph graph;
+	private StreamRDF tripleStream;
 	
 	private Query query;
 //	private Update update;
@@ -164,19 +166,19 @@ public class SpinxFactory {
 	}
 
 	public SpinxFactory(
-			Query query, Graph graph,
+			Query query, StreamRDF tripleStream,
 			Node defaultGraph, Map<Node,Node> namedGraphMap,
 			Map<Var,Node> parentVarMap) {
 		this.query = query;
-		this.graph = graph;
+		this.tripleStream = tripleStream;
 		this.parentVarMap = parentVarMap;
 		this.defaultGraph = defaultGraph;
 		this.namedGraphMap = namedGraphMap;
 	}
 
-	public SpinxFactory(Query query, Graph graph, Map<Var,Node> parentVarMap) {
+	public SpinxFactory(Query query, StreamRDF tripleStream, Map<Var,Node> parentVarMap) {
 		this.query = query;
-		this.graph = graph;
+		this.tripleStream = tripleStream;
 		this.parentVarMap = parentVarMap;
 	}
 
@@ -187,17 +189,17 @@ public class SpinxFactory {
 //	}
 
 	public SpinxFactory(
-			Graph graph,
+			StreamRDF tripleStream,
 			Node defaultGraph, Map<Node,Node> namedGraphMap,
 			Map<Var,Node> parentVarMap) {
-		this.graph = graph;
+		this.tripleStream = tripleStream;
 		this.parentVarMap = parentVarMap;
 		this.defaultGraph = defaultGraph;
 		this.namedGraphMap = namedGraphMap;
 	}
 
-	public SpinxFactory(Graph graph, Map<Var,Node> parentVarMap) {
-		this.graph = graph;
+	public SpinxFactory(StreamRDF tripleStream, Map<Var,Node> parentVarMap) {
+		this.tripleStream = tripleStream;
 		this.parentVarMap = parentVarMap;
 	}
 
@@ -212,8 +214,8 @@ public class SpinxFactory {
 		if (varNode == null) {
 			varNode = createNode();
 			Node varNameNode = NodeFactory.createLiteral(var.getVarName());
-			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
-			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
+			tripleStream.triple(new Triple(varNode, SP.varName.asNode(), varNameNode));
+			tripleStream.triple(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			varMap.put(var, varNode);
 		}
 		return varNode;
@@ -224,8 +226,8 @@ public class SpinxFactory {
 		if (varNode == null) {
 			varNode = createNode();
 			Node varNameNode = NodeFactory.createLiteral(var.getVarName());
-			graph.add(new Triple(varNode, SP.varName.asNode(), varNameNode));
-			graph.add(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
+			tripleStream.triple(new Triple(varNode, SP.varName.asNode(), varNameNode));
+			tripleStream.triple(new Triple(varNode, RDF.type.asNode(), SP.Variable.asNode()));
 			parentVarMap.put(var, varNode);
 		}
 		return varNode;
@@ -233,21 +235,21 @@ public class SpinxFactory {
 
 	private Node fromAggregator(Aggregator aggregator) {
 		Node aggrNode = createNode();
-		graph.add(new Triple( aggrNode, RDF.type.asNode(), SP.Expression.asNode() ));
-		graph.add(new Triple(aggrNode, RDF.type.asNode(), SP.Aggregation.asNode()));
-		graph.add(new Triple(aggrNode, RDF.type.asNode(), AggregatorSymbols.getUriNode(aggregator)));
+		tripleStream.triple(new Triple( aggrNode, RDF.type.asNode(), SP.Expression.asNode() ));
+		tripleStream.triple(new Triple(aggrNode, RDF.type.asNode(), SP.Aggregation.asNode()));
+		tripleStream.triple(new Triple(aggrNode, RDF.type.asNode(), AggregatorSymbols.getUriNode(aggregator)));
 		Expr expression = aggregator.getExpr();
 		if (expression != null)
-			graph.add(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expression)));
+			tripleStream.triple(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expression)));
 		if (aggregator instanceof AggGroupConcat || aggregator instanceof AggGroupConcatDistinct) {
 			Accumulator accumulator = aggregator.copy(new NodeValueString("")).createAccumulator();
 			accumulator.accumulate(null, null);
 			accumulator.accumulate(null, null);
 			String separator = accumulator.getValue().asString();
 			Node scalarvalNode = createNode();
-			graph.add(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
-			graph.add(new Triple( scalarvalNode, SPINX.key.asNode(), NodeFactory.createLiteral("separator") ));
-			graph.add(new Triple( scalarvalNode, SPINX.value.asNode(), NodeFactory.createLiteral(separator) ));
+			tripleStream.triple(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
+			tripleStream.triple(new Triple( scalarvalNode, SPINX.key.asNode(), NodeFactory.createLiteral("separator") ));
+			tripleStream.triple(new Triple( scalarvalNode, SPINX.value.asNode(), NodeFactory.createLiteral(separator) ));
 		}
 		return aggrNode;
 	}
@@ -259,24 +261,24 @@ public class SpinxFactory {
 			ExprFunction functionExpr = (ExprFunction) expr;
 //			String functionIRI = ((ExprFunction) expr).getFunctionIRI();
 			Node exprRootNode = createNode();
-			graph.add(new Triple( exprRootNode, RDF.type.asNode(), SP.Expression.asNode() ));
-			graph.add(new Triple( exprRootNode, RDF.type.asNode(), SPINX.FunctionCall.asNode() ));
+			tripleStream.triple(new Triple( exprRootNode, RDF.type.asNode(), SP.Expression.asNode() ));
+			tripleStream.triple(new Triple( exprRootNode, RDF.type.asNode(), SPINX.FunctionCall.asNode() ));
 			String functionIRI = functionExpr.getFunctionIRI();
 			if (functionIRI != null) {
 				Node functionIRINode = NodeFactory.createURI( functionIRI );
-				graph.add(new Triple( exprRootNode, SPINX.functionIRI.asNode(), functionIRINode ));
+				tripleStream.triple(new Triple( exprRootNode, SPINX.functionIRI.asNode(), functionIRINode ));
 			}
 			String opName = functionExpr.getOpName();
 			if (opName != null) {
 				Node opNameNode = NodeFactory.createLiteral( opName );
-				graph.add(new Triple( exprRootNode, SPINX.opName.asNode(), opNameNode ));
+				tripleStream.triple(new Triple( exprRootNode, SPINX.opName.asNode(), opNameNode ));
 			}
 			FunctionLabel functionLabel = functionExpr.getFunctionSymbol();
 			if (functionLabel != null) {
 				String functionSymbol = functionLabel.getSymbol();
 				if (functionSymbol != null) {
 					Node functionSymbolNode = NodeFactory.createLiteral( functionSymbol );
-					graph.add(new Triple( exprRootNode, SPINX.functionLabel.asNode(), functionSymbolNode ));
+					tripleStream.triple(new Triple( exprRootNode, SPINX.functionLabel.asNode(), functionSymbolNode ));
 					KnownFunctionsMapping.set(functionSymbol, functionExpr.getClass());
 				}
 			}
@@ -285,12 +287,12 @@ public class SpinxFactory {
 			while (args.hasNext()) {
 				Node argPredNode = NodeFactory.createURI( SP.getURI() + "arg" + ++argCount );
 				Node argNode = fromExpr(args.next());
-				graph.add(new Triple( exprRootNode, argPredNode, argNode ));
+				tripleStream.triple(new Triple( exprRootNode, argPredNode, argNode ));
 			}
 			if (expr instanceof ExprFunctionOp) {
-				graph.add(new Triple( exprRootNode, RDF.type.asNode(), SPINX.OpCall.asNode() ));
+				tripleStream.triple(new Triple( exprRootNode, RDF.type.asNode(), SPINX.OpCall.asNode() ));
 				Element subElem = ((ExprFunctionOp) expr).getElement();
-				graph.add(new Triple( exprRootNode, SPINX.element.asNode(), fromElement(subElem) ));
+				tripleStream.triple(new Triple( exprRootNode, SPINX.element.asNode(), fromElement(subElem) ));
 			}
 			return exprRootNode;
 		} else if (expr instanceof ExprVar) {
@@ -311,9 +313,9 @@ public class SpinxFactory {
 				return linkNode;
 			else if (path instanceof P_ReverseLink) {
 				Node pathRootNode = createNode();
-				graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
-				graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.ReversePath.asNode()));
-				graph.add(new Triple(pathRootNode, SP.subPath.asNode(), linkNode));
+				tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
+				tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.ReversePath.asNode()));
+				tripleStream.triple(new Triple(pathRootNode, SP.subPath.asNode(), linkNode));
 				return pathRootNode;
 			} else {
 				// TODO: exception for unrecognized Path
@@ -321,12 +323,12 @@ public class SpinxFactory {
 			}
 		} else {
 			Node pathRootNode = createNode();
-			graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
+			tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.Path.asNode()));
 			if (path instanceof P_Path1) {
 				Node subPathNode = fromPath( ((P_Path1) path).getSubPath() );
-				graph.add(new Triple(pathRootNode, SP.subPath.asNode(), subPathNode));
+				tripleStream.triple(new Triple(pathRootNode, SP.subPath.asNode(), subPathNode));
 				if (path instanceof P_Inverse) {
-					graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.ReversePath.asNode()));
+					tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.ReversePath.asNode()));
 				} else {
 					long min = 0;
 					long max = -1; // -1 as infinity (unlimited)
@@ -343,25 +345,25 @@ public class SpinxFactory {
 					} else {
 						// TODO: exception for unrecognized Path
 					}
-					graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.ModPath.asNode()));
+					tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.ModPath.asNode()));
 					if (min != 0) {
 						Node minNode = NodeFactory.createLiteral(Long.toString(min), XSDDatatype.XSDinteger);
-						graph.add(new Triple(pathRootNode, SP.modMin.asNode(), minNode));
+						tripleStream.triple(new Triple(pathRootNode, SP.modMin.asNode(), minNode));
 					}
 					if (max != 0) {
 						Node maxNode = NodeFactory.createLiteral(Long.toString(max), XSDDatatype.XSDinteger);
-						graph.add(new Triple(pathRootNode, SP.modMax.asNode(), maxNode));
+						tripleStream.triple(new Triple(pathRootNode, SP.modMax.asNode(), maxNode));
 					}
 				}
 			} else if (path instanceof P_Path2) {
 				Node path1Node = fromPath( ((P_Path2) path).getLeft() );
 				Node path2Node = fromPath( ((P_Path2) path).getRight() );
-				graph.add(new Triple(pathRootNode, SP.path1.asNode(), path1Node));
-				graph.add(new Triple(pathRootNode, SP.path2.asNode(), path2Node));
+				tripleStream.triple(new Triple(pathRootNode, SP.path1.asNode(), path1Node));
+				tripleStream.triple(new Triple(pathRootNode, SP.path2.asNode(), path2Node));
 				if (path instanceof P_Alt)
-					graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.AltPath.asNode()));
+					tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.AltPath.asNode()));
 				else if (path instanceof P_Seq)
-					graph.add(new Triple(pathRootNode, RDF.type.asNode(), SP.SeqPath.asNode()));
+					tripleStream.triple(new Triple(pathRootNode, RDF.type.asNode(), SP.SeqPath.asNode()));
 				else {
 				// TODO: exception for unrecognized Path
 				}
@@ -372,17 +374,17 @@ public class SpinxFactory {
 	
 	private Node fromTriple(Triple triple) {
 		Node elementRootNode = createNode();
-		graph.add(new Triple(
+		tripleStream.triple(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
 				NodeFactory.createURI(SP.getURI() + "Element")));
-		graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.TriplePattern.asNode()));
+		tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.TriplePattern.asNode()));
 		Node subjectNode = fromNode(triple.getSubject());
 		Node predicateNode = fromNode(triple.getPredicate());
 		Node objectNode = fromNode(triple.getObject());
-		graph.add(new Triple( elementRootNode, SP.subject.asNode(), subjectNode));
-		graph.add(new Triple( elementRootNode, SP.predicate.asNode(), predicateNode));
-		graph.add(new Triple( elementRootNode, SP.object.asNode(), objectNode));
+		tripleStream.triple(new Triple( elementRootNode, SP.subject.asNode(), subjectNode));
+		tripleStream.triple(new Triple( elementRootNode, SP.predicate.asNode(), predicateNode));
+		tripleStream.triple(new Triple( elementRootNode, SP.object.asNode(), objectNode));
 		return elementRootNode;
 	}
 
@@ -390,17 +392,17 @@ public class SpinxFactory {
 		if (triplePath.isTriple())
 			return fromTriple(triplePath.asTriple());
 		Node elementRootNode = createNode();
-		graph.add(new Triple(
+		tripleStream.triple(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
 				NodeFactory.createURI(SP.getURI() + "Element")));
 		Node subjectNode = fromNode(triplePath.getSubject());
 		Node pathNode = fromPath(triplePath.getPath());
 		Node objectNode = fromNode(triplePath.getObject());
-		graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.TriplePath.asNode()));
-		graph.add(new Triple( elementRootNode, SP.subject.asNode(), subjectNode));
-		graph.add(new Triple( elementRootNode, SP.path.asNode(), pathNode));
-		graph.add(new Triple( elementRootNode, SP.object.asNode(), objectNode));
+		tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.TriplePath.asNode()));
+		tripleStream.triple(new Triple( elementRootNode, SP.subject.asNode(), subjectNode));
+		tripleStream.triple(new Triple( elementRootNode, SP.path.asNode(), pathNode));
+		tripleStream.triple(new Triple( elementRootNode, SP.object.asNode(), objectNode));
 		
 		return elementRootNode;
 	}
@@ -414,89 +416,89 @@ public class SpinxFactory {
 
 	private Node fromElement(Element element) {
 		Node elementRootNode = createNode();
-		graph.add(new Triple(
+		tripleStream.triple(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
 				NodeFactory.createURI(SP.getURI() + "Element")));
 		List<Element> childList = null;
 		if (element instanceof ElementExists) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.Exists.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.Exists.asNode()));
 			Node childElement = fromElement( ((ElementExists) element).getElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementNotExists) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.NotExists.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.NotExists.asNode()));
 			Node childElement = fromElement( ((ElementNotExists) element).getElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementAssign) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.Assign.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.Assign.asNode()));
 			Node var = fromVar( ((ElementAssign) element).getVar() );
 			Node expr = fromExpr( ((ElementAssign) element).getExpr() );
-			graph.add(new Triple( elementRootNode, SPINX.var.asNode(), var ));
-			graph.add(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.var.asNode(), var ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
 		} else if (element instanceof ElementBind) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Bind.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Bind.asNode()));
 			Node var = fromVar( ((ElementBind) element).getVar() );
 			Node expr = fromExpr( ((ElementBind) element).getExpr() );
-			graph.add(new Triple( elementRootNode, SPINX.var.asNode(), var ));
-			graph.add(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.var.asNode(), var ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
 		} else if (element instanceof ElementFilter) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Filter.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Filter.asNode()));
 			Node expr = fromExpr( ((ElementFilter) element).getExpr() );
-			graph.add(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.expr.asNode(), expr ));
 		} else if (element instanceof ElementGroup) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
 			childList = ((ElementGroup) element).getElements();
 		} else if (element instanceof ElementMinus) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Minus.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Minus.asNode()));
 			Node childElement = fromElement( ((ElementMinus) element).getMinusElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementNamedGraph) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
 			Node graphNameNode = fromGraphNameNode( ((ElementNamedGraph) element).getGraphNameNode() );
-			graph.add(new Triple( elementRootNode, SP.graphNameNode.asNode(), graphNameNode ));
+			tripleStream.triple(new Triple( elementRootNode, SP.graphNameNode.asNode(), graphNameNode ));
 			Node childElement = fromElement( ((ElementNamedGraph) element).getElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementOptional) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Optional.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Optional.asNode()));
 			Node childElement = fromElement( ((ElementOptional) element).getOptionalElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementPathBlock) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
 			Iterator<TriplePath> triplePaths = ((ElementPathBlock) element).patternElts();
 			while (triplePaths.hasNext()) {
 				Node childNode = fromTriplePath( triplePaths.next() );
-				graph.add(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
+				tripleStream.triple(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
 			}
 		} else if (element instanceof ElementTriplesBlock) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.ElementGroup.asNode()));
 			Iterator<Triple> triples = ((ElementTriplesBlock) element).patternElts();
 			while (triples.hasNext()) {
 				Node childNode = fromTriple( triples.next() );
-				graph.add(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
+				tripleStream.triple(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
 			}
 		} else if (element instanceof ElementService) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Service.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Service.asNode()));
 			Node serviceNode = fromNode( ((ElementService) element).getServiceNode() );
-			graph.add(new Triple( elementRootNode, SP.serviceURI.asNode(), serviceNode ));
+			tripleStream.triple(new Triple( elementRootNode, SP.serviceURI.asNode(), serviceNode ));
 			Node childElement = fromElement( ((ElementService) element).getElement() );
-			graph.add(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
+			tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), childElement ));
 		} else if (element instanceof ElementSubQuery) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.SubQuery.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.SubQuery.asNode()));
 			Query subQuery = ((ElementSubQuery) element).getQuery();
 			Node subQueryNode = createNode();
-			graph.add(new Triple( elementRootNode, SP.query.asNode(), subQueryNode ));
-			fromQuery( subQuery, graph, subQueryNode, varMap );
+			tripleStream.triple(new Triple( elementRootNode, SP.query.asNode(), subQueryNode ));
+			fromQuery( subQuery, tripleStream, subQueryNode, varMap );
 		} else if (element instanceof ElementUnion) {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.Union.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.Union.asNode()));
 			childList = ((ElementUnion) element).getElements();
 		} else {
-			graph.add(new Triple( elementRootNode, RDF.type.asNode(), SPINX.EmptyElement.asNode()));
+			tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SPINX.EmptyElement.asNode()));
 		}
 		if ( childList != null ) {
 			Iterator<Element> elems = childList.iterator();
 			while (elems.hasNext()) {
 				Node childNode = fromElement( elems.next());
-				graph.add(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
+				tripleStream.triple(new Triple(elementRootNode, SPINX.element.asNode(), childNode));
 			}
 		}
 		return elementRootNode;
@@ -507,35 +509,35 @@ public class SpinxFactory {
 		if (defaultGraph == null || element instanceof ElementNamedGraph)
 			return innerElement;
 		Node elementRootNode = createNode();
-		graph.add(new Triple(
+		tripleStream.triple(new Triple(
 				elementRootNode,
 				RDF.type.asNode(),
 				NodeFactory.createURI(SP.getURI() + "Element")));
-		graph.add(new Triple( elementRootNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
-		graph.add(new Triple( elementRootNode, SP.graphNameNode.asNode(), defaultGraph ));
-		graph.add(new Triple( elementRootNode, SPINX.element.asNode(), innerElement ));
+		tripleStream.triple(new Triple( elementRootNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
+		tripleStream.triple(new Triple( elementRootNode, SP.graphNameNode.asNode(), defaultGraph ));
+		tripleStream.triple(new Triple( elementRootNode, SPINX.element.asNode(), innerElement ));
 		return elementRootNode;
 	}
 	
 	private Node fromTemplateTriple(Triple triple) {
 		Node tripleRootNode = createNode();
-		graph.add(new Triple( tripleRootNode, RDF.type.asNode(), SP.TripleTemplate.asNode()));
+		tripleStream.triple(new Triple( tripleRootNode, RDF.type.asNode(), SP.TripleTemplate.asNode()));
 		Node subjNode = fromNode(triple.getSubject());
-		graph.add(new Triple(tripleRootNode, SP.subject.asNode(), subjNode));
+		tripleStream.triple(new Triple(tripleRootNode, SP.subject.asNode(), subjNode));
 		Node predNode = fromNode(triple.getPredicate());
-		graph.add(new Triple(tripleRootNode, SP.predicate.asNode(), predNode));
+		tripleStream.triple(new Triple(tripleRootNode, SP.predicate.asNode(), predNode));
 		Node objNode = fromNode(triple.getObject());
-		graph.add(new Triple(tripleRootNode, SP.object.asNode(), objNode));
+		tripleStream.triple(new Triple(tripleRootNode, SP.object.asNode(), objNode));
 		return tripleRootNode;
 	}	
 
 	private Node fromTemplate(Template template) {
 		Iterator<Triple> templateTriples = template.getTriples().iterator();
 		Node templateRootNode = createNode();
-		graph.add(new Triple( templateRootNode, RDF.type.asNode(), SPINX.TripleTemplateSet.asNode()));
+		tripleStream.triple(new Triple( templateRootNode, RDF.type.asNode(), SPINX.TripleTemplateSet.asNode()));
 		while (templateTriples.hasNext()) {
 			Node tripleNode = fromTemplateTriple(templateTriples.next());
-			graph.add(new Triple(templateRootNode, SPINX.triple.asNode(), tripleNode));
+			tripleStream.triple(new Triple(templateRootNode, SPINX.triple.asNode(), tripleNode));
 		}
 		return templateRootNode;
 	}	
@@ -543,7 +545,7 @@ public class SpinxFactory {
 	private Node fromTriples(List<Triple> triples) {
 		Node triplesRootNode = createNode();
 		for (Triple triple : triples)
-			graph.add(new Triple(triplesRootNode, SPINX.triple.asNode(), fromTemplateTriple(triple)));
+			tripleStream.triple(new Triple(triplesRootNode, SPINX.triple.asNode(), fromTemplateTriple(triple)));
 		return triplesRootNode;
 	}	
 
@@ -566,30 +568,30 @@ public class SpinxFactory {
 		Node quadsRootNode = fromTriples(defaultGraphTriples);
 		for (Node graphName : namedGraphTriples.keySet()) {
 			Node namedGraphNode = fromTriples(namedGraphTriples.get(graphName));
-			graph.add(new Triple(namedGraphNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
-			graph.add(new Triple(quadsRootNode, SP.named.asNode(), namedGraphNode));
+			tripleStream.triple(new Triple(namedGraphNode, RDF.type.asNode(), SP.NamedGraph.asNode()));
+			tripleStream.triple(new Triple(quadsRootNode, SP.named.asNode(), namedGraphNode));
 		}
 		return quadsRootNode;
 	}	
 
 	private void fromAsk(Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Ask.asNode()));
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Ask.asNode()));
 	}
 
 	private void fromConstruct(Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Construct.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Construct.asNode()));
+		tripleStream.triple( new Triple(
 				queryRootNode,
 				SP.templates.asNode(),
 				fromTemplate(query.getConstructTemplate()) ) );
 	}
 
 	private void fromDescribe(Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Describe.asNode()));
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Describe.asNode()));
 	}
 
 	private void fromSelect(Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Select.asNode()));
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Select.asNode()));
 //		List<String> varList = query.getResultVars();
 //		if (varList != null) {
 //			for (String var : varList) {
@@ -603,68 +605,68 @@ public class SpinxFactory {
 		VarExprList projectedList = query.getProject();
 		for ( Var projectedVar : projectedList.getVars() ) {
 			Node projectedNode = createNode();
-			graph.add(new Triple(queryRootNode, SPINX.resultVariable.asNode(), projectedNode));
-			graph.add(new Triple(projectedNode, SP.as.asNode(), fromParentVar(projectedVar)));
+			tripleStream.triple(new Triple(queryRootNode, SPINX.resultVariable.asNode(), projectedNode));
+			tripleStream.triple(new Triple(projectedNode, SP.as.asNode(), fromParentVar(projectedVar)));
 			Expr projectedExpr = projectedList.getExpr(projectedVar);
 			if (projectedExpr != null)
-				graph.add(new Triple(projectedNode, SP.expression.asNode(), fromExpr(projectedExpr)));
+				tripleStream.triple(new Triple(projectedNode, SP.expression.asNode(), fromExpr(projectedExpr)));
 		}
 		if (query.isDistinct())
-			graph.add(new Triple(queryRootNode, SP.distinct.asNode(), NodeFactory.createLiteral("true", XSDDatatype.XSDboolean)));
+			tripleStream.triple(new Triple(queryRootNode, SP.distinct.asNode(), NodeFactory.createLiteral("true", XSDDatatype.XSDboolean)));
 
 		VarExprList groupByExprList = query.getGroupBy();
 		if (groupByExprList != null) {
 			for (Var groupByVar : groupByExprList.getVars() ) {
 				Node groupByNode = createNode();
-				graph.add(new Triple(queryRootNode, SP.groupBy.asNode(), groupByNode));
-				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
+				tripleStream.triple(new Triple(queryRootNode, SP.groupBy.asNode(), groupByNode));
+				tripleStream.triple(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
 				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
 				if (groupByExpr != null)
-					graph.add(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
+					tripleStream.triple(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
 			}
 		}
 	}
 	
 	private void fromDeleteInsert(UpdateModify update, Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Modify.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Modify.asNode()));
+		tripleStream.triple( new Triple(
 				queryRootNode,
 				SP.where.asNode(),
 				fromRootElement(update.getWherePattern() ) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				queryRootNode,
 				SAS.op.asNode(),
 				fromRootOp(Algebra.compile(update.getWherePattern())) ) );
 //		Node deleteNode = GraphUtils.getSingleValueOptProperty(graph, queryRootNode, SP.deletePattern.asNode());
 		List<Quad> deleteQuads = update.getDeleteQuads();
 		if (deleteQuads != null && !deleteQuads.isEmpty()) {
-			graph.add( new Triple(
+			tripleStream.triple( new Triple(
 					queryRootNode,
 					SP.deletePattern.asNode(),
 					fromQuads(deleteQuads) ) );
 		}
 		List<Quad> insertQuads = update.getInsertQuads();
 		if (insertQuads != null && !insertQuads.isEmpty()) {
-			graph.add( new Triple(
+			tripleStream.triple( new Triple(
 					queryRootNode,
 					SP.insertPattern.asNode(),
 					fromQuads(insertQuads) ) );
 		}
 		List<Node> usingNodes = update.getUsing();
 		for (Node usingNode : usingNodes)
-			graph.add( new Triple(
+			tripleStream.triple( new Triple(
 					queryRootNode,
 					SP.using.asNode(),
 					usingNode ) );
 		List<Node> usingNamedNodes = update.getUsingNamed();
 		for (Node usingNamedNode : usingNamedNodes)
-			graph.add( new Triple(
+			tripleStream.triple( new Triple(
 					queryRootNode,
 					SP.usingNamed.asNode(),
 					usingNamedNode ) );
 		Node withNode = update.getWithIRI();
 		if (withNode != null)
-			graph.add( new Triple(
+			tripleStream.triple( new Triple(
 					queryRootNode,
 					SP.with.asNode(),
 					withNode ) );
@@ -695,16 +697,16 @@ public class SpinxFactory {
 	
 	private Node fromTriplePattern(Triple triplePattern) {
 		Node triplePatternNode = createNode();
-		graph.add(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.subject.asNode(),
 				fromNode(triplePattern.getSubject()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.predicate.asNode(),
 				fromNode(triplePattern.getPredicate()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.object.asNode(),
 				fromNode(triplePattern.getObject()) ) );
@@ -715,17 +717,17 @@ public class SpinxFactory {
 		if (triplePattern.isTriple())
 			return fromTriplePattern(triplePattern.asTriple());
 		Node triplePatternNode = createNode();
-		graph.add(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
+		tripleStream.triple(new Triple(triplePatternNode, RDF.type.asNode(), SAS.TriplePattern.asNode()));
 
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.subject.asNode(),
 				fromNode(triplePattern.getSubject()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.path.asNode(),
 				fromPath(triplePattern.getPath()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				triplePatternNode,
 				SP.object.asNode(),
 				fromNode(triplePattern.getObject()) ) );
@@ -734,20 +736,20 @@ public class SpinxFactory {
 	
 	private Node fromQuadPattern(Quad quadPattern) {
 		Node quadPatternNode = createNode();
-		graph.add(new Triple(quadPatternNode, RDF.type.asNode(), SAS.QuadPattern.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(quadPatternNode, RDF.type.asNode(), SAS.QuadPattern.asNode()));
+		tripleStream.triple( new Triple(
 				quadPatternNode,
 				SP.graphNameNode.asNode(),
 				fromNode(quadPattern.getGraph()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				quadPatternNode,
 				SP.subject.asNode(),
 				fromNode(quadPattern.getSubject()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				quadPatternNode,
 				SP.predicate.asNode(),
 				fromNode(quadPattern.getPredicate()) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				quadPatternNode,
 				SP.object.asNode(),
 				fromNode(quadPattern.getObject()) ) );
@@ -756,12 +758,12 @@ public class SpinxFactory {
 	
 	private Node fromTable(Table table) {
 		Node tableNode = createNode();
-		graph.add(new Triple(tableNode, RDF.type.asNode(), SAS.Table.asNode()));
+		tripleStream.triple(new Triple(tableNode, RDF.type.asNode(), SAS.Table.asNode()));
 		ResultSet resultSet = table.toResultSet();
 
 //		Node prevColNode = null;
 		for (String varName : resultSet.getResultVars()) {
-			graph.add(new Triple(tableNode, SAS.varName.asNode(), NodeFactory.createLiteral(varName)));
+			tripleStream.triple(new Triple(tableNode, SAS.varName.asNode(), NodeFactory.createLiteral(varName)));
 		}
 		
 //		QueryIterator rows = table.
@@ -769,33 +771,33 @@ public class SpinxFactory {
 		while (resultSet.hasNext()) {
 			Binding row = resultSet.nextBinding();
 			Node rowNode = createNode();
-			graph.add(new Triple(rowNode, RDF.type.asNode(), SAS.Row.asNode()));
+			tripleStream.triple(new Triple(rowNode, RDF.type.asNode(), SAS.Row.asNode()));
 			
 			Iterator<Var> vars = row.vars();
 			while (vars.hasNext()) {
 				Var var = vars.next();
 				Node bindingNode = createNode();
-				graph.add(new Triple(bindingNode, RDF.type.asNode(), SAS.Binding.asNode()));
-				graph.add(new Triple(rowNode, SAS.binding.asNode(), bindingNode));
-				graph.add(new Triple(
+				tripleStream.triple(new Triple(bindingNode, RDF.type.asNode(), SAS.Binding.asNode()));
+				tripleStream.triple(new Triple(rowNode, SAS.binding.asNode(), bindingNode));
+				tripleStream.triple(new Triple(
 						bindingNode,
 						SAS.variable.asNode(),
 						fromVar(var)));
-				graph.add(new Triple(
+				tripleStream.triple(new Triple(
 						bindingNode,
 						SAS.value.asNode(),
 						fromNode(row.get(var))));
 			}
 			
 			if (prevRowNode != null) {
-				graph.add(new Triple(prevRowNode, SAS.nextRow.asNode(), rowNode));
-				graph.add(new Triple(rowNode, SAS.prevRow.asNode(), prevRowNode));
+				tripleStream.triple(new Triple(prevRowNode, SAS.nextRow.asNode(), rowNode));
+				tripleStream.triple(new Triple(rowNode, SAS.prevRow.asNode(), prevRowNode));
 			} else
-				graph.add(new Triple(tableNode, SAS.firstRow.asNode(), rowNode));
+				tripleStream.triple(new Triple(tableNode, SAS.firstRow.asNode(), rowNode));
 			prevRowNode = rowNode;
 		}
 		if (prevRowNode != null)
-			graph.add(new Triple(tableNode, SAS.lastRow.asNode(), prevRowNode));
+			tripleStream.triple(new Triple(tableNode, SAS.lastRow.asNode(), prevRowNode));
 		
 		return tableNode;
 	}
@@ -808,9 +810,9 @@ public class SpinxFactory {
 		}
 		
 		public void visit(OpBGP op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
 			for (Triple triplePattern : op.getPattern()) {
-				graph.add( new Triple(
+				tripleStream.triple( new Triple(
 						opNode,
 						SAS.triplePattern.asNode(),
 						fromTriplePattern(triplePattern) ) );
@@ -818,9 +820,9 @@ public class SpinxFactory {
 		}
 
 		public void visit(OpQuadPattern op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
 			for (Quad quadPattern : op.getPattern()) {
-				graph.add( new Triple(
+				tripleStream.triple( new Triple(
 						opNode,
 						SAS.quadPattern.asNode(),
 						fromQuadPattern(quadPattern) ) );
@@ -828,169 +830,169 @@ public class SpinxFactory {
 		}
 
 		public void visit(OpTriple op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
-			graph.add( new Triple(
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			tripleStream.triple( new Triple(
 					opNode,
 					SAS.triplePattern.asNode(),
 					fromTriplePattern(op.getTriple()) ) );
 		}
 
 		public void visit(OpQuad op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
-			graph.add( new Triple(
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			tripleStream.triple( new Triple(
 					opNode,
 					SAS.quadPattern.asNode(),
 					fromQuadPattern(op.getQuad()) ) );
 		}
 
 		public void visit(OpPath op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
-			graph.add( new Triple(
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.BGP.asNode()));
+			tripleStream.triple( new Triple(
 					opNode,
 					SAS.triplePattern.asNode(),
 					fromTriplePattern(op.getTriplePath()) ) );
 		}
 
 		public void visit(OpTable op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.FromTable.asNode()));
-			graph.add( new Triple(
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.FromTable.asNode()));
+			tripleStream.triple( new Triple(
 					opNode,
 					SAS.table.asNode(),
 					fromTable(op.getTable()) ) );
 		}
 
 		public void visit(OpNull op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Null.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Null.asNode()));
 		}
 
 		public void visit(OpProcedure op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Procedure.asNode()));
-			graph.add(new Triple(opNode, SAS.procedureName.asNode(), fromNode(op.getProcId())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Procedure.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.procedureName.asNode(), fromNode(op.getProcId())));
 			int argCount = 0;
 			for (Expr e : op.getArgs()) {
 				Node exprNode = fromExpr(e);
 				Node argPredNode = NodeFactory.createURI( SP.getURI() + "arg" + ++argCount );
-				graph.add(new Triple( opNode, argPredNode, exprNode ));
+				tripleStream.triple(new Triple( opNode, argPredNode, exprNode ));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpPropFunc op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.PropertyFunction.asNode()));
-			graph.add(new Triple(opNode, SAS.propertyFunctionName.asNode(), fromNode(op.getProperty())));
-			graph.add(new Triple(opNode, SAS.subjectArg.asNode(), fromNode(op.getSubjectArgs().getArg())));
-			graph.add(new Triple(opNode, SAS.objectArg.asNode(), fromNode(op.getObjectArgs().getArg())));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.PropertyFunction.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.propertyFunctionName.asNode(), fromNode(op.getProperty())));
+			tripleStream.triple(new Triple(opNode, SAS.subjectArg.asNode(), fromNode(op.getSubjectArgs().getArg())));
+			tripleStream.triple(new Triple(opNode, SAS.objectArg.asNode(), fromNode(op.getObjectArgs().getArg())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpFilter op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Filter.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Filter.asNode()));
 			for (Expr e : op.getExprs()) {
 				Node exprNode = fromExpr(e);
-				graph.add(new Triple( opNode, SAS.expr.asNode(), exprNode ));
+				tripleStream.triple(new Triple( opNode, SAS.expr.asNode(), exprNode ));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpGraph op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
-			graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), fromGraphNameNode(op.getNode())));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.graphNameNode.asNode(), fromGraphNameNode(op.getNode())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpService op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Service.asNode()));
-			graph.add(new Triple(opNode, SAS.serviceNode.asNode(), fromNode(op.getService())));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Service.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.serviceNode.asNode(), fromNode(op.getService())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpDatasetNames op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.DatasetNames.asNode()));
-			graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), fromNode(op.getGraphNode())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.DatasetNames.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.graphNameNode.asNode(), fromNode(op.getGraphNode())));
 		}
 
 		public void visit(OpLabel op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Labelled.asNode()));
-			graph.add(new Triple(opNode, SAS.label.asNode(), NodeFactory.createLiteral(op.getObject().toString())));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Labelled.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.label.asNode(), NodeFactory.createLiteral(op.getObject().toString())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpAssign op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Assign.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Assign.asNode()));
 			VarExprList varExprList = op.getVarExprList();
 			for (Var var : varExprList.getVars()) {
 				Node assignmentNode = createNode();
-				graph.add(new Triple(opNode, SAS.assignment.asNode(), assignmentNode));
-				graph.add(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
-				graph.add(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
-				graph.add(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
+				tripleStream.triple(new Triple(opNode, SAS.assignment.asNode(), assignmentNode));
+				tripleStream.triple(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
+				tripleStream.triple(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
+				tripleStream.triple(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpExtend op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Extend.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Extend.asNode()));
 			VarExprList varExprList = op.getVarExprList();
 			for (Var var : varExprList.getVars()) {
 				Node assignmentNode = createNode();
-				graph.add(new Triple(opNode, SAS.extension.asNode(), assignmentNode));
-				graph.add(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
-				graph.add(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
-				graph.add(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
+				tripleStream.triple(new Triple(opNode, SAS.extension.asNode(), assignmentNode));
+				tripleStream.triple(new Triple(assignmentNode, RDF.type.asNode(), SAS.Assign.asNode()));
+				tripleStream.triple(new Triple(assignmentNode, SAS.variable.asNode(), fromVar(var)));
+				tripleStream.triple(new Triple(assignmentNode, SAS.expr.asNode(), fromExpr(varExprList.getExpr(var))));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpJoin op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Join.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Join.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpLeftJoin op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.LeftJoin.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.LeftJoin.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpUnion op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Union.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Union.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpDiff op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Diff.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Diff.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpMinus op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Minus.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Minus.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpConditional op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Conditional.asNode()));
-			graph.add(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
-			graph.add(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Conditional.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.leftOp.asNode(), fromOp(op.getLeft())));
+			tripleStream.triple(new Triple(opNode, SAS.rightOp.asNode(), fromOp(op.getRight())));
 		}
 
 		public void visit(OpSequence op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Sequence.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Sequence.asNode()));
 //			graph.add(new Triple(opNode, SAS.subOpList, SAS.Sequence.asNode()));
 			Iterator<Op> it = op.iterator();
 			while (it.hasNext()) {
-				graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
+				tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
 			}
 		}
 
 		public void visit(OpDisjunction op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Disjunction.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Disjunction.asNode()));
 			Iterator<Op> it = op.iterator();
 			while (it.hasNext()) {
-				graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
+				tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(it.next())));
 			}
 		}
 
@@ -999,58 +1001,58 @@ public class SpinxFactory {
 		}
 
 		public void visit(OpList op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.List.asNode()));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.List.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpOrder op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Order.asNode()));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Order.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 			// TODO Auto-generated method stub
 		}
 
 		public void visit(OpProject op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Project.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Project.asNode()));
 			for (Var var : op.getVars()) {
-				graph.add(new Triple(opNode, SAS.variable.asNode(), fromVar(var)));
+				tripleStream.triple(new Triple(opNode, SAS.variable.asNode(), fromVar(var)));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpReduced op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Reduced.asNode()));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Reduced.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpDistinct op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Distinct.asNode()));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Distinct.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpSlice op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Slice.asNode()));
-			graph.add(new Triple(opNode, SAS.start.asNode(), NodeFactory.createLiteral(Long.toString(op.getStart()), XSDDatatype.XSDinteger)));
-			graph.add(new Triple(opNode, SAS.length.asNode(), NodeFactory.createLiteral(Long.toString(op.getLength()), XSDDatatype.XSDinteger)));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Slice.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.start.asNode(), NodeFactory.createLiteral(Long.toString(op.getStart()), XSDDatatype.XSDinteger)));
+			tripleStream.triple(new Triple(opNode, SAS.length.asNode(), NodeFactory.createLiteral(Long.toString(op.getLength()), XSDDatatype.XSDinteger)));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpGroup op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Group.asNode()));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Group.asNode()));
 			VarExprList groupByExprList = op.getGroupVars();
 			for (Var groupByVar : groupByExprList.getVars() ) {
 				Node groupByNode = createNode();
-				graph.add(new Triple(opNode, SP.groupBy.asNode(), groupByNode));
-				graph.add(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
+				tripleStream.triple(new Triple(opNode, SP.groupBy.asNode(), groupByNode));
+				tripleStream.triple(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
 				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
 				if (groupByExpr != null)
-					graph.add(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
+					tripleStream.triple(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
 			}
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
 		public void visit(OpTopN op) {
-			graph.add(new Triple(opNode, RDF.type.asNode(), SAS.TopN.asNode()));
-			graph.add(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
+			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.TopN.asNode()));
+			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 			// TODO Auto-generated method stub
 		}
 
@@ -1063,8 +1065,8 @@ public class SpinxFactory {
 	
 	private Node fromOp(Op op) {
 		Node opNode = createNode();
-		graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Op.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Op.asNode()));
+		tripleStream.triple( new Triple(
 				opNode,
 				SAS.name.asNode(),
 				NodeFactory.createLiteral(op.getName()) ) );
@@ -1077,24 +1079,24 @@ public class SpinxFactory {
 		if (defaultGraph == null || op instanceof OpGraph)
 			return opInnerNode;
 		Node opNode = createNode();
-		graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Op.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Op.asNode()));
+		tripleStream.triple( new Triple(
 				opNode,
 				SAS.name.asNode(),
 				NodeFactory.createLiteral(Tags.tagGraph) ) );
-		graph.add(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
-		graph.add(new Triple(opNode, SAS.graphNameNode.asNode(), defaultGraph));
-		graph.add(new Triple(opNode, SAS.subOp.asNode(), opInnerNode));
+		tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Graph.asNode()));
+		tripleStream.triple(new Triple(opNode, SAS.graphNameNode.asNode(), defaultGraph));
+		tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), opInnerNode));
 		return opNode;
 	}
 
 	public void fromQuery(Node queryRootNode) {
-		graph.add(new Triple(queryRootNode, RDF.type.asNode(), SP.Query.asNode()));
-		graph.add( new Triple(
+		tripleStream.triple(new Triple(queryRootNode, RDF.type.asNode(), SP.Query.asNode()));
+		tripleStream.triple( new Triple(
 				queryRootNode,
 				SP.where.asNode(),
 				fromRootElement( query.getQueryPattern() ) ) );
-		graph.add( new Triple(
+		tripleStream.triple( new Triple(
 				queryRootNode,
 				SAS.op.asNode(),
 				fromRootOp(Algebra.compile(query)) ) );
@@ -1183,7 +1185,7 @@ public class SpinxFactory {
 	}
 
 	public static void fromUpdate(Update update, Graph graph, Node updateRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap) {
-		SpinxFactory factory = new SpinxFactory(graph, defaultGraph, namedGraphMap, new HashMap<Var, Node>() );
+		SpinxFactory factory = new SpinxFactory(new StreamRDFToGraph(graph), defaultGraph, namedGraphMap, new HashMap<Var, Node>() );
 		factory.fromUpdate(update, updateRootNode);
 	}
 	
@@ -1197,6 +1199,23 @@ public class SpinxFactory {
 	
 	public static void fromUpdate(Update update, Graph graph) {
 		fromUpdate(update, graph, SWI.GraphRoot.asNode());
+	}
+	
+	public static void fromUpdate(Update update, StreamRDF tripleStream, Node updateRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap) {
+		SpinxFactory factory = new SpinxFactory(tripleStream, defaultGraph, namedGraphMap, new HashMap<Var, Node>() );
+		factory.fromUpdate(update, updateRootNode);
+	}
+	
+	public static void fromUpdate(Update update, StreamRDF tripleStream, Node defaultGraph, Map<Node,Node> namedGraphMap) {
+		fromUpdate(update, tripleStream, SWI.GraphRoot.asNode(), defaultGraph, namedGraphMap);
+	}
+	
+	public static void fromUpdate(Update update, StreamRDF tripleStream, Node updateRootNode) {
+		fromUpdate(update, tripleStream, updateRootNode, null, null);
+	}
+	
+	public static void fromUpdate(Update update, StreamRDF tripleStream) {
+		fromUpdate(update, tripleStream, SWI.GraphRoot.asNode());
 	}
 	
 	public static void fromUpdateRequest(
@@ -1224,13 +1243,38 @@ public class SpinxFactory {
 		fromUpdateRequest(updateRequest, graph, SWI.GraphRoot.asNode());
 	}
 
+	public static void fromUpdateRequest(
+			UpdateRequest updateRequest, StreamRDF tripleStream,
+			Node requestRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap) {
+		List<Update> updates = updateRequest.getOperations();
+        for (Update update : updates) {
+        	Node updateRootNode = createNode();
+        	tripleStream.triple(new Triple(requestRootNode, RDFS.member.asNode(), updateRootNode));
+        	fromUpdate(update, tripleStream, updateRootNode, defaultGraph, namedGraphMap);
+        }
+	}
+
+	public static void fromUpdateRequest(
+			UpdateRequest updateRequest, StreamRDF tripleStream,
+			Node defaultGraph, Map<Node,Node> namedGraphMap) {
+		fromUpdateRequest(updateRequest, tripleStream, SWI.GraphRoot.asNode(), defaultGraph, namedGraphMap);
+	}
+
+	public static void fromUpdateRequest(UpdateRequest updateRequest, StreamRDF tripleStream, Node requestRootNode) {
+		fromUpdateRequest(updateRequest, tripleStream, requestRootNode, null, null);
+	}
+
+	public static void fromUpdateRequest(UpdateRequest updateRequest, StreamRDF tripleStream) {
+		fromUpdateRequest(updateRequest, tripleStream, SWI.GraphRoot.asNode());
+	}
+
 	public static void fromQuery(Query query, Graph graph, Node queryRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap, Map<Var,Node> parentVarMap) {
-		SpinxFactory factory = new SpinxFactory(query, graph, defaultGraph, namedGraphMap, parentVarMap);
+		SpinxFactory factory = new SpinxFactory(query, new StreamRDFToGraph(graph), defaultGraph, namedGraphMap, parentVarMap);
 		factory.fromQuery(queryRootNode);
 	}
 
 	public static void fromQuery(Query query, Graph graph, Node queryRootNode, Map<Var,Node> parentVarMap) {
-		SpinxFactory factory = new SpinxFactory(query, graph, parentVarMap);
+		SpinxFactory factory = new SpinxFactory(query, new StreamRDFToGraph(graph), parentVarMap);
 		factory.fromQuery(queryRootNode);
 	}
 
@@ -1244,6 +1288,34 @@ public class SpinxFactory {
 
 	public static void fromQuery(Query query, Graph graph) {
 		fromQuery(query, graph, SWI.GraphRoot.asNode());
+	}
+
+	public static void fromQuery(Query query, StreamRDF tripleStream, Node queryRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap, Map<Var,Node> parentVarMap) {
+		SpinxFactory factory = new SpinxFactory(query, tripleStream, defaultGraph, namedGraphMap, parentVarMap);
+		factory.fromQuery(queryRootNode);
+	}
+
+	public static void fromQuery(Query query, StreamRDF tripleStream, Node queryRootNode, Map<Var,Node> parentVarMap) {
+		SpinxFactory factory = new SpinxFactory(query, tripleStream, parentVarMap);
+		factory.fromQuery(queryRootNode);
+	}
+
+	public static void fromQuery(Query query, StreamRDF tripleStream, Node queryRootNode, Node defaultGraph, Map<Node,Node> namedGraphMap) {
+		fromQuery(query, tripleStream, queryRootNode, defaultGraph, namedGraphMap, new HashMap<Var, Node>() );
+	}
+
+	public static void fromQuery(Query query, StreamRDF tripleStream, Node queryRootNode) {
+		fromQuery(query, tripleStream, queryRootNode, new HashMap<Var, Node>() );
+	}
+
+	public static void fromQuery(Query query, StreamRDF tripleStream) {
+		fromQuery(query, tripleStream, SWI.GraphRoot.asNode());
+	}
+
+	public static Graph fromQuery(Query query, Node queryRootNode) {
+		Graph graph = GraphFactory.createGraphMem();
+		fromQuery(query, graph, queryRootNode);
+		return graph;
 	}
 
 	public static Graph fromQuery(Query query) {
@@ -1262,6 +1334,17 @@ public class SpinxFactory {
 		Graph graph = GraphFactory.createGraphMem();
 		fromUpdateRequest(updateRequest, graph);
 		return graph;
+	}
+	
+	private static class StreamRDFToGraph extends StreamRDFBase {
+		private Graph graph;
+		private StreamRDFToGraph(Graph graph) {
+			this.graph = graph;
+		}
+		@Override
+		public void triple(Triple triple) {
+			graph.add(triple);
+		}
 	}
 
 }

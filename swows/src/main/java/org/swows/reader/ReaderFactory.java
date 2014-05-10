@@ -19,13 +19,15 @@
  */
 package org.swows.reader;
 
+import org.swows.reader.query.QueryReaderRIOTFactory;
+
 public class ReaderFactory {
 	
 	static boolean initialized = false;
 	
 	public static void initialize() {
 		if (!initialized) {
-//			QueryReader.initialize();
+			QueryReaderRIOTFactory.initialize();
 //			UpdateReader.initialize();
 //			RdfReaderFactory.initialize();
 //			XmlReader.initialize();
