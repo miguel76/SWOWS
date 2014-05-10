@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.util.Iterator;
 
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.riot.Lang;
@@ -35,21 +34,10 @@ import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.riot.system.StreamRDF;
-import org.swows.reader.HtmlReaderRIOTFactory;
 import org.swows.spinx.SpinxFactory;
-import org.swows.vocabulary.SWI;
-import org.swows.xmlinrdf.DomEncoder;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.n3.JenaReaderBase;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 import com.hp.hpl.jena.sparql.util.Context;
 
 public class QueryReaderRIOTFactory implements ReaderRIOTFactory {
