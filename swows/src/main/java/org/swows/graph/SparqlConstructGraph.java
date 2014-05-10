@@ -119,6 +119,7 @@ public class SparqlConstructGraph extends DynamicChangingGraph {
 //		System.out.println("**** QUERY " + queryExecution.hashCode() + " START ***");
 //		System.out.println("Executing the following query...");
 //		System.out.println(query);
+		logger.debug("Executing the following query: " + query);
 //		System.out.println("...on the following dataset...");
 //		Dataset dataset = DatasetFactory.create(queryDataset);
 //		System.out.println("Input Default Graph: ");
