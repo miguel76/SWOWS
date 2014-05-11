@@ -841,8 +841,9 @@ public class QueryFactory {
 		} else if (elementType.equals(SP.NamedGraph.asNode())) {
 			Node graphNameNode = getObject(elementRootNode, SP.graphNameNode.asNode());
 			if (graphNameNode.isURI()) {
-				if (query != null)
-					query.addNamedGraphURI(graphNameNode.getURI());
+				String graphNameURI = graphNameNode.getURI();
+				if (query != null && !query.getNamedGraphURIs().contains(graphNameURI))
+					query.addNamedGraphURI(graphNameURI);
 //				else if (updateDeleteInsert != null)
 //					updateDeleteInsert.addUsingNamed(graphNameNode);
 			}
