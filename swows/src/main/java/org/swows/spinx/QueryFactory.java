@@ -87,6 +87,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
 import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
 import com.hp.hpl.jena.sparql.syntax.ElementOptional;
 import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
+import com.hp.hpl.jena.sparql.syntax.ElementService;
 import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
@@ -919,9 +920,9 @@ public class QueryFactory {
 			ElementContext subElementContext = toElementContext(subElementNode);
 			return 
 					new ElementContext(
-							new ElementNamedGraph( toNode(serviceNode), subElementContext.getElement() ),
+							new ElementService(toNode(serviceNode), subElementContext.getElement(),false),
 							subElementContext.getConsumedVars(),
-							subElementContext.getProducedVars() );
+							subElementContext.getProducedVars(), 2 );
 		} else if (elementType.equals(SP.SubQuery.asNode())) {
 			Node queryNode = getObject(elementRootNode, SP.query.asNode());
 			// TODO: should consider also query wide var consuming/producing?
@@ -1202,7 +1203,27 @@ public class QueryFactory {
 			} else {
 				if ( aliasNode != null )
 					query.addResultVar(toParentVar(aliasNode));
+				else
+					query.addResultVar(toParentVar(resultVarNode));
 			}
+		}
+		Node limitNode = getObject(queryRootNode, SP.limit.asNode());
+		if (limitNode != null && limitNode.isLiteral()) {
+			Object limitObj = limitNode.getLiteralValue();
+			if (limitObj instanceof Number)
+				query.setLimit(((Number) limitObj).longValue());
+		}
+		Node offsetNode = getObject(queryRootNode, SP.offset.asNode());
+		if (offsetNode != null && offsetNode.isLiteral()) {
+			Object offsetObj = offsetNode.getLiteralValue();
+			if (offsetObj instanceof Number)
+				query.setOffset(((Number) offsetObj).longValue());
+		}
+		Node distinctNode = getObject(queryRootNode, SP.distinct.asNode());
+		if (distinctNode != null && distinctNode.isLiteral()) {
+			Object distinctObj = distinctNode.getLiteralValue();
+			if (distinctObj instanceof Boolean && ((Boolean) distinctObj).booleanValue())
+				query.setDistinct(true);
 		}
 		Iterator<Node> groupByNodes =	getObjects( queryRootNode, SP.groupBy.asNode());
 		while (groupByNodes.hasNext()) {
