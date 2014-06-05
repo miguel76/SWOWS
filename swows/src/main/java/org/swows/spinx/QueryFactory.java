@@ -1183,6 +1183,8 @@ public class QueryFactory {
 			else if (typeNode.equals(SP.Select.asNode()))
 				query.setQuerySelectType();
 		}
+		if (!query.isAskType() && !query.isConstructType() && !query.isDescribeType() && !query.isSelectType())
+			return null; // not a query
 		Node templateNode =	getObject(queryRootNode, SP.templates.asNode());
 		if (templateNode != null) {
 			query.setConstructTemplate(toTemplate(templateNode));

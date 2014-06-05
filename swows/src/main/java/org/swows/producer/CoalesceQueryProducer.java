@@ -4,7 +4,7 @@ import org.swows.graph.events.DynamicDataset;
 
 import com.hp.hpl.jena.query.Query;
 
-public class CoalesceQueryProducer implements QueryProducer {
+public class CoalesceQueryProducer extends QueryProducer {
 
 	private QueryProducer prioritaryProducer;
 	private QueryProducer secondaryProducer;

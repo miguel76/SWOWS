@@ -22,17 +22,46 @@ package org.swows.util;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.swows.graph.events.DynamicGraphFromGraph;
+
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.Map1;
 
 public class GraphUtils {
+	
+	public static Graph cloneGraph(Graph graph) {
+		Graph graphClone = GraphFactory.createDefaultGraph();
+		GraphUtil.addInto(graphClone, graph);
+		return graphClone;
+	}
+	
+	public static DatasetGraph cloneDatasetGraph(DatasetGraph dataset) {
+		DatasetGraph datasetClone = 
+				DatasetGraphFactory.create(cloneGraph(dataset.getDefaultGraph()));
+        for ( Iterator<Node> names = dataset.listGraphNodes() ; names.hasNext() ; ) {
+            Node gn = names.next() ;
+            datasetClone.addGraph(gn, cloneGraph(dataset.getGraph(gn))) ;
+        }
+		return datasetClone;
+	}
+	
+	public static void makeDynamic(DatasetGraph dataset) {
+		dataset.setDefaultGraph(new DynamicGraphFromGraph(dataset.getDefaultGraph()));
+        for ( Iterator<Node> names = dataset.listGraphNodes() ; names.hasNext() ; ) {
+            Node gn = names.next() ;
+            dataset.addGraph(gn, new DynamicGraphFromGraph(dataset.getGraph(gn)));
+        }
+	}
 	
 	public static Node getSingleValueOptProperty(Graph graph, Node subject, Node predicate, Set<Triple> tripleSet) {
 		Iterator<Triple> triples = graph.find(subject, predicate, Node.ANY);

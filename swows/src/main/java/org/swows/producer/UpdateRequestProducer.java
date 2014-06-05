@@ -22,12 +22,14 @@ package org.swows.producer;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.transform.GraphTransform;
 import org.swows.graph.transform.QueryGraphTransform;
+import org.swows.graph.transform.UpdateRequestGraphTransform;
 
 import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.update.UpdateRequest;
 
 /**
- * The Abstract Class Query Producer is implemented by all the classes
- * that generate queries.
+ * The Abstract Class UpdateRequestProducer is implemented by all the classes
+ * that generate update requests.
  * Implementing classes, a part from implementing Producer
  * methods, must implement a constructor with three parameters:<ul>
  * <li>the {@link com.hp.hpl.jena.graph.Graph} with dataflow definition</li>
@@ -37,21 +39,21 @@ import com.hp.hpl.jena.query.Query;
  * producers</li>
  * </ul>
  */
-public abstract class QueryProducer implements GraphTransformProducer {
+public abstract class UpdateRequestProducer implements GraphTransformProducer {
 
 //	public void build(Graph conf, Node confRoot, ProducerMap map);
 
 	/**
-	 * Generates a query.
+	 * Generates an update request.
 	 *
 	 * @param inputDataset the input dataset of the containing dataflow
-	 * @return the created graph
+	 * @return the created UpdateRequest
 	 */
-	public abstract Query createQuery(DynamicDataset inputDataset);
+	public abstract UpdateRequest createUpdateRequest(DynamicDataset inputDataset);
 	
 	@Override
 	public GraphTransform createGraphTransform(DynamicDataset inputDataset) {
-		return new QueryGraphTransform(createQuery(inputDataset));
+		return new UpdateRequestGraphTransform(createUpdateRequest(inputDataset));
 	}
 
 }

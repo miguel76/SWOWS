@@ -69,27 +69,29 @@ public class DynamicChangingGraph extends DynamicGraphFromGraph {
 		Graph oldGraph = baseGraph;
 		baseGraph = newGraph;
 
-		final Graph addedGraph = GraphFactory.createGraphMem();
-		GraphUtil.add(
-				addedGraph,
-				CompositionBase.butNot(
-						newGraph.find(Node.ANY, Node.ANY, Node.ANY),
-						oldGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
-		final Graph deletedGraph = GraphFactory.createGraphMem();
-		GraphUtil.add(
-				deletedGraph,
-				CompositionBase.butNot(
-						oldGraph.find(Node.ANY, Node.ANY, Node.ANY),
-						newGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
-		if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
-			eventManager.notifyUpdate(new GraphUpdate() {
-				public Graph getAddedGraph() {
-					return addedGraph;
-				}
-				public Graph getDeletedGraph() {
-					return deletedGraph;
-				}
-			});
+		if (eventManager.listening()) {
+			final Graph addedGraph = GraphFactory.createGraphMem();
+			GraphUtil.add(
+					addedGraph,
+					CompositionBase.butNot(
+							newGraph.find(Node.ANY, Node.ANY, Node.ANY),
+							oldGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
+			final Graph deletedGraph = GraphFactory.createGraphMem();
+			GraphUtil.add(
+					deletedGraph,
+					CompositionBase.butNot(
+							oldGraph.find(Node.ANY, Node.ANY, Node.ANY),
+							newGraph.find(Node.ANY, Node.ANY, Node.ANY)) );
+			if (!addedGraph.isEmpty() || !deletedGraph.isEmpty()) {
+				eventManager.notifyUpdate(new GraphUpdate() {
+					public Graph getAddedGraph() {
+						return addedGraph;
+					}
+					public Graph getDeletedGraph() {
+						return deletedGraph;
+					}
+				});
+			}
 		}
 	}
 

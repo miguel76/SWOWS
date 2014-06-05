@@ -4,7 +4,7 @@ import org.swows.graph.events.DynamicDataset;
 
 import com.hp.hpl.jena.query.Query;
 
-public class StringQueryProducer implements QueryProducer {
+public class StringQueryProducer extends QueryProducer {
 	
 	private String query, baseURI;
 	

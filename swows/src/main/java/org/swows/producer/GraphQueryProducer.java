@@ -8,7 +8,7 @@ import org.swows.vocabulary.SWI;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.query.Query;
 
-public class GraphQueryProducer implements QueryProducer {
+public class GraphQueryProducer extends QueryProducer {
 	
 	private Producer graphProducer;
 	private Node queryNode;
