@@ -69,6 +69,7 @@ public class DF {
     public final static Resource InputGraph = resource("InputGraph");
     public final static Resource OutputGraph = resource("OutputGraph");
     public final static Resource ConstructGraph = resource("ConstructGraph");
+    public final static Resource TransformGraph = resource("ConstructGraph");
     public final static Resource IdentityGraph = resource("IdentityGraph");
     public final static Resource InferenceGraph = resource("InferenceGraph");
     public final static Resource EmptyGraph = resource("EmptyGraph");

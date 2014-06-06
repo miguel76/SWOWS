@@ -156,6 +156,8 @@ public class DataflowProducer extends DatasetProducer {
 			return IdentityGraphFunction.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.ConstructGraph.asNode()))
 			return SparqlConstructFunction.class;
+		else if (conf.contains(graphId, RDF.type.asNode(), DF.TransformGraph.asNode()))
+			return TransformFunction.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.DataflowGraph.asNode()))
 			return DataflowProducer.class;
 		else if (conf.contains(graphId, RDF.type.asNode(), DF.DataflowDataset.asNode()))
