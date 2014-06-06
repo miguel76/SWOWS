@@ -30,9 +30,7 @@ import org.swows.graph.events.Listener;
 import org.swows.util.GraphUtils;
 
 import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.update.GraphStore;
@@ -40,7 +38,6 @@ import com.hp.hpl.jena.update.GraphStoreFactory;
 import com.hp.hpl.jena.update.UpdateExecutionFactory;
 import com.hp.hpl.jena.update.UpdateProcessor;
 import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 /**
  * The Class SparqlUpdateGraph it's the result of a

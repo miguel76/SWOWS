@@ -20,15 +20,10 @@
 package org.swows.graph;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Iterator;
 
-import org.apache.jena.atlas.io.OutStreamUTF8;
-import org.apache.jena.atlas.lib.Tuple;
-import org.apache.jena.riot.lang.PipedRDFIterator;
-import org.apache.jena.riot.lang.PipedTriplesStream;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.apache.log4j.Logger;
@@ -49,7 +44,6 @@ import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.sparql.core.Quad;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.resultset.RDFOutput;
 import com.hp.hpl.jena.sparql.resultset.XMLOutput;
