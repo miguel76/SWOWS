@@ -936,7 +936,7 @@ public class QueryFactory {
 					new ElementContext(
 							new ElementService(toNode(serviceNode), subElementContext.getElement(),false),
 							subElementContext.getConsumedVars(),
-							subElementContext.getProducedVars(), 2 );
+							subElementContext.getProducedVars(), 3 );
 		} else if (elementType.equals(SP.SubQuery.asNode())) {
 			Node queryNode = getObject(elementRootNode, SP.query.asNode());
 			// TODO: should consider also query wide var consuming/producing?
@@ -945,7 +945,7 @@ public class QueryFactory {
 					new ElementContext(
 							new ElementSubQuery( subQuery ),
 							null,
-							new CopyOnWriteArraySet<Var>(subQuery.getProjectVars()) );
+							new CopyOnWriteArraySet<Var>(subQuery.getProjectVars()), 2 );
 		} else if (elementType.equals(SP.Union.asNode())) {
 			ElementUnion elementUnion = new ElementUnion();
 			HashSet<Var> consumedVars = new HashSet<Var>();

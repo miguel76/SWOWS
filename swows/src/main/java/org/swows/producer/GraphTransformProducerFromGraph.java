@@ -1,5 +1,6 @@
 package org.swows.producer;
 
+import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.transform.GraphTransform;
@@ -16,6 +17,7 @@ public class GraphTransformProducerFromGraph implements GraphTransformProducer {
 	
 	private Producer graphProducer;
 	private Node rootNode;
+    private static final Logger logger = Logger.getLogger(GraphTransformProducerFromGraph.class);
 	
 	public GraphTransformProducerFromGraph(Producer graphProducer, Node rootNode) {
 		this.graphProducer = graphProducer;
@@ -28,18 +30,24 @@ public class GraphTransformProducerFromGraph implements GraphTransformProducer {
 
 	@Override
 	public GraphTransform createGraphTransform(DynamicDataset inputDataset) {
+		logger.debug("In createGraphTransform, rootNode: " + rootNode);
 		if (graphProducer == null)
 			return null;
 		DynamicGraph graph = graphProducer.createGraph(inputDataset);
 //		graph.getPrefixMapping()
 		if (graph == null)
 			return null;
+		logger.trace("Config Graph: " + graph);
 		Query query = QueryFactory.toQuery(graph, rootNode);
-		if (query != null)
-			return new QueryGraphTransform(query);
+		if (query != null) {
+			logger.trace("Query from Config Graph: " + query);
+ 			return new QueryGraphTransform(query);
+		}
 		UpdateRequest updateRequest = QueryFactory.toUpdateRequest(graph, rootNode);
-		if (updateRequest != null)
+		if (updateRequest != null) {
+			logger.trace("Update Request from Config Graph: " + updateRequest);
 			return new UpdateRequestGraphTransform(updateRequest);
+		}
 		return null;
 	}
 
