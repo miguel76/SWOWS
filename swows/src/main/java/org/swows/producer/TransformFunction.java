@@ -75,6 +75,9 @@ public class TransformFunction extends GraphProducer {
 		Node queryNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configTxt.asNode());
 		String queryTxt = (queryNode != null) ? queryNode.getLiteralLexicalForm() : null;
 		
+		Node configTypeNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configType.asNode());
+		String configType = (configTypeNode != null) ? configTypeNode.getLiteralLexicalForm() : null;
+		
 		Node configNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.config.asNode());
 		Producer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
 		
@@ -100,7 +103,7 @@ public class TransformFunction extends GraphProducer {
 										configProducer,
 										new SelectGraphProducer(inputProducer, queryAsInputNode) ),
 								configRootNode/*NodeFactory.createURI(baseURI.resolve("").toString())*/),
-						new GraphTransformProducerFromString(queryTxt, baseURI.toString()));
+						new GraphTransformProducerFromString(queryTxt, baseURI.toString(), configType));
 //		final Model confModel = ModelFactory.createModelForGraph(conf);
 //		Resource constructResource =
 //			confModel

@@ -38,6 +38,19 @@ public class InlineDatasetProducer extends DatasetProducer {
 //	Set<Producer> inputProducers = new HashSet<Producer>();
 	Map<Node,Producer> namedInputProducers = new HashMap<Node, Producer>();
 
+	private UnionFunction getInputUnion(Graph conf, Node confRoot, final ProducerMap map) {
+		return new UnionFunction(
+				GraphUtils
+					.getPropertyValues(conf, confRoot, DF.input.asNode())
+					.mapWith(new Map1<Node, Producer>() {
+						public Producer map1(Node graphNode) {
+							Producer producer = map.getProducer(graphNode);
+							if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
+								return producer;
+						}
+					}));
+	}
+	
 	/**
 	 * Instantiates a new inline dataset producer.
 	 *
@@ -48,17 +61,7 @@ public class InlineDatasetProducer extends DatasetProducer {
 	 */
 	public InlineDatasetProducer(Graph conf, Node confRoot, final ProducerMap map) {
 //		final Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
-		inputProducer =
-				new UnionFunction(
-						GraphUtils
-						.getPropertyValues(conf, confRoot, DF.input.asNode())
-						.mapWith(new Map1<Node, Producer>() {
-							public Producer map1(Node graphNode) {
-								Producer producer = map.getProducer(graphNode);
-								if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
-								return producer;
-							}
-						}));
+		inputProducer = getInputUnion(conf, confRoot, map);
 
 //		Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
 //		while (inputNodes.hasNext()) {
@@ -72,12 +75,8 @@ public class InlineDatasetProducer extends DatasetProducer {
 		Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.namedInput.asNode());
 		while (namedInputNodes.hasNext()) {
 			Node namedInputNode = namedInputNodes.next();
-			Node graphNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.input.asNode());
-			Node nameNode = GraphUtils.getSingleValueOptProperty(conf, namedInputNode, DF.id.asNode());
-			if (nameNode == null)
-				nameNode = graphNode;
-			Producer producer = map.getProducer(graphNode);
-			if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
+			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.id.asNode());
+			Producer producer = getInputUnion(conf, namedInputNode, map);
 			namedInputProducers.put(nameNode, producer);
 		}
 	}

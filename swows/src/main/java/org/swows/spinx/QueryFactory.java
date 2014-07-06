@@ -141,9 +141,22 @@ public class QueryFactory {
 		return null;
 	}
 	
+	private boolean isVar(Node node) {
+		return node != null && ((node.isURI() && node.getURI().startsWith(SPINX.VAR_PREFIX)) || getObject(node, SP.varName.asNode()) != null);
+	}
+	
+	private String getVarName(Node node) {
+		return
+				(node != null)
+					? (
+							(node.isURI() && node.getURI().startsWith(SPINX.VAR_PREFIX))
+								? node.getURI().substring(SPINX.VAR_PREFIX.length())
+								: getObject(node, SP.varName.asNode()).getLiteralLexicalForm() )
+					: null;
+	}
+	
 	public Node toNode(Node node) {
-		Node varNameNode = getObject(node, SP.varName.asNode());
-		if (varNameNode != null)
+		if (isVar(node))
 			return toVar(node);
 		return node;
 	}
@@ -161,7 +174,7 @@ public class QueryFactory {
 		Var var = varMap.get(varNode);
 //		System.out.print("var: " + varName);
 		if (var == null) {
-			String varName = getObject(varNode, SP.varName.asNode()).getLiteralLexicalForm();
+			String varName = getVarName(varNode);
 			var = Var.alloc(varName);
 			varMap.put(varNode,var);
 //			System.out.print(" (newvar)");
@@ -174,7 +187,7 @@ public class QueryFactory {
 		Var var = parentVarMap.get(varNode);
 //		System.out.print("var: " + varName);
 		if (var == null) {
-			String varName = getObject(varNode, SP.varName.asNode()).getLiteralLexicalForm();
+			String varName = getVarName(varNode);
 			var = Var.alloc(varName);
 			parentVarMap.put(varNode,var);
 //			System.out.print(" (newvar)");

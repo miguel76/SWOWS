@@ -12,11 +12,18 @@ import com.hp.hpl.jena.update.UpdateRequest;
 
 public class GraphTransformProducerFromString implements GraphTransformProducer {
 	
-	private String transform, baseURI;
+	private static final String MIME_QUERY = "application/sparql-query", MIME_UPDATE_REQUEST = "application/sparql-update";
 	
-	public GraphTransformProducerFromString(String transform, String baseURI) {
+	private String transform, baseURI, mimeType;
+	
+	public GraphTransformProducerFromString(String transform, String baseURI, String mimeType) {
 		this.transform = transform;
 		this.baseURI = baseURI;
+		this.mimeType = (mimeType != null) ? mimeType : MIME_QUERY;
+	}
+
+	public GraphTransformProducerFromString(String query, String mimeType) {
+		this(query, null, mimeType);
 	}
 
 	public GraphTransformProducerFromString(String query) {
@@ -27,12 +34,16 @@ public class GraphTransformProducerFromString implements GraphTransformProducer 
 	public GraphTransform createGraphTransform(DynamicDataset inputDataset) {
 		if (transform == null)
 			return null;
-		Query query = QueryFactory.create(transform, baseURI);
-		if (query != null)
-			return new QueryGraphTransform(query);
-		UpdateRequest updateRequest = UpdateFactory.create(transform, baseURI);
-		if (updateRequest != null)
-			return new UpdateRequestGraphTransform(updateRequest);
+		if (mimeType.equals(MIME_QUERY)) {
+			Query query = QueryFactory.create(transform, baseURI);
+			if (query != null)
+				return new QueryGraphTransform(query);
+		}
+		if (mimeType.equals(MIME_UPDATE_REQUEST)) {
+			UpdateRequest updateRequest = UpdateFactory.create(transform, baseURI);
+			if (updateRequest != null)
+				return new UpdateRequestGraphTransform(updateRequest);
+		}
 		return null;
 	}
 

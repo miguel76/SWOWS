@@ -32,6 +32,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 public class SPINX {
 
 	private static final String uri = "http://www.swows.org/spinx#";
+	public static final String VAR_PREFIX = "http://www.swows.org/spinx/var/";
 
 	/**
 	 * Gets the ontology URI.
@@ -41,6 +42,7 @@ public class SPINX {
 	public static String getURI() {
 		return uri;
 	}
+	
 
     /**
      * Creates a new resource based on the SPINX uri and a local name
