@@ -201,7 +201,7 @@ public class DataflowProducer extends DatasetProducer {
 		private Node specialProducerNode;
 		private Producer recursiveProducer;
 		private Set<Node> resetProducerNodes;
-		private Set<NotifyingProducer> resetProducerNodesFound = new HashSet<>();;
+		private Set<NotifyingProducer> resetProducerNodesFound = new HashSet<>();
 		private boolean found = false;
 		private Graph conf;
 		
