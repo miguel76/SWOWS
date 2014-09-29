@@ -32,7 +32,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.update.UpdateFactory;
 import com.hp.hpl.jena.update.UpdateRequest;
 
-public class UpdatableProducer2 extends GraphProducer {
+public class SingleGraphStore extends GraphProducer {
 	
 	private String queryTxt = null;
 	private String baseURI;
@@ -51,7 +51,7 @@ public class UpdatableProducer2 extends GraphProducer {
 	 * @param map the map to access the other defined producers
 	 * @see Producer
 	 */
-	public UpdatableProducer2(Graph conf, Node confRoot, ProducerMap map) {
+	public SingleGraphStore(Graph conf, Node confRoot, ProducerMap map) {
 		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
 		inputProducer =
 				(inputNode != null) ?
