@@ -34,7 +34,7 @@ public class QueryTest {
 
     public static void main(final String[] args)  {
 
-    	String baseUri = "/home/miguel/TUIO/circles/";
+    	String baseUri = "/Users/miguel/Dropbox/Demo/normalize.sparql";
     	
 //    	String defaultGraphUri = baseUri + "tuio_input_2.n3";
 //    	

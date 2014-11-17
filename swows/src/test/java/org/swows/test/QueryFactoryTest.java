@@ -42,6 +42,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.algebra.Algebra;
 import com.hp.hpl.jena.sparql.algebra.Op;
+import com.hp.hpl.jena.sparql.algebra.OpAsQuery;
 import com.hp.hpl.jena.sparql.sse.SSE;
 
 public class QueryFactoryTest {
@@ -55,7 +56,8 @@ public class QueryFactoryTest {
 //    	String baseUri = "/home/miguel/TUIO/circles/";
 //    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
 //    	String baseUri = "/home/miguel/svg2canvas/";
-    	String baseUri = "/home/miguel/git/WorldInfo/";
+    	String baseUri = //"/home/miguel/git/WorldInfo/";
+    	"/Users/miguel/Dropbox/Demo/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -67,7 +69,8 @@ public class QueryFactoryTest {
 //		Query inputQuery = QueryFactory.read(baseUri + "circlesTest.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/svg.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/children2descendants.sparql");
+//    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/children2descendants.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "normalize.sparql");
     	
     	Factory.getInstance();
     	
@@ -75,18 +78,21 @@ public class QueryFactoryTest {
     	
     	Op op = Algebra.compile(inputQuery);
     	SSE.write(op);
-    	System.exit(0);
+//    	System.exit(0);
+    	
+    	Query revEngQuery = OpAsQuery.asQuery(op);
+    	System.out.println(revEngQuery);
     	
 //    	Node queryRootNode = NodeFactory.createURI("#defaultQuery");
     	
     	
-//    	System.out.println();
-//    	System.out.println("*************************");
-//    	System.out.println("*** Input Query in N3 ***");
-//    	System.out.println("*************************");
-//    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
-//    	System.out.println("*************************");
-//    	System.out.println();
+    	System.out.println();
+    	System.out.println("*************************");
+    	System.out.println("*** Input Query in N3 ***");
+    	System.out.println("*************************");
+    	ModelFactory.createModelForGraph(queryGraph).write(System.out,"N3");
+    	System.out.println("*************************");
+    	System.out.println();
     	
     	try {
 			ModelFactory.createModelForGraph(queryGraph).write(new FileOutputStream("query.n3"),"N3");

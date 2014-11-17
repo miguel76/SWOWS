@@ -29,7 +29,7 @@
 			<groupId>net.sourceforge.tuio</groupId>
 			<artifactId>tuio</artifactId>
 			<version>1.4</version>
-			<systemPath>/home/miguel/TUIO_JAVA/libTUIO.jar</systemPath>
+			<systemPath>/Users/miguel/Downloads/tuio-1.4.jar</systemPath>
 			<scope>system</scope>
 		</dependency>
 		<dependency>
@@ -48,15 +48,15 @@
 			<version>1.2.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.jena</groupId>
-			<artifactId>apache-jena-libs</artifactId>
-			<version>2.11.0</version>
-			<type>pom</type>
-		</dependency>
-		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>apache-jena-libs</artifactId>
+			<version>2.12.1</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 </project>

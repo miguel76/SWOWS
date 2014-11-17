@@ -162,7 +162,8 @@ public class SpinxFactory {
 	private Map<Var,Node> parentVarMap = null;
 	
 	private static Node createNode() {
-		return Skolemizer.getInstance().getNode();
+//		return Skolemizer.getInstance().getNode();
+		return NodeFactory.createAnon();
 	}
 
 	public SpinxFactory(
@@ -1036,16 +1037,32 @@ public class SpinxFactory {
 			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
 
+		private void aggregator(Node groupNode, Var var, Expr expr) {
+			Node aggrNode = createNode();
+			tripleStream.triple(new Triple(groupNode, SP.groupBy.asNode(), aggrNode));
+			tripleStream.triple(new Triple(aggrNode, SP.as.asNode(), fromParentVar(var)));
+			tripleStream.triple(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expr)));
+		}
+		
 		public void visit(OpGroup op) {
 			tripleStream.triple(new Triple(opNode, RDF.type.asNode(), SAS.Group.asNode()));
-			VarExprList groupByExprList = op.getGroupVars();
-			for (Var groupByVar : groupByExprList.getVars() ) {
-				Node groupByNode = createNode();
-				tripleStream.triple(new Triple(opNode, SP.groupBy.asNode(), groupByNode));
-				tripleStream.triple(new Triple(groupByNode, SP.as.asNode(), fromParentVar(groupByVar)));
-				Expr groupByExpr = groupByExprList.getExpr(groupByVar);
-				if (groupByExpr != null)
-					tripleStream.triple(new Triple(groupByNode, SP.expression.asNode(), fromExpr(groupByExpr)));
+
+			VarExprList groupVars = op.getGroupVars();
+			if (groupVars != null) {
+				for (Var aggrVar : groupVars.getVars() ) {
+					Expr aggrExpr = groupVars.getExpr(aggrVar);
+					aggregator(opNode, aggrVar, aggrExpr);
+				}
+			}
+
+			List<ExprAggregator> exprAggregators = op.getAggregators();
+			if (exprAggregators != null) {
+				for (ExprAggregator exprAggregator : exprAggregators ) {
+					Var aggrVar = exprAggregator.getVar();
+//					Aggregator aggr = exprAggregator.getAggregator();
+//					Expr aggrExpr = aggr.getExpr();
+					aggregator(opNode, aggrVar, exprAggregator);
+				}
 			}
 			tripleStream.triple(new Triple(opNode, SAS.subOp.asNode(), fromOp(op.getSubOp())));
 		}
