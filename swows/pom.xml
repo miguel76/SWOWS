@@ -29,8 +29,8 @@
 			<groupId>net.sourceforge.tuio</groupId>
 			<artifactId>tuio</artifactId>
 			<version>1.4</version>
-			<systemPath>/Users/miguel/Downloads/tuio-1.4.jar</systemPath>
-			<scope>system</scope>
+			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>

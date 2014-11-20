@@ -23,5 +23,6 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/tuio-1.4.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
