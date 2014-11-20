@@ -1,0 +1,18 @@
+PREFIX rdf:		<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dc:		<http://purl.org/dc/elements/1.1/>
+PREFIX dcterms:	<http://purl.org/dc/terms/>
+PREFIX prov:	<http://www.w3.org/ns/prov#>
+PREFIX calli:	<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX mecomp:	<http://rdf.myexperiment.org/ontologies/components/>
+
+CONSTRUCT {
+	<http://localhost:4040/test/fao2/FAO/fao> mecomp:has-component ?component.
+	<http://localhost:4040/test/fao2/FAO/fao> calli:hasComponent ?component.
+	?component ?p ?o.
+}
+WHERE {
+	SERVICE <http://localhost:4040/sparql> {
+ 		<http://localhost:4040/test/fao2/FAO/fao> mecomp:has-component ?component.
+ 		OPTIONAL { ?component ?p ?o. FILTER(?p != prov:wasGeneratedBy) . }
+ 	}
+}
