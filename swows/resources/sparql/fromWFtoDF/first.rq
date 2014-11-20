@@ -4,15 +4,41 @@ PREFIX dcterms:	<http://purl.org/dc/terms/>
 PREFIX prov:	<http://www.w3.org/ns/prov#>
 PREFIX calli:	<http://callimachusproject.org/rdf/2009/framework#>
 PREFIX mecomp:	<http://rdf.myexperiment.org/ontologies/components/>
+PREFIX df:		<http://www.swows.org/2012/06/dataflow#>
+
+#PREFIX wf-iri:	<http://localhost:4040/test/fao2/FAO/fao>
+PREFIX wf-iri:	<http://151.100.179.11:4040/swows-test/FAO/fao>
+#PREFIX wf-ep:	<http://localhost:4040/sparql>
+PREFIX wf-ep:	<http://151.100.179.11:4040/sparql>
 
 CONSTRUCT {
-	<http://localhost:4040/test/fao2/FAO/fao> mecomp:has-component ?component.
-	<http://localhost:4040/test/fao2/FAO/fao> calli:hasComponent ?component.
-	?component ?p ?o.
+#	wf-iri: mecomp:has-component ?component.
+    wf-iri:
+    	a df:Dataflow;
+		df:hasComponent ?component;
+		df:defaultInput ?defaultSink;
+		df:namedInput ?graphNamer.
+	?graphNamer
+		a df:GraphNamer;
+		df:name ?sinkName;
+		df:input ?namedSink.
+	?component a df:DataflowComponent.
 }
 WHERE {
-	SERVICE <http://localhost:4040/sparql> {
- 		<http://localhost:4040/test/fao2/FAO/fao> mecomp:has-component ?component.
- 		OPTIONAL { ?component ?p ?o. FILTER(?p != prov:wasGeneratedBy) . }
+	SERVICE wf-ep: {
+ 		wf-iri:	mecomp:has-component ?component.
+ 		OPTIONAL {
+#	 		wf-iri:	mecomp:has-component ?sink.
+# 			?sink a mecomp:Sink.
+ 			?component a mecomp:Sink.
+ 			{
+ 					{ 	FILTER NOT EXISTS {?component dcterms:identifier ?anyName}.
+ 					 	BIND(?component AS ?defaultSink). }
+ 			  	UNION
+ 					{ 	?component dcterms:identifier ?sinkName.
+ 					 	BIND(?component AS ?namedSink).
+ 					 	BIND(BNODE() AS ?graphNamer). }
+ 			}
+ 		}
  	}
 }

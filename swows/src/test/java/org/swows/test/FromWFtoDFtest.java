@@ -50,7 +50,16 @@ public class FromWFtoDFtest {
     public static void main(final String[] args) throws TransformerException {
     	
     	String baseUri = "resources/sparql/fromWFtoDF/";
-    	Query transfQuery = QueryFactory.read(baseUri + "first.rq");
+    	
+    	String[] queryStrings = {
+    			"comp-dataflow.rq",
+    			"comp-defaultSink.rq",
+    			"comp-namedSink.rq"
+    	};
+    	
+//    	Query transfQuery = QueryFactory.read(baseUri + "first.rq");
+    	
+    	
     	     	
 //    	String defaultGraphUri = baseUri + "tuio_input_new.n3";
 //    	
@@ -98,17 +107,30 @@ public class FromWFtoDFtest {
     	long queryStart, queryEnd;
     	
 		queryStart = System.currentTimeMillis();
-		QueryExecution queryExecution =
-				QueryExecutionFactory.create(transfQuery, inputDataset);
-		Model inputQueryResult = queryExecution.execConstruct();
+		
+		Model transfResult = null;
+    	for (String queryStr : queryStrings) {
+    		Query transfQuery = QueryFactory.read(baseUri + queryStr);
+    		QueryExecution queryExecution =
+    				QueryExecutionFactory.create(transfQuery, inputDataset);
+    		if (transfResult == null)
+    			transfResult = queryExecution.execConstruct();
+    		else
+    			queryExecution.execConstruct(transfResult);
+    	}	
+    	
+
+//		QueryExecution queryExecution =
+//				QueryExecutionFactory.create(transfQuery, inputDataset);
+//		Model inputQueryResult = queryExecution.execConstruct();
 		queryEnd = System.currentTimeMillis();
-		System.out.println("Input Query execution time: " + (queryEnd - queryStart) );
+		System.out.println("Query execution time: " + (queryEnd - queryStart) );
 
 		System.out.println();
     	System.out.println("**************************");
-    	System.out.println("*** Input Query Result ***");
+    	System.out.println("*** Query Result ***");
     	System.out.println("**************************");
-    	inputQueryResult.write(System.out,"N3");
+    	transfResult.write(System.out,"N3");
     	System.out.println("****************************");
     	System.out.println();
     	

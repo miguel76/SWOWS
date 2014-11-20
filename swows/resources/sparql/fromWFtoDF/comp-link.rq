@@ -1,0 +1,28 @@
+PREFIX rdf:		<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dc:		<http://purl.org/dc/elements/1.1/>
+PREFIX dcterms:	<http://purl.org/dc/terms/>
+PREFIX prov:	<http://www.w3.org/ns/prov#>
+PREFIX calli:	<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX mecomp:	<http://rdf.myexperiment.org/ontologies/components/>
+PREFIX df:		<http://www.swows.org/2012/06/dataflow#>
+
+#PREFIX wf-iri:	<http://localhost:4040/test/fao2/FAO/fao>
+PREFIX wf-iri:	<http://151.100.179.11:4040/swows-test/FAO/fao>
+#PREFIX wf-ep:	<http://localhost:4040/sparql>
+PREFIX wf-ep:	<http://151.100.179.11:4040/sparql>
+
+CONSTRUCT {
+	wf-iri df:hasComponent ?toInput.
+    ?toInput
+    	a df:Merger;
+		df:input ?fromOutput
+}
+WHERE {
+	SERVICE wf-ep: {
+ 		wf-iri:	mecomp:has-component ?link.
+		?link
+			a mecomp:Link;
+			mecomp:from-output ?fromOutput;
+			mecomp:to-input ?toInput.
+ 	}
+}
