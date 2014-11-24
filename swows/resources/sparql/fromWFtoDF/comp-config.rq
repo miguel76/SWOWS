@@ -8,12 +8,18 @@ PREFIX swowscomp:	<http://swows.org/2014/09/components#>
 PREFIX df:			<http://www.swows.org/2012/06/dataflow#>
 
 CONSTRUCT {
-	?dfRoot df:hasComponent ?store.
-    ?store a df:SingleGraphStore.
+	?configurable df:inlineConfig ?script.
 }
 WHERE {
 	SERVICE ?dfEndpoint {
- 		?dfRoot	mecomp:has-component ?store.
-		?store a swowscomp:Store.
+ 		?dfRoot	mecomp:has-component ?configurable.
+ 		?configurable a ?configurableClass.
+ 		FILTER(?configurableClass IN
+ 					(	swowscomp:TransformProcessor,
+ 						swowscomp:Store,
+ 						swowscomp:DataflowProcessor ) ).
+		OPTIONAL {
+			?configurable mecomp:processor-script ?script.
+		}
  	}
 }

@@ -8,12 +8,16 @@ PREFIX swowscomp:	<http://swows.org/2014/09/components#>
 PREFIX df:			<http://www.swows.org/2012/06/dataflow#>
 
 CONSTRUCT {
-	?dfRoot df:hasComponent ?store.
-    ?store a df:SingleGraphStore.
+	?dfRoot df:hasComponent ?source.
+    ?source
+    	a df:URISource;
+    	df:url ?value.
 }
 WHERE {
 	SERVICE ?dfEndpoint {
- 		?dfRoot	mecomp:has-component ?store.
-		?store a swowscomp:Store.
+ 		?dfRoot	mecomp:has-component ?source.
+		?source
+			a swowscomp:URISourceProcessor;
+			mecomp:processor-value ?value.
  	}
 }

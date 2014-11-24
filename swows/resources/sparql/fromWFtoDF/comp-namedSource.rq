@@ -7,17 +7,20 @@ PREFIX mecomp:	<http://rdf.myexperiment.org/ontologies/components/>
 PREFIX df:		<http://www.swows.org/2012/06/dataflow#>
 
 CONSTRUCT {
-	?dfRoot df:hasComponent ?toInput.
-    ?toInput
-    	a df:Merger;
-		df:input ?fromOutput
+    ?sourceOutput
+    	a df:NamedGraphSelector;
+		df:name ?graphName;
+		df:datasetProducer ?dfRoot.
 }
 WHERE {
 	SERVICE ?dfEndpoint {
- 		?dfRoot	mecomp:has-component ?link.
-		?link
-			a mecomp:Link;
-			mecomp:from-output ?fromOutput;
-			mecomp:to-input ?toInput.
+ 		?dfRoot	mecomp:has-component ?namedSource.
+		?namedSource
+			a mecomp:Source;
+			dcterms:identifier ?sourceName.
+		?sourceOutput
+			a mecomp:Output;
+			mecomp:for-component ?namedSource.
  	}
+	BIND(IRI( CONCAT( STR(?dfRoot), '#', ?sourceName ) ) AS ?graphName).
 }

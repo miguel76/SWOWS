@@ -19,17 +19,7 @@
  */
 package org.swows.test;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.List;
-import java.util.Vector;
-
 import javax.xml.transform.TransformerException;
-
-import org.swows.function.Factory;
-import org.swows.reader.ReaderFactory;
-import org.swows.spinx.SpinxFactory;
-import org.swows.vocabulary.SWI;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.Dataset;
@@ -38,66 +28,49 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.algebra.Algebra;
-import com.hp.hpl.jena.sparql.algebra.Op;
-import com.hp.hpl.jena.sparql.algebra.OpAsQuery;
-import com.hp.hpl.jena.sparql.sse.SSE;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class FromWFtoDFtest {
 
     public static void main(final String[] args) throws TransformerException {
     	
+//    	String calliBase = "http://151.100.179.11:4040/";
+//    	Resource dfRoot =
+//    			ResourceFactory.createResource(calliBase + "swows-test/FAO/fao");
+    	String calliBase = "http://localhost:4040/";
+    	Resource dfRoot =
+    			ResourceFactory.createResource(calliBase + "test/fao2/FAO/fao");
+    	Resource dfEndpoint =
+    			ResourceFactory.createResource(calliBase + "sparql");
+    	
+    	QuerySolutionMap initialBindings = new QuerySolutionMap();
+    	initialBindings.add("dfRoot", dfRoot);
+    	initialBindings.add("dfEndpoint", dfEndpoint);
+    	
     	String baseUri = "resources/sparql/fromWFtoDF/";
     	
     	String[] queryStrings = {
     			"comp-dataflow.rq",
+    			
     			"comp-defaultSink.rq",
-    			"comp-namedSink.rq"
-    	};
-    	
-//    	Query transfQuery = QueryFactory.read(baseUri + "first.rq");
-    	
-    	
-    	     	
-//    	String defaultGraphUri = baseUri + "tuio_input_new.n3";
-//    	
-//		List<String> namedGraphUris = new Vector<String>();
-//		namedGraphUris.add(baseUri + "viewPortInfo.n3");
-//		namedGraphUris.add(baseUri + "config.n3");
-//		namedGraphUris.add(baseUri + "circleAges.n3");
-//		namedGraphUris.add(baseUri + "circles.n3");
+    			"comp-namedSink.rq",
+    			"comp-defaultSource.rq",
+    			"comp-namedSource.rq",
+    			
+    			"comp-URIsource.rq",
+    			"comp-transf.rq",
+    			"comp-store.rq",
 
-//    	String defaultGraphUri = baseUri + "circleAges.n3";
-//    	String defaultGraphUri = baseUri + "defaultInput.n3";
-//    	
-//		List<String> namedGraphUris = new Vector<String>();
-//		namedGraphUris.add(baseUri + "tuio_input.n3");
-//		namedGraphUris.add(baseUri + "config.n3");
+    			"comp-config.rq",
+    			"comp-gProd.rq",
+    			"comp-dsCons.rq",
+    			"comp-link.rq"
+   	};
     	
-//    	String defaultGraphUri = baseUri + "input.n3";
-//		List<String> namedGraphUris = new Vector<String>();
-//		namedGraphUris.add(baseUri + "range.n3");
-		
-//    	String defaultGraphUri = baseUri + "quantityHistoryStart_T.n3";
-//		List<String> namedGraphUris = new Vector<String>();
-		
-//    	String defaultGraphUri = baseUri + "input.n3";
-    	String defaultGraphUri = baseUri + "data/fao.rdf";
-		List<String> namedGraphUris = new Vector<String>();
-//		Model defaultModel = FileManager.get().loadModel(defaultGraphUri,defaultGraphUri,"http://www.swows.org/syntaxes/XML");
-//		namedGraphUris.add(baseUri + "config.n3");
-//		namedGraphUris.add(baseUri + "selectedPage.n3");
-
-//		System.out.println();
-//    	System.out.println("**************************");
-//    	System.out.println("*** Input Model ***");
-//    	System.out.println("**************************");
-//    	defaultModel.write(System.out,"N3");
-//    	System.out.println("****************************");
-//    	System.out.println();
-
 //		Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
     	//Dataset inputDataset = DatasetFactory.create(defaultModel);
 		Dataset inputDataset =
@@ -112,7 +85,7 @@ public class FromWFtoDFtest {
     	for (String queryStr : queryStrings) {
     		Query transfQuery = QueryFactory.read(baseUri + queryStr);
     		QueryExecution queryExecution =
-    				QueryExecutionFactory.create(transfQuery, inputDataset);
+    				QueryExecutionFactory.create(transfQuery, inputDataset, initialBindings);
     		if (transfResult == null)
     			transfResult = queryExecution.execConstruct();
     		else
@@ -130,7 +103,8 @@ public class FromWFtoDFtest {
     	System.out.println("**************************");
     	System.out.println("*** Query Result ***");
     	System.out.println("**************************");
-    	transfResult.write(System.out,"N3");
+//    	transfResult.write(System.out,"N3");
+    	transfResult.write(System.out);
     	System.out.println("****************************");
     	System.out.println();
     	

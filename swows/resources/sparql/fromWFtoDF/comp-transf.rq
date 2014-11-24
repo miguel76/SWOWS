@@ -8,12 +8,12 @@ PREFIX swowscomp:	<http://swows.org/2014/09/components#>
 PREFIX df:			<http://www.swows.org/2012/06/dataflow#>
 
 CONSTRUCT {
-	?dfRoot df:hasComponent ?store.
-    ?store a df:SingleGraphStore.
+	?dfRoot df:hasComponent ?transform.
+    ?transform a df:Transformer.
 }
 WHERE {
 	SERVICE ?dfEndpoint {
- 		?dfRoot	mecomp:has-component ?store.
-		?store a swowscomp:Store.
+ 		?dfRoot	mecomp:has-component ?transform.
+		?transform a swowscomp:TransformProcessor.
  	}
 }
