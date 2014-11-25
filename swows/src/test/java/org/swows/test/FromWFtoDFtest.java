@@ -67,7 +67,9 @@ public class FromWFtoDFtest {
 
     			"comp-config.rq",
     			"comp-gProd.rq",
-    			"comp-dsCons.rq",
+    			"comp-dsProd.rq",
+    			"comp-dsCons-default.rq",
+    			"comp-dsCons-named.rq",
     			"comp-link.rq"
    	};
     	

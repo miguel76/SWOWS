@@ -8,22 +8,23 @@ PREFIX swowscomp:	<http://swows.org/2014/09/components#>
 PREFIX df:			<http://www.swows.org/2012/06/dataflow#>
 
 CONSTRUCT {
-	?dfRoot df:hasComponent ?output.
-	?output
-		a df:Identity;
-		df:input ?gProducer.
-	?gProducer a df:GraphProducer .
+	?dfRoot df:hasComponent ?dsConsumer.
+    ?dsConsumer
+    	a df:DatasetConsumer;
+		df:defaultInput
+			[ 	a df:Merger;
+				df:input ?input ]
 }
 WHERE {
 	SERVICE ?dfEndpoint {
- 		?dfRoot	mecomp:has-component ?gProducer.
- 		?gProducer a ?gProducerClass.
- 		FILTER(?gProducerClass IN
- 					(	# swowscomp:TransformProcessor,
- 						# swowscomp:Store,
- 						swowscomp:URISourceProcessor ) ).
-		?output
-			a mecomp:Output;
-			mecomp:for-component ?gProducer.
+ 		?dfRoot	mecomp:has-component ?dsConsumer.
+ 		?dsConsumer a ?dsConsumerClass.
+ 		FILTER(?dsConsumerClass IN
+ 					(	swowscomp:TransformProcessor,
+ 						swowscomp:Store,
+ 						swowscomp:DataflowProcessor ) ).
+		?input
+			a mecomp:Input, swowscomp:isInDefaultInput;
+			mecomp:for-component ?dsConsumer.
  	}
 }
