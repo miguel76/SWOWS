@@ -1,0 +1,35 @@
+PREFIX rdf:			<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dc:			<http://purl.org/dc/elements/1.1/>
+PREFIX dcterms:		<http://purl.org/dc/terms/>
+PREFIX prov:		<http://www.w3.org/ns/prov#>
+PREFIX calli:		<http://callimachusproject.org/rdf/2009/framework#>
+PREFIX mecomp:		<http://rdf.myexperiment.org/ontologies/components/>
+PREFIX swowscomp:	<http://swows.org/2014/09/components#>
+PREFIX df:			<http://www.swows.org/2012/06/dataflow#>
+PREFIX sp:			<http://spinrdf.org/sp#>
+
+CONSTRUCT {
+	?configurable
+		df:inlineConfig #?script.
+			[ 	a ?configClass ;
+				sp:text ?script ]
+}
+WHERE {
+	SERVICE ?dfEndpoint {
+ 		?dfRoot	mecomp:has-component ?configurable.
+ 		?configurable a ?configurableClass.
+ 		FILTER(?configurableClass IN
+ 					(	swowscomp:TransformProcessor,
+ 						swowscomp:Store,
+ 						swowscomp:DataflowProcessor ) ).
+		OPTIONAL {
+			?configurable mecomp:processor-script ?script.
+		}.
+ 	}.
+ 	BIND(
+ 		IF(?configurableClass = swowscomp:TransformProcessor,
+ 			sp:Construct,
+ 			IF(?configurableClass = swowscomp:Store,
+ 				sp:Modify,
+ 				"unknown")) AS ?configClass)
+}
