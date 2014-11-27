@@ -26,7 +26,7 @@ import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-import org.swows.graph.transform.GraphTransform;
+import org.swows.transformation.Transformation;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -39,7 +39,7 @@ import com.hp.hpl.jena.graph.Node;
  */
 public class TransformGraph extends DynamicChangingGraph {
 
-	private GraphTransform graphTransform;
+	private Transformation graphTransform;
 	private DynamicDataset queryDataset;
     private static final Logger logger = Logger.getLogger(TransformGraph.class);
 	
@@ -69,7 +69,7 @@ public class TransformGraph extends DynamicChangingGraph {
 	 * @param query the query
 	 * @param queryDataset the input dataset
 	 */
-	public TransformGraph(GraphTransform graphTransform, DynamicDataset queryDataset) {
+	public TransformGraph(Transformation graphTransform, DynamicDataset queryDataset) {
 		super();
 		this.graphTransform = graphTransform;
 		this.queryDataset = queryDataset;

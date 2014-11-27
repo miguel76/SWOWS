@@ -25,7 +25,7 @@ import java.util.Iterator;
 import org.swows.graph.TransformGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-import org.swows.graph.transform.GraphTransform;
+import org.swows.transformation.Transformation;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 
@@ -45,12 +45,12 @@ public class TransformFunction extends GraphProducer {
 
 //	private Query query;
 //	private Map<Node, Producer> prodMap = new HashMap<Node, Producer>();
-	private Producer inputProducer = null;
+	private RDFProducer inputProducer = null;
 //	private Producer configProducer = null;
 //	private String queryTxt = null;
 //	private String baseURI;
 	
-	private GraphTransformProducer transformProducer = null;
+	private TransformationProducer transformProducer = null;
 	// TODO: find a better way
 
 	/**
@@ -59,7 +59,7 @@ public class TransformFunction extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public TransformFunction(Graph conf, Node confRoot, final ProducerMap map) {
 		URI baseURI = URI.create(confRoot.getURI());
@@ -79,7 +79,7 @@ public class TransformFunction extends GraphProducer {
 		String configType = (configTypeNode != null) ? configTypeNode.getLiteralLexicalForm() : null;
 		
 		Node configNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.config.asNode());
-		Producer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
+		RDFProducer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
 		
 		Node configRootNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configRoot.asNode());
 		if (configRootNode == null) configRootNode = configNode;
@@ -220,7 +220,7 @@ public class TransformFunction extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return
 				(inputProducer != null && inputProducer.dependsFrom(producer));
 //				|| (queryProducer != null && configProducer.dependsFrom(producer));
@@ -232,7 +232,7 @@ public class TransformFunction extends GraphProducer {
 	@Override
 	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
 		
-		GraphTransform graphTransform = transformProducer.createGraphTransform(inputDataset);
+		Transformation graphTransform = transformProducer.createGraphTransform(inputDataset);
 		if (graphTransform == null)
 			throw new RuntimeException("Graph Transform not found");
 		

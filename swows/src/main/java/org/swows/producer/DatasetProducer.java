@@ -28,7 +28,7 @@ import org.swows.graph.events.DynamicGraph;
  * Derived concrete classes must implement the
  * {@code createDataset} method.
  */
-public abstract class DatasetProducer implements Producer {
+public abstract class DatasetProducer implements RDFProducer {
 
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
@@ -40,7 +40,7 @@ public abstract class DatasetProducer implements Producer {
 	 *
 	 * @param inputDataset the input dataset
 	 * @return the default graph
-	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.RDFProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		return createDataset(inputDataset).getDefaultGraph();

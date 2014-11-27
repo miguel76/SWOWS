@@ -108,7 +108,7 @@ public class BuildingDatasetProducer extends DatasetProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == connectedProducer || connectedProducer.dependsFrom(producer));
 	}
 

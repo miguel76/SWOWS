@@ -34,17 +34,18 @@ import com.hp.hpl.jena.util.iterator.Map1;
 
 public class InlineDatasetProducer extends DatasetProducer {
 	
-	Producer inputProducer = null;
+	RDFProducer inputProducer = null;
 //	Set<Producer> inputProducers = new HashSet<Producer>();
-	Map<Node,Producer> namedInputProducers = new HashMap<Node, Producer>();
+	Map<Node,RDFProducer> namedInputProducers = new HashMap<Node, RDFProducer>();
 
-	private UnionFunction getInputUnion(Graph conf, Node confRoot, final ProducerMap map) {
+	private UnionFunction getInputUnion(
+			Graph conf, Node confRoot, final ProducerMap map, Node inputProperty) {
 		return new UnionFunction(
 				GraphUtils
-					.getPropertyValues(conf, confRoot, DF.input.asNode())
-					.mapWith(new Map1<Node, Producer>() {
-						public Producer map1(Node graphNode) {
-							Producer producer = map.getProducer(graphNode);
+					.getPropertyValues(conf, confRoot, inputProperty)
+					.mapWith(new Map1<Node, RDFProducer>() {
+						public RDFProducer map1(Node graphNode) {
+							RDFProducer producer = map.getProducer(graphNode);
 							if (producer == null) throw new RuntimeException(this + ": input graph " + graphNode + " not found ");
 								return producer;
 						}
@@ -57,11 +58,11 @@ public class InlineDatasetProducer extends DatasetProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public InlineDatasetProducer(Graph conf, Node confRoot, final ProducerMap map) {
 //		final Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
-		inputProducer = getInputUnion(conf, confRoot, map);
+		inputProducer = getInputUnion(conf, confRoot, map, DF.defaultInput.asNode());
 
 //		Iterator<Node> inputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.input.asNode());
 //		while (inputNodes.hasNext()) {
@@ -75,19 +76,19 @@ public class InlineDatasetProducer extends DatasetProducer {
 		Iterator<Node> namedInputNodes = GraphUtils.getPropertyValues(conf, confRoot, DF.namedInput.asNode());
 		while (namedInputNodes.hasNext()) {
 			Node namedInputNode = namedInputNodes.next();
-			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.id.asNode());
-			Producer producer = getInputUnion(conf, namedInputNode, map);
+			Node nameNode = GraphUtils.getSingleValueProperty(conf, namedInputNode, DF.name.asNode());
+			RDFProducer producer = getInputUnion(conf, namedInputNode, map, DF.input.asNode());
 			namedInputProducers.put(nameNode, producer);
 		}
 	}
 	
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		if ( producer == inputProducer || inputProducer.dependsFrom(producer) )
 			return true;
 //		for (Producer currProducer : inputProducers)
 //			if ( producer == currProducer || currProducer.dependsFrom(producer) )
 //				return true;
-		for (Producer currProducer : namedInputProducers.values())
+		for (RDFProducer currProducer : namedInputProducers.values())
 			if ( producer == currProducer || currProducer.dependsFrom(producer) )
 				return true;
 		return false;

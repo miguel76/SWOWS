@@ -38,7 +38,7 @@ public class SingleGraphStore extends GraphProducer {
 	private String baseURI;
 	// TODO: find a better way
 	
-	private Producer
+	private RDFProducer
 //				baseGraphProducer = EmptyGraphProducer.getInstance(),
 				configProducer = null,
 				inputProducer;
@@ -49,7 +49,7 @@ public class SingleGraphStore extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public SingleGraphStore(Graph conf, Node confRoot, ProducerMap map) {
 		Node inputNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.input.asNode());
@@ -66,7 +66,7 @@ public class SingleGraphStore extends GraphProducer {
 			configProducer = map.getProducer( GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode()) );
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return
 //				baseGraphProducer.equals(producer)
 //				|| baseGraphProducer.dependsFrom(producer)

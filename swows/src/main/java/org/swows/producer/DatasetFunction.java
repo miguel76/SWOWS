@@ -42,7 +42,7 @@ public abstract class DatasetFunction extends DatasetProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public DatasetFunction(DynamicGraph conf, Node confRoot, ProducerMap map) {
 		Model confModel = ModelFactory.createModelForGraph(conf);
@@ -58,7 +58,7 @@ public abstract class DatasetFunction extends DatasetProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == inputProd || inputProd.dependsFrom(producer));
 	}
 

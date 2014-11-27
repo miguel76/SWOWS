@@ -37,13 +37,13 @@ import com.hp.hpl.jena.query.Query;
 
 public class UpdatableFromEventsProducer extends GraphProducer {
 	
-	private List<Producer>
-			addEventProducerList = new Vector<Producer>(),
-			addQueryProducerList = new Vector<Producer>(),
-			addQueryInputProducerList = new Vector<Producer>(),
-			deleteEventProducerList = new Vector<Producer>(),
-			deleteQueryProducerList = new Vector<Producer>(),
-			deleteQueryInputProducerList = new Vector<Producer>();
+	private List<RDFProducer>
+			addEventProducerList = new Vector<RDFProducer>(),
+			addQueryProducerList = new Vector<RDFProducer>(),
+			addQueryInputProducerList = new Vector<RDFProducer>(),
+			deleteEventProducerList = new Vector<RDFProducer>(),
+			deleteQueryProducerList = new Vector<RDFProducer>(),
+			deleteQueryInputProducerList = new Vector<RDFProducer>();
 
 	/**
 	 * Instantiates a new updatable from events producer.
@@ -51,7 +51,7 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public UpdatableFromEventsProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Iterator<Node> addConstructIter = GraphUtils.getPropertyValues(conf, confRoot, DF.addConstruct.asNode());
@@ -72,23 +72,23 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 		}
 	}
 
-	public boolean dependsFrom(Producer producer) {
-		for (Producer inputProducer : addEventProducerList )
+	public boolean dependsFrom(RDFProducer producer) {
+		for (RDFProducer inputProducer : addEventProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : addQueryProducerList )
+		for (RDFProducer inputProducer : addQueryProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : addQueryInputProducerList )
+		for (RDFProducer inputProducer : addQueryInputProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : deleteEventProducerList )
+		for (RDFProducer inputProducer : deleteEventProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : deleteQueryProducerList )
+		for (RDFProducer inputProducer : deleteQueryProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : deleteQueryInputProducerList )
+		for (RDFProducer inputProducer : deleteQueryInputProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
 		return false;
@@ -102,22 +102,22 @@ public class UpdatableFromEventsProducer extends GraphProducer {
 		List<DynamicGraph> deleteEventGraphList = new Vector<DynamicGraph>();
 		List<Query> deleteQueryList = new Vector<Query>();
 		List<DynamicDataset> deleteQueryInputList = new Vector<DynamicDataset>();
-		for (Producer eventProducer: addEventProducerList) {
+		for (RDFProducer eventProducer: addEventProducerList) {
 			addEventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
-		for (Producer queryProducer: addQueryProducerList) {
+		for (RDFProducer queryProducer: addQueryProducerList) {
 			addQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
-		for (Producer queryInputProducer: addQueryInputProducerList) {
+		for (RDFProducer queryInputProducer: addQueryInputProducerList) {
 			addQueryInputList.add(queryInputProducer.createDataset(inputDataset));
 		}
-		for (Producer eventProducer: deleteEventProducerList) {
+		for (RDFProducer eventProducer: deleteEventProducerList) {
 			deleteEventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
-		for (Producer queryProducer: deleteQueryProducerList) {
+		for (RDFProducer queryProducer: deleteQueryProducerList) {
 			deleteQueryList.add(QueryFactory.toQuery(queryProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
-		for (Producer queryInputProducer: deleteQueryInputProducerList) {
+		for (RDFProducer queryInputProducer: deleteQueryInputProducerList) {
 			deleteQueryInputList.add(queryInputProducer.createDataset(inputDataset));
 		}
 		

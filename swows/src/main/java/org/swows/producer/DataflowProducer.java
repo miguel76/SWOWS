@@ -46,15 +46,15 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * from an input {@code DatasetGraph} applying some (graph)
  * operations.
  * The operations that can be used are defined in classes
- * implementing the interface {@link Producer}. This class
+ * implementing the interface {@link RDFProducer}. This class
  * itself implements the Producer interface, so it can be
  * used as a graph operator by an outer data flow.
  * @author miguel.ceriani@gmail.com
  */
 public class DataflowProducer extends DatasetProducer {
 
-	private Map<Node, Producer> innerProds = new ConcurrentHashMap<Node, Producer>();
-	private Producer confProducer, inputProd;
+	private Map<Node, RDFProducer> innerProds = new ConcurrentHashMap<Node, RDFProducer>();
+	private RDFProducer confProducer, inputProd;
 
 	/**
 	 * Instantiates a new data flow.
@@ -62,7 +62,7 @@ public class DataflowProducer extends DatasetProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public DataflowProducer(Graph conf, Node confRoot, ProducerMap map) {
 		this(
@@ -76,13 +76,13 @@ public class DataflowProducer extends DatasetProducer {
 	 * @param confProducer the producer of the configuration graph
 	 * @param inputProd the producer of the input dataset
 	 */
-	public DataflowProducer(Producer confProducer, Producer inputProd) {
+	public DataflowProducer(RDFProducer confProducer, RDFProducer inputProd) {
 		this.confProducer = confProducer;
 		this.inputProd = inputProd;
 		innerProds.put(
 				SWI.InputDataset.asNode(),
 				new DatasetProducer() {
-					public boolean dependsFrom(Producer producer) {
+					public boolean dependsFrom(RDFProducer producer) {
 						return false;
 					}
 					@Override
@@ -101,7 +101,7 @@ public class DataflowProducer extends DatasetProducer {
 	public DataflowProducer(final DynamicGraph confGraph, DatasetProducer inputProd) {
 		this(
 				new GraphProducer() {
-					public boolean dependsFrom(Producer producer) {
+					public boolean dependsFrom(RDFProducer producer) {
 						return false;
 					}
 					@Override
@@ -122,7 +122,7 @@ public class DataflowProducer extends DatasetProducer {
 		this(
 				confGraph,
 				new DatasetProducer() {
-					public boolean dependsFrom(Producer producer) {
+					public boolean dependsFrom(RDFProducer producer) {
 						return false;
 					}
 
@@ -199,7 +199,7 @@ public class DataflowProducer extends DatasetProducer {
 		
 		private ProducerMap innerProducerMap;
 		private Node specialProducerNode;
-		private Producer recursiveProducer;
+		private RDFProducer recursiveProducer;
 		private Set<Node> resetProducerNodes;
 		private Set<NotifyingProducer> resetProducerNodesFound = new HashSet<>();
 		private boolean found = false;
@@ -209,7 +209,7 @@ public class DataflowProducer extends DatasetProducer {
 				ProducerMap innerProducerMap,
 				Node specialProducerNode,
 				Set<Node> resetProducerNodes,
-				Producer recursiveProducer,
+				RDFProducer recursiveProducer,
 				Graph conf) {
 			this.innerProducerMap = innerProducerMap;
 			this.specialProducerNode = specialProducerNode;
@@ -218,7 +218,7 @@ public class DataflowProducer extends DatasetProducer {
 			this.conf = conf;
 		}
 		
-		public Producer getRecProducer(Node graphId) {
+		public RDFProducer getRecProducer(Node graphId) {
 			if (graphId.equals(specialProducerNode)) {
 				found = true;
 				return recursiveProducer;
@@ -232,15 +232,15 @@ public class DataflowProducer extends DatasetProducer {
 			}
 		}
 		
-		private Producer getProducerWorker(Node graphId) {
-			Producer recProducer = getRecProducer(graphId);
+		private RDFProducer getProducerWorker(Node graphId) {
+			RDFProducer recProducer = getRecProducer(graphId);
 			if (recProducer != null)
 				return recProducer;
 			return getInnerProducer(conf, graphId, this);
 		}
 		
-		public Producer getProducer(Node graphId) {
-			Producer producer = getProducerWorker(graphId);
+		public RDFProducer getProducer(Node graphId) {
+			RDFProducer producer = getProducerWorker(graphId);
 			if (resetProducerNodes.contains(graphId)) {
 				NotifyingProducer notifyingProducer = new NotifyingProducer(producer);
 				resetProducerNodesFound.add(notifyingProducer);
@@ -260,7 +260,7 @@ public class DataflowProducer extends DatasetProducer {
 		
 	}
 
-	private Producer getInnerProducer(
+	private RDFProducer getInnerProducer(
 			final Graph conf, final Node node, final ProducerMap map) {
 		if (innerProds.containsKey(node))
 			return innerProds.get(node);
@@ -314,8 +314,8 @@ public class DataflowProducer extends DatasetProducer {
 				final RecursiveDatasetProducer recursiveDatasetProducer = new RecursiveDatasetProducer();
 				//innerProds.put(node, buildingDatasetProducer);
 				ProducerMapWithMemory tempProdMap = new ProducerMapWithMemory(map, node, innerProds.keySet(),recursiveDatasetProducer, conf);
-				Producer newProducer =
-							(Producer)
+				RDFProducer newProducer =
+							(RDFProducer)
 							prodClass
 							.getConstructor(Graph.class, Node.class, ProducerMap.class)
 							.newInstance(
@@ -381,14 +381,14 @@ public class DataflowProducer extends DatasetProducer {
 		final DynamicGraph configGraph = confProducer.createGraph(parentInputDataset);
 		final DynamicDataset inputDataset = inputProd.createDataset(parentInputDataset);
 		
-		Producer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
+		RDFProducer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
 		final RecursionDataset outputDataset = new RecursionDataset(outputProducer.createDataset(inputDataset));
 		
 		configGraph.getEventManager2().register(new Listener() {
 			public void notifyUpdate(Graph source, GraphUpdate update) {
 //				System.out.println("Start of notifyUpdate()");
-				innerProds = new ConcurrentHashMap<Node, Producer>();
-				Producer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
+				innerProds = new ConcurrentHashMap<Node, RDFProducer>();
+				RDFProducer outputProducer = getInnerProducer(configGraph, SWI.OutputDataset.asNode(), null);
 				outputDataset.setBaseDataset(outputProducer.createDataset(inputDataset));
 //				System.out.println("End of notifyUpdate()");
 			}
@@ -400,7 +400,7 @@ public class DataflowProducer extends DatasetProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == inputProd || producer == confProducer || inputProd.dependsFrom(producer) || confProducer.dependsFrom(producer));
 	}
 

@@ -34,10 +34,10 @@ import org.swows.graph.events.DynamicGraph;
  * It's never used directly in a dataflow so doesn't
  * implement the standard Producer constructor.
  */
-public class CachedProducer implements Producer {
+public class CachedProducer implements RDFProducer {
 
 	/** The connected producer. */
-	private Producer connectedProducer;
+	private RDFProducer connectedProducer;
 
 	/** The cached graphs. */
 	private Map<DynamicDataset,DynamicGraph> cachedGraphs = new HashMap<DynamicDataset, DynamicGraph>();
@@ -50,14 +50,14 @@ public class CachedProducer implements Producer {
 	 *
 	 * @param connectedProducer the connected producer
 	 */
-	public CachedProducer(Producer connectedProducer) {
+	public CachedProducer(RDFProducer connectedProducer) {
 		this.connectedProducer = connectedProducer;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == connectedProducer || connectedProducer.dependsFrom(producer));
 	}
 

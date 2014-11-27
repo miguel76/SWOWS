@@ -47,7 +47,7 @@ public class LoadGraphProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public LoadGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Node urlNode = GraphUtils.getSingleValueProperty( conf, confRoot, DF.url.asNode() );
@@ -73,7 +73,7 @@ public class LoadGraphProducer extends GraphProducer {
 		this.pollingPeriod = pollingPeriod;
 	}
 	
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return false;
 	}
 

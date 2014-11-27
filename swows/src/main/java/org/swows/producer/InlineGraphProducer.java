@@ -47,7 +47,7 @@ public class InlineGraphProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public InlineGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		inlineGraph = new DynamicGraphFromGraph(GraphFactory.createGraphMem());
@@ -73,7 +73,7 @@ public class InlineGraphProducer extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return false;
 	}
 

@@ -30,6 +30,6 @@ WHERE {
  		IF(?configurableClass = swowscomp:TransformProcessor,
  			sp:Construct,
  			IF(?configurableClass = swowscomp:Store,
- 				sp:Modify,
+ 				df:UpdateRequest,
  				"unknown")) AS ?configClass)
 }

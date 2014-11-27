@@ -32,7 +32,7 @@ import com.hp.hpl.jena.graph.Triple;
 
 public class UpdatableProducer extends GraphProducer {
 	
-	private Producer
+	private RDFProducer
 			baseGraphProducer = EmptyGraphProducer.getInstance(),
 			addGraphProducer = EmptyGraphProducer.getInstance(),
 			deleteGraphProducer = EmptyGraphProducer.getInstance();
@@ -43,7 +43,7 @@ public class UpdatableProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public UpdatableProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Iterator<Triple> baseGraphTriples = conf.find(confRoot, DF.baseGraph.asNode(), Node.ANY);
@@ -57,7 +57,7 @@ public class UpdatableProducer extends GraphProducer {
 			deleteGraphProducer = map.getProducer(deleteGraphTriples.next().getObject());
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return
 				producer.equals(baseGraphProducer) || baseGraphProducer.dependsFrom(producer)
 				|| producer.equals(addGraphProducer) || addGraphProducer.dependsFrom(producer)

@@ -35,7 +35,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  */
 public abstract class GraphFunction extends GraphProducer {
 
-	private Producer inputProd;
+	private RDFProducer inputProd;
 
 	/**
 	 * Instantiates a new graph function.
@@ -43,7 +43,7 @@ public abstract class GraphFunction extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public GraphFunction(Graph conf, Node confRoot, ProducerMap map) {
 		Model confModel = ModelFactory.createModelForGraph(conf);
@@ -61,14 +61,14 @@ public abstract class GraphFunction extends GraphProducer {
 	 *
 	 * @param inputProd the producer to be used to generate the input graph
 	 */
-	public GraphFunction(Producer inputProd) {
+	public GraphFunction(RDFProducer inputProd) {
 		this.inputProd = inputProd;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == inputProd || inputProd.dependsFrom(producer));
 	}
 

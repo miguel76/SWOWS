@@ -20,21 +20,20 @@
 package org.swows.producer;
 
 import org.swows.graph.events.DynamicDataset;
-import org.swows.graph.transform.GraphTransform;
+import org.swows.transformation.Transformation;
 
 /**
- * The Interface GraphTransformProducer may be implemented by classes
+ * The Interface TransformationProducer may be implemented by classes
  * that generate different kinds of graph transformations.
  */
-public interface GraphTransformProducer {
+public interface TransformationProducer {
 
 	/**
-	 * Generates a query.
+	 * Generates a transformation.
 	 *
 	 * @param inputDataset the input dataset of the containing dataflow
 	 * @return the created graph
 	 */
-	public GraphTransform createGraphTransform(DynamicDataset inputDataset);
+	public Transformation createGraphTransform(DynamicDataset inputDataset);
 	
-
 }

@@ -70,7 +70,7 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	}
 */
 
-	private List<Producer> producerList;
+	private List<RDFProducer> producerList;
 
 	/**
 	 * Instantiates a new graph set to graph function.
@@ -78,11 +78,11 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public GraphSetToGraphFunction(Graph conf, Node confRoot, ProducerMap map) {
 		Model confModel = ModelFactory.createModelForGraph(conf);
-		producerList = new Vector<Producer>();
+		producerList = new Vector<RDFProducer>();
 		/*
 		Iterator<RDFNode> listNodes =
 				confModel
@@ -108,8 +108,8 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 *
 	 * @param prodIter the prod iter
 	 */
-	public GraphSetToGraphFunction(Iterator<Producer> prodIter) {
-		producerList = new Vector<Producer>();
+	public GraphSetToGraphFunction(Iterator<RDFProducer> prodIter) {
+		producerList = new Vector<RDFProducer>();
 		while(prodIter.hasNext()) {
 			producerList.add(prodIter.next());
 		}
@@ -138,10 +138,10 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
  	 */
-	public boolean dependsFrom(Producer producer) {
-		final Iterator<Producer> prodIter = producerList.iterator();
+	public boolean dependsFrom(RDFProducer producer) {
+		final Iterator<RDFProducer> prodIter = producerList.iterator();
 		while (prodIter.hasNext()) {
-			Producer currProd = prodIter.next();
+			RDFProducer currProd = prodIter.next();
 			if (currProd.equals(producer) || currProd.dependsFrom(producer))
 				return true;
 		}
@@ -153,7 +153,7 @@ public abstract class GraphSetToGraphFunction extends GraphProducer {
 	 */
 	@Override
 	public DynamicGraph createGraph(final DynamicDataset inputDataset) {
-		final Iterator<Producer> prodIter = producerList.iterator();
+		final Iterator<RDFProducer> prodIter = producerList.iterator();
 		return exec(new Iterator<DynamicGraph>() {
 			public boolean hasNext() {
 				return prodIter.hasNext();

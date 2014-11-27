@@ -1,4 +1,4 @@
-package org.swows.graph.transform;
+package org.swows.transformation;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -7,31 +7,56 @@ import java.io.PipedOutputStream;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
 import org.swows.xmlinrdf.DomEncoder;
+import org.topbraid.spin.arq.ARQFactory;
+import org.topbraid.spin.model.SPINFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
 import com.hp.hpl.jena.sparql.graph.GraphFactory;
 import com.hp.hpl.jena.sparql.resultset.RDFOutput;
 import com.hp.hpl.jena.sparql.resultset.XMLOutput;
 
-public class QueryGraphTransform implements GraphTransform {
+public class QueryTransformation implements Transformation {
 	
 	private Query query;
 	
-	public QueryGraphTransform(Query query) {
+	public QueryTransformation(Query query) {
 		this.query = query;
 	}
 
+	public QueryTransformation(Graph queryGraph, Node queryRoot) {
+		Resource rootRes = (Resource) ModelFactory.createModelForGraph(queryGraph).asRDFNode(queryRoot);
+		this.query = ARQFactory.get().createQuery( SPINFactory.asQuery(rootRes) );
+	}
+	
+	private static TransformationFactory factory =
+			new TransformationFactory() {
+
+				@Override
+				public Transformation transformationFromGraph(
+						Graph configGraph,
+						Node configRoot) {
+					return new QueryTransformation(configGraph, configRoot);
+				}
+		};
+
+	public static TransformationFactory getFactory() {
+		return factory;
+	}
+		
 	@Override
 	public DatasetGraph apply(DatasetGraph inputDataset) {
 		QueryExecution queryExecution =

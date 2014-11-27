@@ -58,5 +58,19 @@
 			<version>2.12.1</version>
 			<type>pom</type>
 		</dependency>
+	    <dependency>
+    		<groupId>org.topbraid</groupId>
+    		<artifactId>spin</artifactId>
+    		<version>1.4.0</version>
+    	</dependency>
+  
 	</dependencies>
+
+	<repositories>
+    	<repository>
+        	<id>org.topbraid</id>
+        	<url>http://topquadrant.com/repository/spin</url>
+    	</repository>
+	</repositories>
+	
 </project>

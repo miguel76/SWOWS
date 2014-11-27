@@ -36,8 +36,8 @@ public interface ProducerMap {
 	 * @param graphId the node
 	 * @return the corresponding producer
 	 */
-	public Producer getProducer(Node graphId);
+	public RDFProducer getProducer(Node graphId);
 
-	public Producer getRecProducer(Node graphId);
+	public RDFProducer getRecProducer(Node graphId);
 
 };

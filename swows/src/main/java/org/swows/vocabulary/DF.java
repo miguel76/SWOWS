@@ -97,6 +97,7 @@ public class DF {
 
     /** The Constant Update. */
     public final static Resource Update = resource("Update");
+    public final static Resource UpdateRequest = resource("UpdateRequest");
 
     //public final static Property isConstructedBy = property("isConstructedBy");
     //public final static Property unionOf = property("unionOf");
@@ -105,15 +106,16 @@ public class DF {
     
     /** The Constant input. */
     public final static Property input = property("input");
-    
-    /** The Constant namedInput. */
     public final static Property namedInput = property("namedInput");
+    public final static Property defaultInput = property("defaultInput");
+    public final static Property name = property("name");
 
     /** The Constant config. */
     public final static Property config = property("config");
     public final static Property configTxt = property("configTxt");
     public final static Property configType = property("configType");
     public final static Property configRoot = property("configRoot");
+    public final static Property inlineConfig = property("inlineConfig");
     //public final static Property source = property("source");
     /** The Constant id. */
     public final static Property id = property("id");
@@ -157,6 +159,8 @@ public class DF {
     public final static Property object = property("object");
     public final static Property predicate = property("predicate");
     public final static Property triple = property("triple");
+
+    public final static Property updateOperations = property("updateOperations");
 
     /** Constants for inner sparql elements. */
 //    public final static Resource Exists = resource("Exists");

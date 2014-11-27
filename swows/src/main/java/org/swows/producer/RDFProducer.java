@@ -20,16 +20,11 @@
 package org.swows.producer;
 
 import org.swows.graph.events.DynamicDataset;
-import org.swows.transformation.Transformation;
-import org.swows.transformation.QueryTransformation;
-import org.swows.transformation.UpdateRequestTransformation;
-
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.update.UpdateRequest;
+import org.swows.graph.events.DynamicGraph;
 
 /**
- * The Abstract Class UpdateRequestProducer is implemented by all the classes
- * that generate update requests.
+ * The Interface RDFProducer is implemented by all the classes
+ * that generate graphs or datasets in a dataflow.
  * Implementing classes, a part from implementing Producer
  * methods, must implement a constructor with three parameters:<ul>
  * <li>the {@link com.hp.hpl.jena.graph.Graph} with dataflow definition</li>
@@ -39,21 +34,36 @@ import com.hp.hpl.jena.update.UpdateRequest;
  * producers</li>
  * </ul>
  */
-public abstract class UpdateRequestProducer implements TransformationProducer {
+public interface RDFProducer {
 
 //	public void build(Graph conf, Node confRoot, ProducerMap map);
 
 	/**
-	 * Generates an update request.
+	 * Check if this instance depends (takes input) from an
+	 * other specific producer. The relation is considered
+	 * not reflexive, that is {@code x.dependsFrom(x)}
+	 * returns false unless there is an indirect (and thus
+	 * cyclic) dependence. 
+	 *
+	 * @param producer the producer to check with
+	 * @return true, if dependent from {@code producer}
+	 */
+	public boolean dependsFrom(RDFProducer producer);
+
+	/**
+	 * Generates a graph.
 	 *
 	 * @param inputDataset the input dataset of the containing dataflow
-	 * @return the created UpdateRequest
+	 * @return the created graph
 	 */
-	public abstract UpdateRequest createUpdateRequest(DynamicDataset inputDataset);
+	public DynamicGraph createGraph(DynamicDataset inputDataset);
 	
-	@Override
-	public Transformation createGraphTransform(DynamicDataset inputDataset) {
-		return new UpdateRequestTransformation(createUpdateRequest(inputDataset));
-	}
+	/**
+	 * Generates a dataset.
+	 *
+	 * @param inputDataset the input dataset of the containing dataflow
+	 * @return the generated dataset
+	 */
+	public DynamicDataset createDataset(DynamicDataset inputDataset);
 
 }

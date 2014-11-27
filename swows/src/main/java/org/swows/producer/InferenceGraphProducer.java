@@ -38,10 +38,10 @@ import com.hp.hpl.jena.reasoner.ReasonerRegistry;
  */
 public class InferenceGraphProducer extends GraphProducer {
 
-	private Producer inputProd;
+	private RDFProducer inputProd;
 	//private String reasonerTypeUri;
 	//private Resource config;
-	private Producer schemaProd;
+	private RDFProducer schemaProd;
 	private Reasoner reasoner;
 
 	/**
@@ -50,7 +50,7 @@ public class InferenceGraphProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public InferenceGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Model confModel = ModelFactory.createModelForGraph(conf);
@@ -93,7 +93,7 @@ public class InferenceGraphProducer extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return
 			(producer == schemaProd
 					|| producer == inputProd

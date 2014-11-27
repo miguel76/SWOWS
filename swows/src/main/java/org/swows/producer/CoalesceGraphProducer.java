@@ -24,8 +24,8 @@ import org.swows.graph.events.DynamicGraph;
 
 public class CoalesceGraphProducer extends GraphProducer {
 
-	private Producer prioritaryProducer;
-	private Producer secondaryProducer;
+	private RDFProducer prioritaryProducer;
+	private RDFProducer secondaryProducer;
 
 //	/**
 //	 * Instantiates a new coalesce graph producer.
@@ -50,12 +50,12 @@ public class CoalesceGraphProducer extends GraphProducer {
 	 * @param inputProd the producer of the input dataset
 	 * @param graphName uri identifying the graph in the dataset
 	 */
-	public CoalesceGraphProducer(Producer prioritaryProducer, Producer secondaryProducer) {
+	public CoalesceGraphProducer(RDFProducer prioritaryProducer, RDFProducer secondaryProducer) {
 		this.prioritaryProducer = prioritaryProducer;
 		this.secondaryProducer = secondaryProducer;
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return 		( prioritaryProducer != null && ( producer == prioritaryProducer || prioritaryProducer.dependsFrom(producer) ) )
 				||
 					( secondaryProducer != null && ( producer == secondaryProducer || secondaryProducer.dependsFrom(producer) ) );

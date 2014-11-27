@@ -1,21 +1,21 @@
 package org.swows.producer;
 
 import org.swows.graph.events.DynamicDataset;
-import org.swows.graph.transform.GraphTransform;
+import org.swows.transformation.Transformation;
 
-public class CoalesceGraphTransformProducer implements GraphTransformProducer {
+public class CoalesceGraphTransformProducer implements TransformationProducer {
 
-	private GraphTransformProducer prioritaryProducer;
-	private GraphTransformProducer secondaryProducer;
+	private TransformationProducer prioritaryProducer;
+	private TransformationProducer secondaryProducer;
 	
-	public CoalesceGraphTransformProducer(GraphTransformProducer prioritaryProducer, GraphTransformProducer secondaryProducer) {
+	public CoalesceGraphTransformProducer(TransformationProducer prioritaryProducer, TransformationProducer secondaryProducer) {
 		this.prioritaryProducer = prioritaryProducer;
 		this.secondaryProducer = secondaryProducer;
 	}
 
 	@Override
-	public GraphTransform createGraphTransform(DynamicDataset inputDataset) {
-		GraphTransform resultGraphTransform = null;
+	public Transformation createGraphTransform(DynamicDataset inputDataset) {
+		Transformation resultGraphTransform = null;
 		if (prioritaryProducer != null)
 			resultGraphTransform = prioritaryProducer.createGraphTransform(inputDataset);
 		if (resultGraphTransform != null)

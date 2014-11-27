@@ -212,4 +212,9 @@ public abstract class DelegatingDynamicDataset extends DynamicDataset {
 		getLocalDataset().delete(g, s, p, o);
 	}
 
+	@Override
+	public void clear() {
+		getLocalDataset().clear();
+	}
+
 }

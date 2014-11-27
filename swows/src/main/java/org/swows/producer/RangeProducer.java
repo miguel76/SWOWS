@@ -42,7 +42,7 @@ public class RangeProducer extends SetProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public RangeProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Iterator<Triple> startIter =
@@ -67,7 +67,7 @@ public class RangeProducer extends SetProducer {
 			throw new ProducerException("Parameter endNode not found");
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return false;
 	}
 

@@ -37,7 +37,7 @@ public class IdentityGraphFunction extends GraphFunction {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public IdentityGraphFunction(Graph conf, Node confRoot, ProducerMap map) {
 		super(conf, confRoot, map);

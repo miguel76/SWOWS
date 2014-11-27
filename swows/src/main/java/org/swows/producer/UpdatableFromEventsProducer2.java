@@ -37,12 +37,12 @@ import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdatableFromEventsProducer2 extends GraphProducer {
 	
-	private Producer baseGraphProducer = EmptyGraphProducer.getInstance();
+	private RDFProducer baseGraphProducer = EmptyGraphProducer.getInstance();
 
-	private List<Producer>
-			eventProducerList = new Vector<Producer>(),
-			updateProducerList = new Vector<Producer>(),
-			updateInputProducerList = new Vector<Producer>() ;
+	private List<RDFProducer>
+			eventProducerList = new Vector<RDFProducer>(),
+			updateProducerList = new Vector<RDFProducer>(),
+			updateInputProducerList = new Vector<RDFProducer>() ;
 
 	/**
 	 * Instantiates a new updatable from events producer.
@@ -50,7 +50,7 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public UpdatableFromEventsProducer2(Graph conf, Node confRoot, ProducerMap map) {
 		Node baseGraphNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.baseGraph.asNode());
@@ -66,16 +66,16 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 		}
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		if (baseGraphProducer.equals(producer) || baseGraphProducer.dependsFrom(producer))
 			return true;
-		for (Producer inputProducer : eventProducerList )
+		for (RDFProducer inputProducer : eventProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : updateProducerList )
+		for (RDFProducer inputProducer : updateProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
-		for (Producer inputProducer : updateInputProducerList )
+		for (RDFProducer inputProducer : updateInputProducerList )
 			if (inputProducer.equals(producer) || inputProducer.dependsFrom(producer))
 				return true;
 		return false;
@@ -87,13 +87,13 @@ public class UpdatableFromEventsProducer2 extends GraphProducer {
 		List<DynamicGraph> eventGraphList = new Vector<DynamicGraph>();
 		List<UpdateRequest> updateList = new Vector<UpdateRequest>();
 		List<DynamicDataset> updateInputList = new Vector<DynamicDataset>();
-		for (Producer eventProducer: eventProducerList) {
+		for (RDFProducer eventProducer: eventProducerList) {
 			eventGraphList.add(eventProducer.createGraph(inputDataset));
 		}
-		for (Producer updateProducer: updateProducerList) {
+		for (RDFProducer updateProducer: updateProducerList) {
 			updateList.add(QueryFactory.toUpdateRequest(updateProducer.createGraph(inputDataset), SWI.GraphRoot.asNode()));
 		}
-		for (Producer updateInputProducer: updateInputProducerList) {
+		for (RDFProducer updateInputProducer: updateInputProducerList) {
 			updateInputList.add(updateInputProducer.createDataset(inputDataset));
 		}
 		return new UpdatableFromEventsGraph2(

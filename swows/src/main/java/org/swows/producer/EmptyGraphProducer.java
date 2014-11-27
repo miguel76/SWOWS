@@ -73,9 +73,9 @@ public class EmptyGraphProducer extends GraphProducer {
 	 *
 	 * @param producer the producer
 	 * @return false
-	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
+	 * @see org.swows.producer.RDFProducer#dependsFrom(org.swows.producer.RDFProducer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return false;
 	}
 

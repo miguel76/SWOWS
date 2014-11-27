@@ -43,7 +43,7 @@ public class LoggingProducer extends GraphFunction {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public LoggingProducer(Graph conf, Node confRoot, ProducerMap map) {
 		super(conf, confRoot, map);
@@ -59,7 +59,7 @@ public class LoggingProducer extends GraphFunction {
 	 *
 	 * @param connectedProducer the connected producer
 	 */
-	public LoggingProducer(Producer connectedProducer) {
+	public LoggingProducer(RDFProducer connectedProducer) {
 		this(connectedProducer, Logger.getRootLogger());
 	}
 
@@ -69,7 +69,7 @@ public class LoggingProducer extends GraphFunction {
 	 * @param connectedProducer the connected producer
 	 * @param logger the log4j logger
 	 */
-	public LoggingProducer(Producer connectedProducer, Logger logger) {
+	public LoggingProducer(RDFProducer connectedProducer, Logger logger) {
 		this(connectedProducer, logger, true, true);
 	}
 
@@ -81,7 +81,7 @@ public class LoggingProducer extends GraphFunction {
 	 * @param initialGraphDebug if true the initial graphs will be traced  
 	 * @param graphUpdateDebug if true the graph updates will be debugged/traced  
 	 */
-	public LoggingProducer(Producer connectedProducer, Logger logger, boolean initialGraphDebug, boolean graphUpdateDebug) {
+	public LoggingProducer(RDFProducer connectedProducer, Logger logger, boolean initialGraphDebug, boolean graphUpdateDebug) {
 		super(connectedProducer);
 		this.logger = logger;
 		this.initialGraphDebug = initialGraphDebug;

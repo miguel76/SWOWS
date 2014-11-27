@@ -10,15 +10,15 @@ import com.hp.hpl.jena.query.Query;
 
 public class GraphQueryProducer extends QueryProducer {
 	
-	private Producer graphProducer;
+	private RDFProducer graphProducer;
 	private Node queryNode;
 	
-	public GraphQueryProducer(Producer graphProducer, Node queryNode) {
+	public GraphQueryProducer(RDFProducer graphProducer, Node queryNode) {
 		this.graphProducer = graphProducer;
 		this.queryNode = queryNode;
 	}
 
-	public GraphQueryProducer(Producer graphProducer) {
+	public GraphQueryProducer(RDFProducer graphProducer) {
 		this(graphProducer, null);
 	}
 

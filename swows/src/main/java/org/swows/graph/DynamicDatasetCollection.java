@@ -225,11 +225,23 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
     
     public abstract Iterator<Node> listGraphNodes() ;
 
-    protected DynamicGraph fetchGraph(Node gn)
-    {
+    @Override
+    public void clear() {
+        // Delete all triples in the default graph 
+        getDefaultGraph().clear() ;
+        // Now remove the named graphs (but don't clear them - they may be shared).
+        Iterator<Node> gnIter = listGraphNodes() ;
+        for ( ; gnIter.hasNext(); ) {
+            Node gn = gnIter.next() ; 
+            removeGraph(gn) ;
+        }
+    }
+    
+    protected DynamicGraph fetchGraph(Node gn) {
         if ( Quad.isDefaultGraph(gn) )
             return getDefaultGraph() ;
         else
             return getGraph(gn) ;
     }
+    
 }

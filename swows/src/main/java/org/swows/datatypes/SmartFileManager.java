@@ -280,14 +280,7 @@ public class SmartFileManager extends FileManager {
 	public SmartFileManager(FileManager baseFileManager) {
 		this.baseFileManager = baseFileManager;
 	}
-	
-    /** @deprecated Use setLocationMapper */
-    @Deprecated
-    public void setMapper(LocationMapper _mapper) {
-    	baseFileManager.setMapper(_mapper);
-    }
-    
-    
+	    
     /** Set the location mapping */
     public void setLocationMapper(LocationMapper _mapper) {
     	baseFileManager.setLocationMapper(_mapper);
@@ -349,12 +342,6 @@ public class SmartFileManager extends FileManager {
     
     public void setModelCaching(boolean state) {
     	baseFileManager.setModelCaching(state);
-    }
-    
-    /** return whether caching is on of off */
-    @Deprecated
-    public boolean getCachingModels() {
-    	return baseFileManager.getCachingModels();
     }
     
     /** Read out of the cache - return null if not in the cache */ 
@@ -468,12 +455,6 @@ public class SmartFileManager extends FileManager {
     }
 
 
-    /** @deprecated Use mapURI */
-    @Deprecated
-    public String remap(String filenameOrURI) {
-    	return baseFileManager.remap(filenameOrURI);
-    }
-    
     /** Apply the mapping of a filename or URI */
     public String mapURI(String filenameOrURI) {
         return baseFileManager.mapURI(filenameOrURI);

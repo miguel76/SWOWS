@@ -34,9 +34,9 @@ import org.swows.graph.events.DynamicGraph;
  * called for every registered listener.
  * @see ProducerListener
  */
-public class NotifyingProducer implements Producer {
+public class NotifyingProducer implements RDFProducer {
 
-	private Producer innerProducer;
+	private RDFProducer innerProducer;
 
 	private Set<ProducerListener> listenersSet = null;
 
@@ -45,7 +45,7 @@ public class NotifyingProducer implements Producer {
 	 *
 	 * @param innerProducer the inner producer
 	 */
-	public NotifyingProducer(Producer innerProducer) {
+	public NotifyingProducer(RDFProducer innerProducer) {
 		this.innerProducer = innerProducer;
 	}
 
@@ -113,7 +113,7 @@ public class NotifyingProducer implements Producer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return (producer == innerProducer || innerProducer.dependsFrom(producer));
 	}
 

@@ -29,7 +29,7 @@ import com.hp.hpl.jena.graph.Node;
 
 public class SelectGraphProducer extends GraphProducer {
 
-	private Producer inputProducer;
+	private RDFProducer inputProducer;
 	private Node graphNameNode;
 
 	/**
@@ -38,7 +38,7 @@ public class SelectGraphProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public SelectGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 //		this(
@@ -58,12 +58,12 @@ public class SelectGraphProducer extends GraphProducer {
 	 * @param inputProd the producer of the input dataset
 	 * @param graphName uri identifying the graph in the dataset
 	 */
-	public SelectGraphProducer(Producer inputProd, Node graphNameNode) {
+	public SelectGraphProducer(RDFProducer inputProd, Node graphNameNode) {
 		this.inputProducer = inputProd;
 		this.graphNameNode = graphNameNode;
 	}
 
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return ( inputProducer != null && ( producer == inputProducer || inputProducer.dependsFrom(producer) ) );
 	}
 

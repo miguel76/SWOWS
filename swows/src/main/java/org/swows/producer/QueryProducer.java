@@ -20,8 +20,8 @@
 package org.swows.producer;
 
 import org.swows.graph.events.DynamicDataset;
-import org.swows.graph.transform.GraphTransform;
-import org.swows.graph.transform.QueryGraphTransform;
+import org.swows.transformation.Transformation;
+import org.swows.transformation.QueryTransformation;
 
 import com.hp.hpl.jena.query.Query;
 
@@ -37,7 +37,7 @@ import com.hp.hpl.jena.query.Query;
  * producers</li>
  * </ul>
  */
-public abstract class QueryProducer implements GraphTransformProducer {
+public abstract class QueryProducer implements TransformationProducer {
 
 //	public void build(Graph conf, Node confRoot, ProducerMap map);
 
@@ -50,8 +50,8 @@ public abstract class QueryProducer implements GraphTransformProducer {
 	public abstract Query createQuery(DynamicDataset inputDataset);
 	
 	@Override
-	public GraphTransform createGraphTransform(DynamicDataset inputDataset) {
-		return new QueryGraphTransform(createQuery(inputDataset));
+	public Transformation createGraphTransform(DynamicDataset inputDataset) {
+		return new QueryTransformation(createQuery(inputDataset));
 	}
 
 }

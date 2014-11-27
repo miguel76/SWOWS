@@ -45,7 +45,7 @@ public class SparqlConstructFunction extends GraphProducer {
 
 //	private Query query;
 //	private Map<Node, Producer> prodMap = new HashMap<Node, Producer>();
-	private Producer inputProducer = null;
+	private RDFProducer inputProducer = null;
 //	private Producer configProducer = null;
 //	private String queryTxt = null;
 //	private String baseURI;
@@ -59,7 +59,7 @@ public class SparqlConstructFunction extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public SparqlConstructFunction(Graph conf, Node confRoot, final ProducerMap map) {
 		URI baseURI = URI.create(confRoot.getURI());
@@ -76,7 +76,7 @@ public class SparqlConstructFunction extends GraphProducer {
 		String queryTxt = (queryNode != null) ? queryNode.getLiteralLexicalForm() : null;
 		
 		Node configNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.config.asNode());
-		Producer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
+		RDFProducer configProducer = (configNode != null) ? map.getProducer(configNode) : null;
 		
 		Node configRootNode = GraphUtils.getSingleValueOptProperty(conf, confRoot, DF.configRoot.asNode());
 		if (configRootNode == null) configRootNode = configNode;
@@ -217,7 +217,7 @@ public class SparqlConstructFunction extends GraphProducer {
 	/* (non-Javadoc)
 	 * @see org.swows.producer.Producer#dependsFrom(org.swows.producer.Producer)
 	 */
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return
 				(inputProducer != null && inputProducer.dependsFrom(producer));
 //				|| (queryProducer != null && configProducer.dependsFrom(producer));
