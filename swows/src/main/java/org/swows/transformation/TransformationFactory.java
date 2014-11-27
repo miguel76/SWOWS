@@ -5,6 +5,7 @@ import com.hp.hpl.jena.graph.Node;
 
 public interface TransformationFactory {
 	
-	public Transformation transformationFromGraph(Graph configGraph, Node configRoot);
+	public Transformation transformationFromGraph(
+			Graph configGraph, Node configRoot);
 	
 }

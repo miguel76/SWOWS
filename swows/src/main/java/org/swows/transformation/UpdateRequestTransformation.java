@@ -1,5 +1,6 @@
 package org.swows.transformation;
 
+import org.swows.source.DatasetSource;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.topbraid.spin.arq.ARQFactory;
@@ -88,7 +89,6 @@ public class UpdateRequestTransformation implements Transformation {
 		return requestFactory;
 	}		
 
-	@Override
 	public DatasetGraph apply(DatasetGraph inputDataset) {
 		DatasetGraph datasetForUpdate = GraphUtils.cloneDatasetGraph(inputDataset);
 		GraphUtils.makeDynamic(datasetForUpdate);

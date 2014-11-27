@@ -6,6 +6,8 @@ import java.io.PipedOutputStream;
 
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFBase;
+import org.swows.source.DatasetSource;
+import org.swows.source.DatasetSourceFromDatasets;
 import org.swows.xmlinrdf.DomEncoder;
 import org.topbraid.spin.arq.ARQFactory;
 import org.topbraid.spin.model.SPINFactory;
@@ -57,8 +59,7 @@ public class QueryTransformation implements Transformation {
 		return factory;
 	}
 		
-	@Override
-	public DatasetGraph apply(DatasetGraph inputDataset) {
+	public DatasetGraph exec(DatasetGraph inputDataset) {
 		QueryExecution queryExecution =
 				QueryExecutionFactory.create(query, DatasetFactory.create(inputDataset));
 		Graph outputGraph = null;
@@ -117,6 +118,20 @@ public class QueryTransformation implements Transformation {
 		if (outputGraph == null)
 			throw new RuntimeException("Error in generating query result graph");
 		return DatasetGraphFactory.createOneGraph(outputGraph);
+	}
+		
+	@Override
+	public DatasetSource apply(final DatasetSource inputDatasetSource) {
+		return new DatasetSourceFromDatasets(exec(inputDatasetSource.lastDataset())) {
+			{
+				this.registerAsSnapshotListenerTo(inputDatasetSource);
+			}
+
+			@Override
+			protected void readyForExecution() {
+				setNewDataset(exec(inputDatasetSource.lastDataset()));
+			}
+		};
 	}
 
 }

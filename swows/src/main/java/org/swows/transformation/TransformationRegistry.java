@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.swows.vocabulary.DF;
 import org.topbraid.spin.vocabulary.SP;
@@ -12,6 +11,7 @@ import org.topbraid.spin.vocabulary.SP;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.GraphUtil;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class TransformationRegistry {
@@ -24,7 +24,8 @@ public class TransformationRegistry {
 	}
 
 	public void unregister(Node configClass, TransformationFactory factory) {
-		map.remove(configClass, factory);
+		if (map.get(configClass).equals(factory))
+			map.remove(configClass);
 	}
 
 	private TransformationRegistry() {
@@ -53,14 +54,15 @@ public class TransformationRegistry {
 		final Set<TransformationFactory> factories = new HashSet<TransformationFactory>();
 		GraphUtil
 				.listObjects(configGraph, configRoot, RDF.type.asNode())
-				.forEachRemaining(new Consumer<Node>() {
+				.filterKeep(new Filter<Node>() {
 					@Override
-					public void accept(Node configClass) {
+					public boolean accept(Node configClass) {
 						TransformationFactory factory = map.get(configClass);
 						if (factory != null)
 							factories.add(factory);
+						return false;
 					}
-				});
+				}).hasNext();
 		switch(factories.size()) {
 		case 0:
 			throw new RuntimeException(

@@ -1,9 +1,9 @@
 package org.swows.transformation;
 
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.swows.source.DatasetSource;
 
 public interface Transformation {
 	
-	public DatasetGraph apply(DatasetGraph inputDataset);
+	public DatasetSource apply(DatasetSource inputDataset);
 
 }
