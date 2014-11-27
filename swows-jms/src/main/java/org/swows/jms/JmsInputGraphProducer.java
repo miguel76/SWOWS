@@ -22,7 +22,7 @@ package org.swows.jms;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.GraphProducer;
-import org.swows.producer.Producer;
+import org.swows.producer.RDFProducer;
 import org.swows.producer.ProducerMap;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
@@ -49,7 +49,7 @@ public class JmsInputGraphProducer extends GraphProducer {
 	 * @param conf the graph with dataflow definition
 	 * @param confRoot the specific node in the graph representing the producer configuration
 	 * @param map the map to access the other defined producers
-	 * @see Producer
+	 * @see RDFProducer
 	 */
 	public JmsInputGraphProducer(Graph conf, Node confRoot, ProducerMap map) {
 		Node urlNode = GraphUtils.getSingleValueOptProperty( conf, confRoot, DF.url.asNode() );
@@ -79,7 +79,7 @@ public class JmsInputGraphProducer extends GraphProducer {
 //		this.pollingPeriod = pollingPeriod;
 //	}
 //	
-	public boolean dependsFrom(Producer producer) {
+	public boolean dependsFrom(RDFProducer producer) {
 		return false;
 	}
 
