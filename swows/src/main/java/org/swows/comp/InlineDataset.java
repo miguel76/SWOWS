@@ -136,11 +136,7 @@ public class InlineDataset extends DatasetSourceBase {
 	}
 
 	@Override
-	protected void allListenersReady() {
-		prevDataset = lastDataset;
-		lastDataset = null;
-		super.allListenersReady();	
-	}
+	protected void allListenersReady() { }
 
 	@Override
 	protected void readyForExecution() {
