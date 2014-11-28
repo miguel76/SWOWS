@@ -40,6 +40,6 @@ public interface ProducerMap {
 	 */
 	public Producer<DatasetSource> getProducer(Node graphId);
 
-	public Producer<DatasetSource> getRecProducer(Node graphId);
+//	public Producer<DatasetSource> getRecProducer(Node graphId);
 
 };
