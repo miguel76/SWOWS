@@ -2,10 +2,10 @@ package org.swows.transformation;
 
 import org.swows.graph.events.DynamicDataset;
 import org.swows.producer.ConstantProducerFactory;
-import org.swows.producer.Producer;
 import org.swows.producer.ProducerFactory;
 import org.swows.producer.ProducerMap;
-import org.swows.producer.RDFProducer;
+import org.swows.producer.old.Producer;
+import org.swows.producer.old.RDFProducer;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 

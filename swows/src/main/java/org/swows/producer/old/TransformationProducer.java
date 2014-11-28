@@ -17,29 +17,23 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.swows.producer;
+package org.swows.producer.old;
 
-
-import org.swows.source.DatasetSource;
-
-import com.hp.hpl.jena.graph.Node;
+import org.swows.graph.events.DynamicDataset;
+import org.swows.transformation.Transformation;
 
 /**
- * The Interface ProducerMap represents the static context
- * in which the producers of a dataflow are defined.
- * Each already defined producer is linked to a node of
- * the dataflow graph. 
+ * The Interface TransformationProducer may be implemented by classes
+ * that generate different kinds of graph transformations.
  */
-public interface ProducerMap {
+public interface TransformationProducer {
 
 	/**
-	 * Gets the producer corresponding with a certain node.
+	 * Generates a transformation.
 	 *
-	 * @param graphId the node
-	 * @return the corresponding producer
+	 * @param inputDataset the input dataset of the containing dataflow
+	 * @return the created graph
 	 */
-	public Producer<DatasetSource> getProducer(Node graphId);
-
-	public Producer<DatasetSource> getRecProducer(Node graphId);
-
-};
+	public Transformation createGraphTransform(DynamicDataset inputDataset);
+	
+}

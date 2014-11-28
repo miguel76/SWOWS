@@ -1,6 +1,6 @@
 package org.swows.producer;
 
-import org.swows.graph.events.DynamicDataset;
+import org.swows.source.DatasetSource;
 
 public class ConstantProducerFactory<T> {
 
@@ -8,7 +8,7 @@ public class ConstantProducerFactory<T> {
 		return new Producer<T>() {
 
 			@Override
-			public T create(DynamicDataset inputDataset) {
+			public T create(DatasetSource inputDatasetSource) {
 				return constant;
 			}
 		};

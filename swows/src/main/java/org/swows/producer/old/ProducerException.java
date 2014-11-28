@@ -17,29 +17,17 @@
  * You should have received a copy of the GNU Affero General
  * Public License along with SWOWS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.swows.producer;
+package org.swows.producer.old;
 
-
-import org.swows.source.DatasetSource;
-
-import com.hp.hpl.jena.graph.Node;
-
-/**
- * The Interface ProducerMap represents the static context
- * in which the producers of a dataflow are defined.
- * Each already defined producer is linked to a node of
- * the dataflow graph. 
- */
-public interface ProducerMap {
+public class ProducerException extends RuntimeException {
+	
+	public ProducerException(String message) {
+		super(message);
+	}
 
 	/**
-	 * Gets the producer corresponding with a certain node.
-	 *
-	 * @param graphId the node
-	 * @return the corresponding producer
+	 * 
 	 */
-	public Producer<DatasetSource> getProducer(Node graphId);
+	private static final long serialVersionUID = 1L;
 
-	public Producer<DatasetSource> getRecProducer(Node graphId);
-
-};
+}

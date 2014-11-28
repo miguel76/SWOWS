@@ -1,9 +1,9 @@
 package org.swows.producer;
 
-import org.swows.graph.events.DynamicDataset;
+import org.swows.source.DatasetSource;
 
 public interface Producer<T> {
 	
-	public T create(DynamicDataset inputDataset);
+	public T create(DatasetSource inputDatasetSource);
 
 }
