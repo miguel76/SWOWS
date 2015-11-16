@@ -36,7 +36,7 @@ public abstract class GraphProducerListener implements ProducerListener {
 	 * @param dataset the created dataset
 	 * {@code notifyGraphCreation} with the default graph
 	 * of the dataset.
-	 * @see org.swows.producer.old.ProducerListener#notifyDatasetCreation(com.hp.hpl.jena.sparql.core.DatasetGraph, com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.old.ProducerListener#notifyDatasetCreation(org.apache.jena.sparql.core.DatasetGraph, org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public void notifyDatasetCreation(DynamicDataset inputDataset, DynamicDataset dataset) {
 		notifyGraphCreation(inputDataset, dataset.getDefaultGraph());

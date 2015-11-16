@@ -19,9 +19,8 @@
  */
 package org.swows.xmlinrdf;
 
+import org.apache.jena.graph.Node;
 import org.w3c.dom.events.Event;
-
-import com.hp.hpl.jena.graph.Node;
 
 public interface DomEventListener {
 	

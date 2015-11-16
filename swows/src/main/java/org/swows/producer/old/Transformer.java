@@ -1,13 +1,12 @@
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 import org.swows.graph.events.DynamicDataset;
+import org.swows.producer.Producer;
 import org.swows.producer.ProducerMap;
 import org.swows.transformation.Transformation;
 import org.swows.transformation.TransformationProducerFactory;
-import org.swows.transformation.TransformationRegistry;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 
 public class Transformer extends DatasetProducer {
 	

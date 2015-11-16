@@ -1,16 +1,14 @@
 package org.swows.transformation;
 
-import org.swows.graph.events.DynamicDataset;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 import org.swows.producer.ConstantProducerFactory;
+import org.swows.producer.Producer;
 import org.swows.producer.ProducerFactory;
 import org.swows.producer.ProducerMap;
-import org.swows.producer.old.Producer;
-import org.swows.producer.old.RDFProducer;
+import org.swows.source.DatasetSource;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 
 public class TransformationProducerFactory implements ProducerFactory<Transformation> {
 	
@@ -26,12 +24,12 @@ public class TransformationProducerFactory implements ProducerFactory<Transforma
 				GraphUtils.getSingleValueProperty(conf, confRoot, DF.config.asNode());
 		final Node confRootNode =
 				GraphUtils.getSingleValueProperty(conf, confRoot, DF.configRoot.asNode());
-		final RDFProducer graphProducer = map.getProducer(confNode);
+		final Producer<DatasetSource> graphProducer = map.getProducer(confNode);
 		return new Producer<Transformation>() {
 			@Override
-			public Transformation create(DynamicDataset inputDataset) {
+			public Transformation create(DatasetSource source) {
 				return TransformationRegistry.get().transformationFromGraph(
-						graphProducer.createGraph(inputDataset),
+						graphProducer.create(source).lastDataset().getDefaultGraph(),
 						confRootNode) ;
 			}
 		};

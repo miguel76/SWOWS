@@ -23,6 +23,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.swows.producer.Producer;
 import org.swows.producer.ProducerFactory;
 import org.swows.producer.ProducerMap;
@@ -30,13 +36,6 @@ import org.swows.source.DatasetSource;
 import org.swows.source.DatasetSourceFromDatasets;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class Merger extends DatasetSourceFromDatasets {
 	

@@ -22,7 +22,7 @@ package org.swows.spinx;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hp.hpl.jena.sparql.expr.ExprFunction;
+import org.apache.jena.sparql.expr.ExprFunction;
 
 public class KnownFunctionsMapping {
 

@@ -21,11 +21,10 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.core.DatasetGraphMap;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
 
 public class DynamicDatasetMap extends DynamicDatasetCollection {
 
@@ -68,6 +67,11 @@ public class DynamicDatasetMap extends DynamicDatasetCollection {
     public void setDefaultGraph(DynamicGraph g) {
     	innerMap.setDefaultGraph(g);
     }
+
+	@Override
+	public void clear() {
+    	innerMap.clear();
+	}
 
 	
 }

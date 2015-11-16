@@ -20,9 +20,8 @@
 package org.swows.producer;
 
 
+import org.apache.jena.graph.Node;
 import org.swows.source.DatasetSource;
-
-import com.hp.hpl.jena.graph.Node;
 
 /**
  * The Interface ProducerMap represents the static context

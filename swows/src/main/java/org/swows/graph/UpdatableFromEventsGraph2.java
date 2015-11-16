@@ -22,6 +22,17 @@ package org.swows.graph;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.sparql.core.DatasetGraphMap;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.sparql.modify.GraphStoreBasic;
+import org.apache.jena.sparql.modify.request.UpdateWithUsing;
+import org.apache.jena.update.GraphStore;
+import org.apache.jena.update.Update;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -29,18 +40,6 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
-import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.Update;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateProcessor;
-import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdatableFromEventsGraph2 extends DelegatingDynamicGraph {
 	

@@ -21,16 +21,15 @@ package org.swows.producer.old;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.vocabulary.RDFS;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class SetProducer extends GraphProducer {
 

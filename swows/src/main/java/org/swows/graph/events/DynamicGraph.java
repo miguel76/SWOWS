@@ -19,7 +19,7 @@
  */
 package org.swows.graph.events;
 
-import com.hp.hpl.jena.graph.Graph;
+import org.apache.jena.graph.Graph;
 
 public interface DynamicGraph extends Graph {
 	

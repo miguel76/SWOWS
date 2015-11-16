@@ -25,13 +25,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.core.DatasetGraph;
 import org.swows.graph.DynamicDatasetCollection;
 import org.swows.graph.RecursionGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 /**
  * The Class BuildingGraphProducer returns an empty graph

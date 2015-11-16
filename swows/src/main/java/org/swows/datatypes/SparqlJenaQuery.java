@@ -23,24 +23,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.jena.datatypes.BaseDatatype;
+import org.apache.jena.datatypes.DatatypeFormatException;
+import org.apache.jena.datatypes.TypeMapper;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.impl.LiteralLabel;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.util.iterator.Filter;
+import org.apache.jena.vocabulary.RDF;
 import org.swows.spinx.SpinxFactory;
 import org.swows.vocabulary.SP;
-
-import com.hp.hpl.jena.datatypes.BaseDatatype;
-import com.hp.hpl.jena.datatypes.DatatypeFormatException;
-import com.hp.hpl.jena.datatypes.TypeMapper;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.impl.LiteralLabel;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SparqlJenaQuery {
 	
@@ -119,7 +118,7 @@ public class SparqlJenaQuery {
 	@Override
 	public Node addRootedGraph(Graph graph) {
 		Model newModel = ModelFactory.createModelForGraph(graph);
-		com.hp.hpl.jena.query.Query arq = ARQFactory.get().createQuery(newModel, queryString);
+		org.apache.jena.query.Query arq = ARQFactory.get().createQuery(newModel, queryString);
 		ARQ2SPIN a2s = new ARQ2SPIN(newModel);
 		String rootUrl = null;
 		Resource rootResource = null;
@@ -149,7 +148,7 @@ public class SparqlJenaQuery {
 	
 	public void addRootedGraph(Graph graph, Node rootNode) {
 		//Model newModel = ModelFactory.createModelForGraph(graph);
-		com.hp.hpl.jena.query.Query query = QueryFactory.create(queryString);
+		org.apache.jena.query.Query query = QueryFactory.create(queryString);
 		SpinxFactory.fromQuery(query, graph, rootNode);
 	};
 	

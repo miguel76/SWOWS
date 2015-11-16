@@ -2,9 +2,9 @@ package org.swows.source;
 
 import java.util.Set;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleIterator;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.graph.TripleIterator;
 
 public interface GraphChanges {
 	

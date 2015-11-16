@@ -23,14 +23,13 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Iterator;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.n3.JenaReaderBase;
+import org.apache.jena.query.Syntax;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.impl.RDFReaderFImpl;
+import org.apache.jena.update.UpdateFactory;
 import org.swows.spinx.SpinxFactory;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.n3.JenaReaderBase;
-import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
-import com.hp.hpl.jena.update.UpdateFactory;
 
 public class UpdateReader extends JenaReaderBase {
 

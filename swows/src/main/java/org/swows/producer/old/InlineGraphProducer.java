@@ -21,6 +21,10 @@ package org.swows.producer.old;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
@@ -28,11 +32,6 @@ import org.swows.producer.ProducerMap;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * The Class InlineGraphProducer generates a graph whose
@@ -64,7 +63,7 @@ public class InlineGraphProducer extends GraphProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.GraphProducer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {

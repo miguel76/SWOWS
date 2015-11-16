@@ -32,7 +32,7 @@ import org.swows.graph.events.DynamicGraph;
 public abstract class GraphProducer implements RDFProducer {
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.Producer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public abstract DynamicGraph createGraph(DynamicDataset inputDataset);
 
@@ -43,7 +43,7 @@ public abstract class GraphProducer implements RDFProducer {
 	 *
 	 * @param inputDataset the input dataset
 	 * @return the dataset with the single graph
-	 * @see org.swows.producer.old.RDFProducer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.old.RDFProducer#createDataset(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicDataset createDataset(final DynamicDataset inputDataset) {
 		return new SingleGraphDataset(createGraph(inputDataset));

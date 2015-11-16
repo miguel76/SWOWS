@@ -19,13 +19,12 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 import org.apache.log4j.Logger;
 import org.swows.graph.LoggingGraph;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.ProducerMap;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 
 /**
  * The Class LoggingProducer connects to another producer
@@ -98,7 +97,7 @@ public class LoggingProducer extends GraphFunction {
 //	}
 //
 //	/* (non-Javadoc)
-//	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+//	 * @see org.swows.producer.Producer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 //	 */
 //	@Override
 //	public Graph createGraph(DatasetGraph inputDataset) {
@@ -118,7 +117,7 @@ public class LoggingProducer extends GraphFunction {
 	}
 
 //	/* (non-Javadoc)
-//	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
+//	 * @see org.swows.producer.Producer#createDataset(org.apache.jena.sparql.core.DatasetGraph)
 //	 */
 //	@Override
 //	public DatasetGraph createDataset(DatasetGraph inputDataset) {

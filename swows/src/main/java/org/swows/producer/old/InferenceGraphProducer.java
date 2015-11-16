@@ -19,19 +19,18 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.reasoner.Reasoner;
+import org.apache.jena.reasoner.ReasonerRegistry;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.producer.ProducerMap;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.reasoner.Reasoner;
-import com.hp.hpl.jena.reasoner.ReasonerRegistry;
 
 /**
  * The Class InferenceGraphProducer executes inference on
@@ -80,7 +79,7 @@ public class InferenceGraphProducer extends GraphProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.GraphProducer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {

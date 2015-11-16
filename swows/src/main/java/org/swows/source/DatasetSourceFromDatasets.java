@@ -1,6 +1,6 @@
 package org.swows.source;
 
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraph;
 
 public abstract class DatasetSourceFromDatasets extends DatasetSourceBase {
 

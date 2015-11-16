@@ -28,14 +28,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.xmlinrdf.DomDecoder;
 import org.w3c.dom.Document;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
 
 public class LiteralParsingTest {
 

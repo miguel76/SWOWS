@@ -21,21 +21,20 @@ package org.swows.util;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Function;
 
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.util.iterator.Filter;
 import org.swows.graph.events.DynamicGraphFromGraph;
-
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.util.iterator.Map1;
 
 public class GraphUtils {
 	
@@ -90,13 +89,16 @@ public class GraphUtils {
 	}
 	
 	public static ExtendedIterator<Node> getPropertyValues(Graph graph, Node subject, Node predicate, final Set<Triple> tripleSet) {
-		return graph.find(subject, predicate, Node.ANY).mapWith(new Map1<Triple, Node>() {
-			public Node map1(Triple t) {
-				if (tripleSet != null)
-					tripleSet.add(t);
-				return t.getObject();
-			}
-		});
+		return
+				graph
+					.find(subject, predicate, Node.ANY)
+					.mapWith(new Function<Triple, Node>() {
+						public Node apply(Triple t) {
+							if (tripleSet != null)
+								tripleSet.add(t);
+							return t.getObject();
+						}
+					});
 	}
 
 	public static Node getSingleValueOptProperty(Graph graph, Node subject, Node predicate) {

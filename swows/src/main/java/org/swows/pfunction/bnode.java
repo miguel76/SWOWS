@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.expr.ExprEvalException;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.util.IterLib;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.ExecutionContext;
+import org.apache.jena.sparql.engine.QueryIterator;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.expr.ExprEvalException;
+import org.apache.jena.sparql.pfunction.PropFuncArg;
+import org.apache.jena.sparql.util.IterLib;
 
 /**
  * The Class bnode realize the property function
@@ -78,7 +78,7 @@ public class bnode extends PFuncListAndSimple {
 	}
 
     /* (non-Javadoc)
-     * @see org.swows.pfunction.PFuncListAndSimple#execEvaluated(com.hp.hpl.jena.sparql.engine.binding.Binding, com.hp.hpl.jena.sparql.pfunction.PropFuncArg, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.sparql.engine.ExecutionContext)
+     * @see org.swows.pfunction.PFuncListAndSimple#execEvaluated(org.apache.jena.sparql.engine.binding.Binding, org.apache.jena.sparql.pfunction.PropFuncArg, org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.sparql.engine.ExecutionContext)
      */
     @Override
     public QueryIterator execEvaluated(

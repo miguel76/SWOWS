@@ -1,6 +1,6 @@
 package org.swows.graph.algebra;
 
-import com.hp.hpl.jena.graph.Capabilities;
+import org.apache.jena.graph.Capabilities;
 
 public class ReadOnlyStreamingCapabilities implements Capabilities {
 

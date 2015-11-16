@@ -28,28 +28,27 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.aggregate.AggAvg;
+import org.apache.jena.sparql.expr.aggregate.AggAvgDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggCount;
+import org.apache.jena.sparql.expr.aggregate.AggCountDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggCountVar;
+import org.apache.jena.sparql.expr.aggregate.AggCountVarDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggGroupConcat;
+import org.apache.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggMax;
+import org.apache.jena.sparql.expr.aggregate.AggMaxDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggMin;
+import org.apache.jena.sparql.expr.aggregate.AggMinDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggSample;
+import org.apache.jena.sparql.expr.aggregate.AggSampleDistinct;
+import org.apache.jena.sparql.expr.aggregate.AggSum;
+import org.apache.jena.sparql.expr.aggregate.AggSumDistinct;
+import org.apache.jena.sparql.expr.aggregate.Aggregator;
 import org.swows.vocabulary.SPINX;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggAvg;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggAvgDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggCount;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggCountDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggCountVar;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggCountVarDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggGroupConcat;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggGroupConcatDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggMax;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggMaxDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggMin;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggMinDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggSample;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggSampleDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggSum;
-import com.hp.hpl.jena.sparql.expr.aggregate.AggSumDistinct;
-import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
 
 public class AggregatorSymbols {
 	

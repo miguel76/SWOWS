@@ -19,12 +19,11 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.ProducerMap;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 
 /**
  * The single instance of the Class EmptyGraphProducer
@@ -61,7 +60,7 @@ public class EmptyGraphProducer extends GraphProducer {
 	 *
 	 * @param inputDataset the input dataset
 	 * @return the empty graph
-	 * @see org.swows.producer.old.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.old.GraphProducer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {

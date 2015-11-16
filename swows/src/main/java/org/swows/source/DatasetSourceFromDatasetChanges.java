@@ -2,8 +2,8 @@ package org.swows.source;
 
 import java.util.Iterator;
 
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Quad;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.Quad;
 
 public abstract class DatasetSourceFromDatasetChanges extends DatasetSourceBase {
 	

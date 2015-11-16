@@ -21,18 +21,17 @@ package org.swows.producer.old;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.vocabulary.RDFS;
 import org.swows.graph.DynamicChangingGraph;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.producer.ProducerMap;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class GraphToSetFunction extends GraphFunction {
 

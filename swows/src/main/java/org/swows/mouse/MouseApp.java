@@ -42,6 +42,10 @@ import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.util.RunnableQueue;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.EventCachingGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -56,11 +60,6 @@ import org.swows.xmlinrdf.DomDecoder;
 import org.swows.xmlinrdf.DomEventListener;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
 
 public class MouseApp extends JFrame {
 

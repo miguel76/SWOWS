@@ -19,20 +19,19 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.query.Query;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.producer.ProducerMap;
-import org.swows.transformation.Transformation;
 import org.swows.transformation.QueryTransformation;
-
-import com.hp.hpl.jena.query.Query;
+import org.swows.transformation.Transformation;
 
 /**
  * The Abstract Class Query Producer is implemented by all the classes
  * that generate queries.
  * Implementing classes, a part from implementing Producer
  * methods, must implement a constructor with three parameters:<ul>
- * <li>the {@link com.hp.hpl.jena.graph.Graph} with dataflow definition</li>
- * <li>the specific {@link com.hp.hpl.jena.graph.Node} in
+ * <li>the {@link org.apache.jena.graph.Graph} with dataflow definition</li>
+ * <li>the specific {@link org.apache.jena.graph.Node} in
  * the graph representing the producer configuration</li>
  * <li>the {@link ProducerMap} to access the other defined
  * producers</li>

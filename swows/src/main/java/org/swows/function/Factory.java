@@ -19,9 +19,9 @@
  */
 package org.swows.function;
 
-import com.hp.hpl.jena.sparql.function.Function;
-import com.hp.hpl.jena.sparql.function.FunctionFactory;
-import com.hp.hpl.jena.sparql.function.FunctionRegistry;
+import org.apache.jena.sparql.function.Function;
+import org.apache.jena.sparql.function.FunctionFactory;
+import org.apache.jena.sparql.function.FunctionRegistry;
 
 public class Factory implements FunctionFactory {
 	

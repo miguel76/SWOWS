@@ -22,9 +22,8 @@ package org.swows.graph;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.apache.jena.graph.Node;
 import org.swows.graph.events.DynamicGraph;
-
-import com.hp.hpl.jena.graph.Node;
 
 /**
  * The Class SingleGraphDataset it's a dataset containing
@@ -44,7 +43,7 @@ public class SingleGraphDataset extends DynamicDatasetCollection {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraphCollection#listGraphNodes()
+	 * @see org.apache.jena.sparql.core.DatasetGraphCollection#listGraphNodes()
 	 */
 	@Override
 	public Iterator<Node> listGraphNodes() {
@@ -62,7 +61,7 @@ public class SingleGraphDataset extends DynamicDatasetCollection {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraphBase#getDefaultGraph()
+	 * @see org.apache.jena.sparql.core.DatasetGraphBase#getDefaultGraph()
 	 */
 	@Override
 	public DynamicGraph getDefaultGraph() {
@@ -70,7 +69,7 @@ public class SingleGraphDataset extends DynamicDatasetCollection {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraphBase#getGraph(com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraphBase#getGraph(org.apache.jena.graph.Node)
 	 */
 	@Override
 	public DynamicGraph getGraph(Node graphNode) {

@@ -26,6 +26,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 
 import org.apache.jena.atlas.web.ContentType;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.LangBuilder;
 import org.apache.jena.riot.RDFLanguages;
@@ -33,12 +35,11 @@ import org.apache.jena.riot.RDFParserRegistry;
 import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.RiotException;
+import org.apache.jena.riot.system.ErrorHandler;
+import org.apache.jena.riot.system.ParserProfile;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.sparql.util.Context;
 import org.swows.spinx.SpinxFactory;
-
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.sparql.util.Context;
 
 public class QueryReaderRIOTFactory implements ReaderRIOTFactory {
 		
@@ -89,8 +90,38 @@ public class QueryReaderRIOTFactory implements ReaderRIOTFactory {
 						try {reader.close();} catch(IOException e) {}
 				}
 
-				com.hp.hpl.jena.query.Query query = QueryFactory.create(sw.toString(),baseURI);
+				org.apache.jena.query.Query query = QueryFactory.create(sw.toString(),baseURI);
 				SpinxFactory.fromQuery(query, output, NodeFactory.createURI(baseURI)/*SWI.GraphRoot.asNode()*/);
+			}
+
+			@Override
+			public void read(Reader reader, String baseURI, ContentType ct, StreamRDF output, Context context) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public ErrorHandler getErrorHandler() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void setErrorHandler(ErrorHandler errorHandler) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public ParserProfile getParserProfile() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public void setParserProfile(ParserProfile profile) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
 	}

@@ -22,6 +22,8 @@ package org.swows.graph.algebra;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Triple;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.Listener;
@@ -29,11 +31,8 @@ import org.swows.graph.events.SimpleGraphUpdate;
 import org.swows.graph.events.SimpleListener;
 import org.swows.util.Utils;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Triple;
-
 /**
- * The Class MultiUnion adds to {@code com.hp.hpl.jena.graph.compose.MultiUnion}
+ * The Class MultiUnion adds to {@code org.apache.jena.graph.compose.MultiUnion}
  * events management functionality.
  */
 public class MultiUnion extends DynamicGraphFromGraph {
@@ -82,8 +81,8 @@ public class MultiUnion extends DynamicGraphFromGraph {
         }
 	}
 	
-	private com.hp.hpl.jena.graph.compose.MultiUnion getBaseMultiUnion() {
-		return (com.hp.hpl.jena.graph.compose.MultiUnion) baseGraph;
+	private org.apache.jena.graph.compose.MultiUnion getBaseMultiUnion() {
+		return (org.apache.jena.graph.compose.MultiUnion) baseGraph;
 	}
 
 	private List<Graph> getSubGraphs() {
@@ -96,7 +95,7 @@ public class MultiUnion extends DynamicGraphFromGraph {
 	 * Instantiates a new multi union with event management.
 	 */
 	public MultiUnion() {
-		super( new com.hp.hpl.jena.graph.compose.MultiUnion() );
+		super( new org.apache.jena.graph.compose.MultiUnion() );
 	}
 
     /**
@@ -105,7 +104,7 @@ public class MultiUnion extends DynamicGraphFromGraph {
      * @param graphs the input graphs
      */
     public MultiUnion( Graph[] graphs) {
-        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+        super( new org.apache.jena.graph.compose.MultiUnion(graphs) );
         registerListener();
     }
 
@@ -115,12 +114,12 @@ public class MultiUnion extends DynamicGraphFromGraph {
      * @param graphs the input graphs
      */
     public MultiUnion( Iterator<Graph> graphs ) {
-        super( new com.hp.hpl.jena.graph.compose.MultiUnion(graphs) );
+        super( new org.apache.jena.graph.compose.MultiUnion(graphs) );
         registerListener();
     }
 
     /* (non-Javadoc)
-     * @see com.hp.hpl.jena.graph.compose.MultiUnion#addGraph(com.hp.hpl.jena.graph.Graph)
+     * @see org.apache.jena.graph.compose.MultiUnion#addGraph(org.apache.jena.graph.Graph)
      */
     public void addGraph( DynamicGraph graph ) {
         if (! getSubGraphs().contains( graph ) ) {

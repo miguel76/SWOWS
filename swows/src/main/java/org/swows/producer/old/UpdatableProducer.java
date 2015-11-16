@@ -21,15 +21,14 @@ package org.swows.producer.old;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
 import org.swows.graph.UpdatableGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.ProducerMap;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
 
 public class UpdatableProducer extends GraphProducer {
 	

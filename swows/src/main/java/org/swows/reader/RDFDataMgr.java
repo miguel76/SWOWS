@@ -17,8 +17,12 @@ package org.swows.reader;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import java.io.* ;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Iterator ;
 
 import org.apache.jena.atlas.io.IO ;
@@ -26,6 +30,12 @@ import org.apache.jena.atlas.io.PeekReader ;
 import org.apache.jena.atlas.json.io.parser.TokenizerJSON ;
 import org.apache.jena.atlas.web.ContentType ;
 import org.apache.jena.atlas.web.TypedInputStream ;
+import org.apache.jena.graph.Graph ;
+import org.apache.jena.graph.Triple ;
+import org.apache.jena.query.Dataset ;
+import org.apache.jena.query.DatasetFactory ;
+import org.apache.jena.rdf.model.Model ;
+import org.apache.jena.rdf.model.ModelFactory ;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.RDFLanguages;
@@ -44,28 +54,25 @@ import org.apache.jena.riot.WriterGraphRIOT;
 import org.apache.jena.riot.WriterGraphRIOTFactory;
 import org.apache.jena.riot.lang.LangRDFXML ;
 import org.apache.jena.riot.lang.LangRIOT ;
-import org.apache.jena.riot.stream.StreamManager ;
-import org.apache.jena.riot.system.* ;
+import org.apache.jena.riot.system.ErrorHandlerFactory;
+import org.apache.jena.riot.system.IRIResolver;
+import org.apache.jena.riot.system.RiotLib;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFLib;
+import org.apache.jena.riot.system.stream.StreamManager;
 import org.apache.jena.riot.tokens.Tokenizer ;
 import org.apache.jena.riot.tokens.TokenizerFactory ;
 import org.apache.jena.riot.writer.NQuadsWriter ;
 import org.apache.jena.riot.writer.NTriplesWriter ;
+import org.apache.jena.sparql.core.DatasetGraph ;
+import org.apache.jena.sparql.core.DatasetGraphFactory ;
+import org.apache.jena.sparql.core.Quad ;
+import org.apache.jena.sparql.graph.GraphFactory ;
+import org.apache.jena.sparql.util.Context ;
+import org.apache.jena.sparql.util.Symbol ;
+import org.apache.jena.sparql.util.Utils ;
 import org.slf4j.Logger ;
 import org.slf4j.LoggerFactory ;
-
-import com.hp.hpl.jena.graph.Graph ;
-import com.hp.hpl.jena.graph.Triple ;
-import com.hp.hpl.jena.query.Dataset ;
-import com.hp.hpl.jena.query.DatasetFactory ;
-import com.hp.hpl.jena.rdf.model.Model ;
-import com.hp.hpl.jena.rdf.model.ModelFactory ;
-import com.hp.hpl.jena.sparql.core.DatasetGraph ;
-import com.hp.hpl.jena.sparql.core.DatasetGraphFactory ;
-import com.hp.hpl.jena.sparql.core.Quad ;
-import com.hp.hpl.jena.sparql.graph.GraphFactory ;
-import com.hp.hpl.jena.sparql.util.Context ;
-import com.hp.hpl.jena.sparql.util.Symbol ;
-import com.hp.hpl.jena.sparql.util.Utils ;
 
 /** <p>General purpose reader framework for RDF (triples and quads) syntaxes.</p>   
  *  <ul>

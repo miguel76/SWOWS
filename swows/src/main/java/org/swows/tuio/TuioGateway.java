@@ -28,6 +28,14 @@ import java.util.Set;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.GraphMaker;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.graph.impl.SimpleGraphMaker;
+import org.apache.jena.util.iterator.Filter;
+import org.apache.jena.vocabulary.RDF;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
@@ -42,16 +50,6 @@ import TUIO.TuioListener;
 import TUIO.TuioObject;
 import TUIO.TuioPoint;
 import TUIO.TuioTime;
-
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.graph.GraphMaker;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.impl.SimpleGraphMaker;
-import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.util.iterator.Map1;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public class TuioGateway implements TuioListener, DomEventListener {
 
@@ -291,11 +289,7 @@ public class TuioGateway implements TuioListener, DomEventListener {
 		logger.trace("Begin of tracked debugging");
 		Iterator<Node> trackedIterator =
 				tuioGraph.find(Node.ANY, RDF.type.asNode(), TUIO.Tracked.asNode())
-				.mapWith(new Map1<Triple, Node>() {
-					public Node map1(Triple t) {
-						return t.getSubject();
-					}
-				});
+				.mapWith(t -> t.getSubject());
 		while (trackedIterator.hasNext()) {
 			debugSubtreeExceptSource(trackedIterator.next());
 		}

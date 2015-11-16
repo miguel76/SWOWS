@@ -24,23 +24,22 @@ import java.util.Vector;
 
 import javax.xml.transform.TransformerException;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.sparql.modify.GraphStoreBasic;
+import org.apache.jena.sparql.modify.request.UpdateWithUsing;
+import org.apache.jena.update.GraphStore;
+import org.apache.jena.update.Update;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import org.swows.spinx.SpinxFactory;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.sparql.modify.GraphStoreBasic;
-import com.hp.hpl.jena.sparql.modify.request.UpdateWithUsing;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.Update;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateProcessor;
-import com.hp.hpl.jena.update.UpdateRequest;
 
 public class UpdateFactoryTest {
 

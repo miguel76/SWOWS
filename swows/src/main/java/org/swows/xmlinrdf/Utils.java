@@ -19,14 +19,13 @@
  */
 package org.swows.xmlinrdf;
 
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.util.iterator.NullIterator;
+import org.apache.jena.util.iterator.SingletonIterator;
 import org.swows.vocabulary.XML;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
-
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.NullIterator;
-import com.hp.hpl.jena.util.iterator.SingletonIterator;
 
 public class Utils {
 

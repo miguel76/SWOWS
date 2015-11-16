@@ -1,6 +1,6 @@
 package org.swows.source;
 
-import com.hp.hpl.jena.graph.Graph;
+import org.apache.jena.graph.Graph;
 
 public interface GraphSource {
 

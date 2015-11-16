@@ -20,11 +20,10 @@
 package org.swows.producer.old;
 
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.ProducerMap;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
 
 /**
  * The Class IdentityGraphFunction is the identity function
@@ -45,7 +44,7 @@ public class IdentityGraphFunction extends GraphFunction {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.GraphFunction#exec(com.hp.hpl.jena.graph.Graph)
+	 * @see org.swows.producer.GraphFunction#exec(org.apache.jena.graph.Graph)
 	 */
 	@Override
 	public DynamicGraph exec(DynamicGraph input) {

@@ -22,6 +22,9 @@ package org.swows.producer.old;
 import java.net.URI;
 import java.util.Iterator;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 import org.swows.graph.TransformGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -29,10 +32,6 @@ import org.swows.producer.ProducerMap;
 import org.swows.transformation.Transformation;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
 
 /**
  * The Class SparqlConstructFunction executes a SPARQL
@@ -228,7 +227,7 @@ public class TransformFunction extends GraphProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.GraphProducer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicGraph createGraph(final DynamicDataset inputDataset) {

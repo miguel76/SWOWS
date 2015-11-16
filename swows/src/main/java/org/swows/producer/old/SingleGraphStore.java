@@ -19,6 +19,10 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
 import org.swows.graph.UpdatableGraph2;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -27,11 +31,6 @@ import org.swows.spinx.QueryFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
 
 public class SingleGraphStore extends GraphProducer {
 	

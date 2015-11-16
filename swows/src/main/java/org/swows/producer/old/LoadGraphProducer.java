@@ -19,6 +19,9 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.swows.graph.LoadGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -28,10 +31,6 @@ import org.swows.reader.RDFDataMgr;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class LoadGraphProducer extends GraphProducer {
 	

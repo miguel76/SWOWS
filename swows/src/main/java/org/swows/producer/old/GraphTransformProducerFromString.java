@@ -1,14 +1,13 @@
 package org.swows.producer.old;
 
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
 import org.swows.graph.events.DynamicDataset;
-import org.swows.transformation.Transformation;
 import org.swows.transformation.QueryTransformation;
+import org.swows.transformation.Transformation;
 import org.swows.transformation.UpdateRequestTransformation;
-
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
 
 public class GraphTransformProducerFromString implements TransformationProducer {
 	

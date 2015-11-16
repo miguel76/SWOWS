@@ -19,13 +19,13 @@
  */
 package org.swows.pfunction;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.engine.ExecutionContext;
-import com.hp.hpl.jena.sparql.engine.QueryIterator;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArg;
-import com.hp.hpl.jena.sparql.pfunction.PropFuncArgType;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionEval;
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.engine.ExecutionContext;
+import org.apache.jena.sparql.engine.QueryIterator;
+import org.apache.jena.sparql.engine.binding.Binding;
+import org.apache.jena.sparql.pfunction.PropFuncArg;
+import org.apache.jena.sparql.pfunction.PropFuncArgType;
+import org.apache.jena.sparql.pfunction.PropertyFunctionEval;
 
 /**
  * Common, simple case, of a property function:
@@ -35,7 +35,7 @@ import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionEval;
  * <li>call the implementation with one binding at a time</li>
  * </ul>.
  * 
- * @see com.hp.hpl.jena.sparql.pfunction.PFuncSimpleAndList
+ * @see org.apache.jena.sparql.pfunction.PFuncSimpleAndList
  */
 
 public abstract
@@ -49,7 +49,7 @@ class PFuncListAndSimple extends PropertyFunctionEval {
     }
 
     /* (non-Javadoc)
-     * @see com.hp.hpl.jena.sparql.pfunction.PropertyFunctionEval#execEvaluated(com.hp.hpl.jena.sparql.engine.binding.Binding, com.hp.hpl.jena.sparql.pfunction.PropFuncArg, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.sparql.pfunction.PropFuncArg, com.hp.hpl.jena.sparql.engine.ExecutionContext)
+     * @see org.apache.jena.sparql.pfunction.PropertyFunctionEval#execEvaluated(org.apache.jena.sparql.engine.binding.Binding, org.apache.jena.sparql.pfunction.PropFuncArg, org.apache.jena.graph.Node, org.apache.jena.sparql.pfunction.PropFuncArg, org.apache.jena.sparql.engine.ExecutionContext)
      */
     @Override
     public QueryIterator execEvaluated(Binding binding, PropFuncArg argSubject, Node predicate, PropFuncArg argObject, ExecutionContext execCxt) {

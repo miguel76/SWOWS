@@ -62,7 +62,7 @@ public class CachedProducer implements RDFProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.Producer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		if (cachedGraphs.containsKey(inputDataset)) {
@@ -79,7 +79,7 @@ public class CachedProducer implements RDFProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.Producer#createDataset(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		if (cachedDatasets.containsKey(inputDataset)) {

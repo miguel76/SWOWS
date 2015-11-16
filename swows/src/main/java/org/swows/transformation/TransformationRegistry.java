@@ -4,15 +4,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.graph.Node;
+import org.apache.jena.vocabulary.RDF;
 import org.swows.vocabulary.DF;
 import org.topbraid.spin.vocabulary.SP;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public class TransformationRegistry {
 	
@@ -54,9 +53,9 @@ public class TransformationRegistry {
 		final Set<TransformationFactory> factories = new HashSet<TransformationFactory>();
 		GraphUtil
 				.listObjects(configGraph, configRoot, RDF.type.asNode())
-				.filterKeep(new Filter<Node>() {
+				.filterKeep(new Predicate<Node>() {
 					@Override
-					public boolean accept(Node configClass) {
+					public boolean test(Node configClass) {
 						TransformationFactory factory = map.get(configClass);
 						if (factory != null)
 							factories.add(factory);

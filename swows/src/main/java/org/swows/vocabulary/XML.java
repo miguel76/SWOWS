@@ -23,15 +23,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.vocabulary.RDF;
 import org.swows.xmlinrdf.Utils;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -182,7 +181,7 @@ public class XML {
     	allProperties.add(listenedEventType);
     }
     
-    public static final boolean isNodeNeededProperty(com.hp.hpl.jena.graph.Node propNode) {
+    public static final boolean isNodeNeededProperty(org.apache.jena.graph.Node propNode) {
     	return ( 	propNode.equals(nodeName.asNode())
     				|| propNode.equals(nodeType.asNode())
     			);
@@ -195,13 +194,13 @@ public class XML {
     }
     */
     
-    public static final Iterator<com.hp.hpl.jena.graph.Node> nodeProperties() {
+    public static final Iterator<org.apache.jena.graph.Node> nodeProperties() {
     	final Iterator<Property> propertyIterator = allProperties.iterator();
-    	return new Iterator<com.hp.hpl.jena.graph.Node>() {
+    	return new Iterator<org.apache.jena.graph.Node>() {
 			public boolean hasNext() {
 				return propertyIterator.hasNext();
 			}
-			public com.hp.hpl.jena.graph.Node next() {
+			public org.apache.jena.graph.Node next() {
 				return propertyIterator.next().asNode();
 			}
 			public void remove() {
@@ -210,7 +209,7 @@ public class XML {
 		};
     }
     
-    public static final boolean isNodeProperty(com.hp.hpl.jena.graph.Node propNode) {
+    public static final boolean isNodeProperty(org.apache.jena.graph.Node propNode) {
     	return ( 	propNode.equals(hasChild.asNode())
     				|| propNode.equals(firstChild.asNode())
     				|| propNode.equals(lastChild.asNode())
@@ -229,7 +228,7 @@ public class XML {
     			);
     }
     
-    public static final boolean isNodeToNodeProperty(com.hp.hpl.jena.graph.Node propNode) {
+    public static final boolean isNodeToNodeProperty(org.apache.jena.graph.Node propNode) {
     	return ( 	propNode.equals(hasChild.asNode())
     				|| propNode.equals(firstChild.asNode())
     				|| propNode.equals(lastChild.asNode())
@@ -264,7 +263,7 @@ public class XML {
 		}
 	}
 
-	public static final org.w3c.dom.Node getNodeProperty(org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
+	public static final org.w3c.dom.Node getNodeProperty(org.w3c.dom.Node node, org.apache.jena.graph.Node propNode) {
 		if (propNode.equals(XML.firstChild.asNode()))
 			return node.getFirstChild();
 		if (propNode.equals(XML.lastChild.asNode()))
@@ -280,7 +279,7 @@ public class XML {
     	return null;
     }
     
-    public static final org.w3c.dom.Node getRevNodeProperty(org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
+    public static final org.w3c.dom.Node getRevNodeProperty(org.w3c.dom.Node node, org.apache.jena.graph.Node propNode) {
 		if (propNode.equals(XML.firstChild.asNode()))
 			return (node.getPreviousSibling() == null) ? node.getParentNode() : null;
 		if (propNode.equals(XML.lastChild.asNode()))
@@ -298,7 +297,7 @@ public class XML {
     	return null;
     }
     
-    public static final org.w3c.dom.NodeList getNodeListProperty(final org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
+    public static final org.w3c.dom.NodeList getNodeListProperty(final org.w3c.dom.Node node, org.apache.jena.graph.Node propNode) {
 		if (propNode.equals(XML.hasChild.asNode()))
 			return node.getChildNodes();
 		if (propNode.equals(XML.hasAttribute.asNode())) {
@@ -321,7 +320,7 @@ public class XML {
 		return new SingleNodeList(singleNode);
     }
 
-    public static final org.w3c.dom.NodeList getRevNodeListProperty(final org.w3c.dom.Node node, com.hp.hpl.jena.graph.Node propNode) {
+    public static final org.w3c.dom.NodeList getRevNodeListProperty(final org.w3c.dom.Node node, org.apache.jena.graph.Node propNode) {
 		if (propNode.equals(XML.parentNode.asNode()))
 			return node.getChildNodes();
 		if (propNode.equals(XML.ownerDocument.asNode())) {

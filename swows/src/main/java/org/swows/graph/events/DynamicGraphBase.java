@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import com.hp.hpl.jena.graph.Graph;
-
 public abstract class DynamicGraphBase implements DynamicGraph {
 
 	private Queue<Transaction> transactionQueue =

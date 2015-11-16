@@ -93,7 +93,7 @@ public class NotifyingProducer implements RDFProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.Producer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.Producer#createDataset(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicDataset createDataset(DynamicDataset inputDataset) {
 		DynamicDataset innerDataset = innerProducer.createDataset(inputDataset);
@@ -102,7 +102,7 @@ public class NotifyingProducer implements RDFProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.Producer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.Producer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {
 		DynamicGraph innerGraph = innerProducer.createGraph(inputDataset);

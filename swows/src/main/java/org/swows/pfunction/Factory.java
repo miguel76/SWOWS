@@ -19,8 +19,8 @@
  */
 package org.swows.pfunction;
 
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunction;
-import com.hp.hpl.jena.sparql.pfunction.PropertyFunctionFactory;
+import org.apache.jena.sparql.pfunction.PropertyFunction;
+import org.apache.jena.sparql.pfunction.PropertyFunctionFactory;
 
 public class Factory implements PropertyFunctionFactory {
 	

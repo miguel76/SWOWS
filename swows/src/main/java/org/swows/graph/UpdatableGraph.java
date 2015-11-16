@@ -19,15 +19,14 @@
  */
 package org.swows.graph;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class UpdatableGraph extends DelegatingDynamicGraph {
 	

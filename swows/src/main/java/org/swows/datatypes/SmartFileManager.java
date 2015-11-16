@@ -26,30 +26,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.Syntax;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.shared.JenaException;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.util.FileManager;
+import org.apache.jena.util.LocationMapper;
+import org.apache.jena.util.Locator;
+import org.apache.jena.util.TypedStream;
+import org.apache.jena.vocabulary.RDF;
 import org.swows.graph.LoadGraph;
 import org.swows.node.Skolemizer;
 import org.swows.reader.ReaderFactory;
 import org.swows.spinx.SpinxFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.shared.JenaException;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.util.FileManager;
-import com.hp.hpl.jena.util.LocationMapper;
-import com.hp.hpl.jena.util.Locator;
-import com.hp.hpl.jena.util.TypedStream;
-import com.hp.hpl.jena.util.iterator.Map1;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SmartFileManager extends FileManager {
 	
@@ -76,13 +75,9 @@ public class SmartFileManager extends FileManager {
     			graph.find(
     					Node.ANY,
     					RDF.type.asNode(),
-    					DF.IncludedGraph.asNode()).mapWith(
-    							new Map1<Triple, Node>() {
-     								public Node map1(Triple t) {
-    									Node graphNode = t.getSubject();
-    									return graphNode;
-    								}
-    							}).toList();
+    					DF.IncludedGraph.asNode())
+    				.mapWith(t -> t.getSubject())
+    				.toList();
     	for (Node graphNode : includedGraphNodes) includeGraph(graph,graphNode,ds);
     }
 
@@ -116,8 +111,8 @@ public class SmartFileManager extends FileManager {
     		Graph includedGraph) {
     	graph.add(new Triple (graphNode, RDF.type.asNode(), DF.InlineGraph.asNode()));
     	Iterator<Node> iter = includedGraph.find(Node.ANY, Node.ANY, Node.ANY).mapWith(
-    			new Map1<Triple, Node>() {
-					public Node map1(Triple t) {
+    			new Function<Triple, Node>() {
+					public Node apply(Triple t) {
 						Node tripleNode = Skolemizer.getInstance().getNode();
 				    	graph.add(new Triple (graphNode, DF.triple.asNode(), tripleNode));
 				    	graph.add(new Triple (tripleNode, DF.subject.asNode(), t.getSubject()));
@@ -158,8 +153,8 @@ public class SmartFileManager extends FileManager {
     					Node.ANY,
     					RDF.type.asNode(),
     					DF.IncludedGraph.asNode()).mapWith(
-    							new Map1<Triple, Node>() {
-    								public Node map1(Triple t) {
+    							new Function<Triple, Node>() {
+    								public Node apply(Triple t) {
     									triplesToDelete.add(t);
     									Node graphNode = t.getSubject();
     									return graphNode;
@@ -187,8 +182,8 @@ public class SmartFileManager extends FileManager {
 		
     	List<Node> nodesConfiguredBy =
     			graph.find(Node.ANY, DF.config.asNode(), graphNode)
-    			.mapWith(new Map1<Triple, Node>() {
-					public Node map1(Triple t) {
+    			.mapWith(new Function<Triple, Node>() {
+					public Node apply(Triple t) {
 						triplesToDelete.add(t);
 						return t.getSubject();
 					}
@@ -229,7 +224,7 @@ public class SmartFileManager extends FileManager {
         			}
         		}
         		if (syntax == null) throw new RuntimeException("Unexpected Null Syntax!");
-    			com.hp.hpl.jena.query.Query query = QueryFactory.read(filenameOrURI, baseURI, syntax);
+    			org.apache.jena.query.Query query = QueryFactory.read(filenameOrURI, baseURI, syntax);
     			SpinxFactory.fromQuery(query, graph, opNode, defaultGraphNode, namedGraphs);
     	    	for (Triple t : triplesToDelete) graph.delete(t);
     		} else if (graph.contains(opNode, RDF.type.asNode(), DF.UpdatableGraph.asNode())) {

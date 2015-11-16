@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.vocabulary.RDF;
 import org.swows.graph.RecursionDataset;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -35,15 +38,11 @@ import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 import org.swows.vocabulary.SWI;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.vocabulary.RDF;
-
 /**
  * The Class DataflowProducer executes a dataflow:
  * generates an output.
  *
- * {@link com.hp.hpl.jena.sparql.core.DatasetGraph}
+ * {@link org.apache.jena.sparql.core.DatasetGraph}
  * from an input {@code DatasetGraph} applying some (graph)
  * operations.
  * The operations that can be used are defined in classes
@@ -375,7 +374,7 @@ public class DataflowProducer extends DatasetProducer {
 
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.DatasetProducer#createDataset(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.DatasetProducer#createDataset(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicDataset createDataset(DynamicDataset parentInputDataset) {

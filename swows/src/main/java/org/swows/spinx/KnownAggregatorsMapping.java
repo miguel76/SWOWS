@@ -22,7 +22,7 @@ package org.swows.spinx;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
+import org.apache.jena.sparql.expr.aggregate.Aggregator;
 
 public class KnownAggregatorsMapping {
 

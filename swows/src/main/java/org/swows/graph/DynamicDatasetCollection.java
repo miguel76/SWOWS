@@ -21,20 +21,19 @@ package org.swows.graph;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.jena.atlas.io.IndentedLineBuffer;
 import org.apache.jena.atlas.iterator.Iter;
-import org.apache.jena.atlas.iterator.Transform;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.shared.Lock;
+import org.apache.jena.shared.LockMRSW;
+import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.sse.writers.WriterGraph;
+import org.apache.jena.sparql.util.Context;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.shared.LockMRSW;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.sse.writers.WriterGraph;
-import com.hp.hpl.jena.sparql.util.Context;
 
 public abstract class DynamicDatasetCollection extends DynamicDataset {
 	
@@ -127,8 +126,8 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
 
     protected static Iter<Quad> triples2quads(final Node graphNode, Iterator<Triple> iter)
     {
-        Transform<Triple, Quad> transformNamedGraph = new Transform<Triple, Quad>() {
-            public Quad convert(Triple triple)
+        Function<Triple, Quad> transformNamedGraph = new Function<Triple, Quad>() {
+            public Quad apply(Triple triple)
             {
                 return new Quad(graphNode, triple) ;
             }
@@ -225,18 +224,6 @@ public abstract class DynamicDatasetCollection extends DynamicDataset {
     
     public abstract Iterator<Node> listGraphNodes() ;
 
-    @Override
-    public void clear() {
-        // Delete all triples in the default graph 
-        getDefaultGraph().clear() ;
-        // Now remove the named graphs (but don't clear them - they may be shared).
-        Iterator<Node> gnIter = listGraphNodes() ;
-        for ( ; gnIter.hasNext(); ) {
-            Node gn = gnIter.next() ; 
-            removeGraph(gn) ;
-        }
-    }
-    
     protected DynamicGraph fetchGraph(Node gn) {
         if ( Quad.isDefaultGraph(gn) )
             return getDefaultGraph() ;

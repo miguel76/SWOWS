@@ -23,15 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.util.iterator.Map1;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.producer.ProducerMap;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.util.iterator.Map1;
 
 public class InlineDatasetProducer extends DatasetProducer {
 	

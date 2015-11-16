@@ -22,10 +22,9 @@ package org.swows.graph.events;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.jena.graph.Graph;
 import org.apache.log4j.Logger;
 import org.swows.util.Utils;
-
-import com.hp.hpl.jena.graph.Graph;
 
 public class SimpleEventManager implements EventManager {
 

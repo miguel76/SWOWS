@@ -23,6 +23,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
 import org.swows.producer.Producer;
 import org.swows.producer.ProducerFactory;
 import org.swows.producer.ProducerMap;
@@ -33,11 +37,6 @@ import org.swows.source.DatasetSourceBase;
 import org.swows.source.DatasetSourceListener;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
 
 public class InlineDataset extends DatasetSourceBase {
 	

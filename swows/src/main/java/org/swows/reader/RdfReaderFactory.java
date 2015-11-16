@@ -19,7 +19,7 @@
  */
 package org.swows.reader;
 
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
+import org.apache.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class RdfReaderFactory extends RDFReaderFImpl {
 

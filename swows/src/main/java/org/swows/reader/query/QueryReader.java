@@ -23,14 +23,13 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Iterator;
 
+import org.apache.jena.n3.JenaReaderBase;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.Syntax;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.impl.RDFReaderFImpl;
 import org.swows.spinx.SpinxFactory;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.n3.JenaReaderBase;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.impl.RDFReaderFImpl;
 
 public class QueryReader extends JenaReaderBase {
 
@@ -69,7 +68,7 @@ public class QueryReader extends JenaReaderBase {
 			sw.write(currChar);
 		sw.flush();
 		sw.close();
-		com.hp.hpl.jena.query.Query query = QueryFactory.create(sw.toString(), querySyntax);
+		org.apache.jena.query.Query query = QueryFactory.create(sw.toString(), querySyntax);
 		SpinxFactory.fromQuery(query, model.getGraph(), SWI.GraphRoot.asNode());
 	}
 

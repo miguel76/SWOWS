@@ -21,10 +21,9 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
+import org.apache.jena.graph.Node;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-
-import com.hp.hpl.jena.graph.Node;
 
 public class RecursionDataset extends DynamicDatasetCollection {
 

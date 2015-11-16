@@ -31,6 +31,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.graph.events.GraphUpdate;
@@ -54,16 +61,6 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.util.NodeComparator;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.Map1;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class DomDecoder implements Listener, RunnableContext, EventListener {
 	
@@ -220,11 +217,7 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 	public static ExtendedIterator<Document> decodeAll(final DynamicGraph graph) {
 		return graph
 				.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
-				.mapWith(new Map1<Triple, Document>() {
-					public Document map1(Triple triple) {
-						return decode(graph, triple.getSubject());
-					}
-				});
+				.mapWith(triple -> decode(graph, triple.getSubject()));
 	}
 	
 	private static String specialName(final Node elementNode) {
@@ -722,19 +715,12 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		redecodeDocument(
 				graph
 					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
-					.mapWith( new Map1<Triple, Node>() {
-						public Node map1(Triple t) {
-							return t.getObject();
-						}
-				})
-				.andThen(
-					graph
-						.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
-						.mapWith( new Map1<Triple, Node>() {
-							public Node map1(Triple t) {
-								return t.getSubject();
-							}
-						}) ).next());
+					.mapWith(t -> t.getObject())
+					.andThen(
+						graph
+							.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
+							.mapWith(t-> t.getSubject()) )
+					.next());
 	}
 
 	private void decodeWorker(DynamicGraph graph, Node docRootNode) {
@@ -1115,24 +1101,16 @@ public class DomDecoder implements Listener, RunnableContext, EventListener {
 		return
 				graph
 					.find(SWI.GraphRoot.asNode(), XML.document.asNode(), Node.ANY)
-					.mapWith( new Map1<Triple, Node>() {
-						public Node map1(Triple t) {
-							return t.getObject();
-						}
-					})
+					.mapWith(t -> t.getObject())
 					.andThen(
 						graph
 							.find(Node.ANY, RDF.type.asNode(), XML.Document.asNode())
-							.mapWith( new Map1<Triple, Node>() {
-								public Node map1(Triple t) {
-									return t.getSubject();
-								}
-							}))
-					.mapWith( new Map1<Node, Document>() {
-						public Document map1(Node node) {
-							return decode(graph, node, domImpl, updatesContext, docReceiver, domEventListeners, eventManager);
-						}
-					} );
+							.mapWith(t -> t.getSubject()) )
+					.mapWith(
+							node ->
+								decode(
+									graph, node, domImpl, updatesContext,
+									docReceiver, domEventListeners, eventManager) );
 	}
 	
 	private void addNodeMapping(Node graphNode, org.w3c.dom.Node domNode) {

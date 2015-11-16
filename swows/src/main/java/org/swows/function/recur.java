@@ -2,11 +2,11 @@ package org.swows.function;
 
 import java.util.List;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.function.FunctionEnv;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
-import com.hp.hpl.jena.sparql.util.Symbol;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.function.FunctionEnv;
+import org.apache.jena.sparql.graph.GraphFactory;
+import org.apache.jena.sparql.util.Symbol;
 
 public class recur extends GraphReturningFunction {
 

@@ -32,73 +32,73 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.Syntax;
+import org.apache.jena.sparql.core.BasicPattern;
+import org.apache.jena.sparql.core.TriplePath;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.expr.E_Function;
+import org.apache.jena.sparql.expr.Expr;
+import org.apache.jena.sparql.expr.ExprFunction;
+import org.apache.jena.sparql.expr.ExprFunctionOp;
+import org.apache.jena.sparql.expr.ExprList;
+import org.apache.jena.sparql.expr.ExprVar;
+import org.apache.jena.sparql.expr.NodeValue;
+import org.apache.jena.sparql.expr.aggregate.Aggregator;
+import org.apache.jena.sparql.modify.request.QuadAcc;
+import org.apache.jena.sparql.modify.request.UpdateDeleteInsert;
+import org.apache.jena.sparql.path.P_Alt;
+import org.apache.jena.sparql.path.P_Distinct;
+import org.apache.jena.sparql.path.P_FixedLength;
+import org.apache.jena.sparql.path.P_Inverse;
+import org.apache.jena.sparql.path.P_Link;
+import org.apache.jena.sparql.path.P_Mod;
+import org.apache.jena.sparql.path.P_Multi;
+import org.apache.jena.sparql.path.P_NegPropSet;
+import org.apache.jena.sparql.path.P_OneOrMore1;
+import org.apache.jena.sparql.path.P_OneOrMoreN;
+import org.apache.jena.sparql.path.P_ReverseLink;
+import org.apache.jena.sparql.path.P_Seq;
+import org.apache.jena.sparql.path.P_Shortest;
+import org.apache.jena.sparql.path.P_ZeroOrMore1;
+import org.apache.jena.sparql.path.P_ZeroOrMoreN;
+import org.apache.jena.sparql.path.P_ZeroOrOne;
+import org.apache.jena.sparql.path.Path;
+import org.apache.jena.sparql.path.PathVisitor;
+import org.apache.jena.sparql.sse.Tags;
+import org.apache.jena.sparql.syntax.Element;
+import org.apache.jena.sparql.syntax.ElementAssign;
+import org.apache.jena.sparql.syntax.ElementBind;
+import org.apache.jena.sparql.syntax.ElementExists;
+import org.apache.jena.sparql.syntax.ElementFilter;
+import org.apache.jena.sparql.syntax.ElementGroup;
+import org.apache.jena.sparql.syntax.ElementMinus;
+import org.apache.jena.sparql.syntax.ElementNamedGraph;
+import org.apache.jena.sparql.syntax.ElementNotExists;
+import org.apache.jena.sparql.syntax.ElementOptional;
+import org.apache.jena.sparql.syntax.ElementPathBlock;
+import org.apache.jena.sparql.syntax.ElementService;
+import org.apache.jena.sparql.syntax.ElementSubQuery;
+import org.apache.jena.sparql.syntax.ElementTriplesBlock;
+import org.apache.jena.sparql.syntax.ElementUnion;
+import org.apache.jena.sparql.syntax.Template;
+import org.apache.jena.update.Update;
+import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.util.iterator.Filter;
+import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.SP;
 import org.swows.vocabulary.SPINX;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.Syntax;
-import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.core.TriplePath;
-import com.hp.hpl.jena.sparql.core.Var;
-import com.hp.hpl.jena.sparql.expr.E_Function;
-import com.hp.hpl.jena.sparql.expr.Expr;
-import com.hp.hpl.jena.sparql.expr.ExprFunction;
-import com.hp.hpl.jena.sparql.expr.ExprFunctionOp;
-import com.hp.hpl.jena.sparql.expr.ExprList;
-import com.hp.hpl.jena.sparql.expr.ExprVar;
-import com.hp.hpl.jena.sparql.expr.NodeValue;
-import com.hp.hpl.jena.sparql.expr.aggregate.Aggregator;
-import com.hp.hpl.jena.sparql.modify.request.QuadAcc;
-import com.hp.hpl.jena.sparql.modify.request.UpdateDeleteInsert;
-import com.hp.hpl.jena.sparql.path.P_Alt;
-import com.hp.hpl.jena.sparql.path.P_Distinct;
-import com.hp.hpl.jena.sparql.path.P_FixedLength;
-import com.hp.hpl.jena.sparql.path.P_Inverse;
-import com.hp.hpl.jena.sparql.path.P_Link;
-import com.hp.hpl.jena.sparql.path.P_Mod;
-import com.hp.hpl.jena.sparql.path.P_Multi;
-import com.hp.hpl.jena.sparql.path.P_NegPropSet;
-import com.hp.hpl.jena.sparql.path.P_OneOrMore1;
-import com.hp.hpl.jena.sparql.path.P_OneOrMoreN;
-import com.hp.hpl.jena.sparql.path.P_ReverseLink;
-import com.hp.hpl.jena.sparql.path.P_Seq;
-import com.hp.hpl.jena.sparql.path.P_Shortest;
-import com.hp.hpl.jena.sparql.path.P_ZeroOrMore1;
-import com.hp.hpl.jena.sparql.path.P_ZeroOrMoreN;
-import com.hp.hpl.jena.sparql.path.P_ZeroOrOne;
-import com.hp.hpl.jena.sparql.path.Path;
-import com.hp.hpl.jena.sparql.path.PathVisitor;
-import com.hp.hpl.jena.sparql.sse.Tags;
-import com.hp.hpl.jena.sparql.syntax.Element;
-import com.hp.hpl.jena.sparql.syntax.ElementAssign;
-import com.hp.hpl.jena.sparql.syntax.ElementBind;
-import com.hp.hpl.jena.sparql.syntax.ElementExists;
-import com.hp.hpl.jena.sparql.syntax.ElementFilter;
-import com.hp.hpl.jena.sparql.syntax.ElementGroup;
-import com.hp.hpl.jena.sparql.syntax.ElementMinus;
-import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
-import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
-import com.hp.hpl.jena.sparql.syntax.ElementOptional;
-import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementService;
-import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
-import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.Template;
-import com.hp.hpl.jena.update.Update;
-import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.Filter;
-import com.hp.hpl.jena.util.iterator.Map1;
-import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class QueryAlgebraFactory {
 	
@@ -127,8 +127,8 @@ public class QueryAlgebraFactory {
 	
 	private ExtendedIterator<Node> getObjects(Node subjNode, Node predNode) {
 		return graph.find(subjNode, predNode, Node.ANY)
-				.mapWith(new Map1<Triple, Node>() {
-					public Node map1(Triple triple) {
+				.mapWith(new Function<Triple, Node>() {
+					public Node apply(Triple triple) {
 						return triple.getObject();
 					}
 				});
@@ -303,9 +303,9 @@ public class QueryAlgebraFactory {
 	public Aggregator toAggregator(Node exprRootNode) {
 		Iterator<Node> exprTypes =
 				getObjects(exprRootNode, RDF.type.asNode())
-				.filterDrop(new Filter<Node>() {
+				.filterDrop(new Predicate<Node>() {
 					@Override
-					public boolean accept(Node node) {
+					public boolean test(Node node) {
 						return
 								node.equals(SP.Expression.asNode())
 								|| node.equals(SP.Aggregation.asNode());
@@ -1336,8 +1336,8 @@ public class QueryAlgebraFactory {
 //						return graph.find(Node.ANY, SP.query.asNode(), queryNode).hasNext();
 //					}
 //				})
-				.mapWith(new Map1<Triple, Triple>() {
-					public Triple map1(Triple triple) {
+				.mapWith(new Function<Triple, Triple>() {
+					public Triple apply(Triple triple) {
 						Node queryNode = triple.getSubject();
 						String queryString = toQuery(graph, queryNode).toString();
 						return new Triple(queryNode, SP.text.asNode(), NodeFactory.createLiteral(queryString));

@@ -3,6 +3,7 @@
 	<name>swows</name>
 	<comment></comment>
 	<projects>
+		<project>shacl2</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

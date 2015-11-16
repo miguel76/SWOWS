@@ -19,15 +19,14 @@
  */
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.producer.ProducerMap;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 /**
  * The Abstract Class GraphFunction is the common ancestor
  * of producer classes that operate on an input graph
@@ -74,7 +73,7 @@ public abstract class GraphFunction extends GraphProducer {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.swows.producer.GraphProducer#createGraph(com.hp.hpl.jena.sparql.core.DatasetGraph)
+	 * @see org.swows.producer.GraphProducer#createGraph(org.apache.jena.sparql.core.DatasetGraph)
 	 */
 	@Override
 	public DynamicGraph createGraph(DynamicDataset inputDataset) {

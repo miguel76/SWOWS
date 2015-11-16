@@ -30,13 +30,12 @@ import org.apache.jena.riot.RDFParserRegistry;
 import org.apache.jena.riot.ReaderRIOT;
 import org.apache.jena.riot.ReaderRIOTFactory;
 import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.sparql.util.Context;
 import org.swows.xmlinrdf.DomEncoder;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import com.hp.hpl.jena.sparql.util.Context;
 
 public class HtmlReaderRIOTFactory implements ReaderRIOTFactory {
 	

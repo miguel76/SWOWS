@@ -28,8 +28,8 @@ import org.swows.producer.ProducerMap;
  * that generate graphs or datasets in a dataflow.
  * Implementing classes, a part from implementing Producer
  * methods, must implement a constructor with three parameters:<ul>
- * <li>the {@link com.hp.hpl.jena.graph.Graph} with dataflow definition</li>
- * <li>the specific {@link com.hp.hpl.jena.graph.Node} in
+ * <li>the {@link org.apache.jena.graph.Graph} with dataflow definition</li>
+ * <li>the specific {@link org.apache.jena.graph.Node} in
  * the graph representing the producer configuration</li>
  * <li>the {@link ProducerMap} to access the other defined
  * producers</li>

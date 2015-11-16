@@ -3,7 +3,7 @@ package org.swows.source;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraph;
 
 public abstract class DatasetSourceBase implements DatasetSource, DatasetSourceListener {
 	

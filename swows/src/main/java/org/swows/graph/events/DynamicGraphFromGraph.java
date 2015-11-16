@@ -19,25 +19,19 @@
  */
 package org.swows.graph.events;
 
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.jena.graph.Capabilities;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphStatisticsHandler;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.TransactionHandler;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.shared.AddDeniedException;
+import org.apache.jena.shared.DeleteDeniedException;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.apache.log4j.Logger;
 import org.swows.util.Utils;
-
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
-import com.hp.hpl.jena.graph.Capabilities;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphStatisticsHandler;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.TransactionHandler;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.shared.AddDeniedException;
-import com.hp.hpl.jena.shared.DeleteDeniedException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 
 public class DynamicGraphFromGraph implements DynamicGraph {
 	
@@ -72,72 +66,6 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		return baseGraph.getTransactionHandler();
 	}
 
-	@Deprecated
-	public BulkUpdateHandler getBulkUpdateHandler() {
-		return new BulkUpdateHandler() {
-			BulkUpdateHandler buh = baseGraph.getBulkUpdateHandler();
-					public void removeAll() {
-				getCurrGraphUpdate().putDeletedTriples(baseGraph);
-				buh.removeAll();
-			}
-			
-					public void remove(Node s, Node p, Node o) {
-				getCurrGraphUpdate().putDeletedTriples(baseGraph.find(s, p, o));
-				buh.remove(s, p, o);
-			}
-			
-					public void delete(Graph g, boolean withReifications) {
-				getCurrGraphUpdate().putDeletedTriples(g);
-				buh.delete(g, withReifications);
-			}
-			
-					public void delete(Graph g) {
-				getCurrGraphUpdate().putDeletedTriples(g);
-				buh.delete(g);
-			}
-			
-					public void delete(Iterator<Triple> it) {
-				getCurrGraphUpdate().putDeletedTriples(it);
-				buh.delete(it);
-			}
-			
-					public void delete(List<Triple> triples) {
-				getCurrGraphUpdate().putDeletedTriples(triples);
-				buh.delete(triples);
-			}
-			
-					public void delete(Triple[] triples) {
-				getCurrGraphUpdate().putDeletedTriples(triples);
-				buh.delete(triples);
-			}
-			
-					public void add(Graph g, boolean withReifications) {
-				getCurrGraphUpdate().putAddedTriples(g);
-				buh.add(g, withReifications);
-			}
-			
-					public void add(Graph g) {
-				getCurrGraphUpdate().putAddedTriples(g);
-				buh.add(g);
-			}
-			
-					public void add(Iterator<Triple> it) {
-				getCurrGraphUpdate().putAddedTriples(it);
-				buh.add(it);
-			}
-			
-					public void add(List<Triple> triples) {
-				getCurrGraphUpdate().putAddedTriples(triples);
-				buh.add(triples);
-			}
-			
-					public void add(Triple[] triples) {
-				getCurrGraphUpdate().putAddedTriples(triples);
-				buh.add(triples);
-			}
-		};
-	}
-
 	public Capabilities getCapabilities() {
 		return baseGraph.getCapabilities();
 	}
@@ -159,7 +87,7 @@ public class DynamicGraphFromGraph implements DynamicGraph {
 		baseGraph.delete(t);
 	}
 
-	public ExtendedIterator<Triple> find(TripleMatch m) {
+	public ExtendedIterator<Triple> find(Triple m) {
 		return baseGraph.find(m);
 	}
 

@@ -1,17 +1,16 @@
 package org.swows.comp;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.swows.producer.Producer;
 import org.swows.producer.ProducerFactory;
 import org.swows.producer.ProducerMap;
-import org.swows.producer.Producer;
 import org.swows.source.DatasetSource;
 import org.swows.source.DatasetSourceFromDatasets;
 import org.swows.transformation.TransformationRegistry;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
 
 public class Transformer extends DatasetSourceFromDatasets {
 	

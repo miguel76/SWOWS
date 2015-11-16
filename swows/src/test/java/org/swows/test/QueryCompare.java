@@ -19,11 +19,10 @@ package org.swows.test;
  */
 
 import org.apache.jena.atlas.lib.Lib;
-
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryVisitor;
-import com.hp.hpl.jena.sparql.core.Prologue;
-import com.hp.hpl.jena.sparql.util.NodeIsomorphismMap;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryVisitor;
+import org.apache.jena.sparql.core.Prologue;
+import org.apache.jena.sparql.util.NodeIsomorphismMap;
 
 // Two queries comparison 
 

@@ -1,12 +1,11 @@
 package org.swows.producer.old;
 
+import org.apache.jena.graph.Node;
+import org.apache.jena.query.Query;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
 import org.swows.spinx.QueryFactory;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.query.Query;
 
 public class GraphQueryProducer extends QueryProducer {
 	

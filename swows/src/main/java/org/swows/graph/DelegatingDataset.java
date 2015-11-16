@@ -21,12 +21,12 @@ package org.swows.graph;
 
 import java.util.Iterator;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.shared.Lock;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.sparql.core.Quad;
-import com.hp.hpl.jena.sparql.util.Context;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.shared.Lock;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.sparql.util.Context;
 
 /**
  * The Class DelegatingDataset is a dataset that delegates
@@ -56,147 +56,147 @@ public abstract class DelegatingDataset implements DatasetGraph {
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#add(com.hp.hpl.jena.sparql.core.Quad)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#add(org.apache.jena.sparql.core.Quad)
 	 */
 	public void add(Quad quad) {
 		getLocalDataset().add(quad);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#addGraph(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Graph)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#addGraph(org.apache.jena.graph.Node, org.apache.jena.graph.Graph)
 	 */
 	public void addGraph(Node graphName, Graph graph) {
 		getLocalDataset().addGraph(graphName, graph);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#close()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#close()
 	 */
 	public void close() {
 		getLocalDataset().close();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#contains(com.hp.hpl.jena.sparql.core.Quad)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#contains(org.apache.jena.sparql.core.Quad)
 	 */
 	public boolean contains(Quad quad) {
 		return getLocalDataset().contains(quad);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#contains(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#contains(org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node)
 	 */
 	public boolean contains(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().contains(g, s, p, o);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#containsGraph(com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#containsGraph(org.apache.jena.graph.Node)
 	 */
 	public boolean containsGraph(Node graphNode) {
 		return getLocalDataset().containsGraph(graphNode);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#delete(com.hp.hpl.jena.sparql.core.Quad)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#delete(org.apache.jena.sparql.core.Quad)
 	 */
 	public void delete(Quad quad) {
 		getLocalDataset().delete(quad);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#deleteAny(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#deleteAny(org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node)
 	 */
 	public void deleteAny(Node g, Node s, Node p, Node o) {
 		getLocalDataset().deleteAny(g, s, p, o);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#find()
 	 */
 	public Iterator<Quad> find() {
 		return getLocalDataset().find();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find(com.hp.hpl.jena.sparql.core.Quad)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#find(org.apache.jena.sparql.core.Quad)
 	 */
 	public Iterator<Quad> find(Quad quad) {
 		return getLocalDataset().find(quad);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#find(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#find(org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node)
 	 */
 	public Iterator<Quad> find(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().find(g, s, p, o);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#findNG(com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node, com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#findNG(org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node, org.apache.jena.graph.Node)
 	 */
 	public Iterator<Quad> findNG(Node g, Node s, Node p, Node o) {
 		return getLocalDataset().findNG(g, s, p, o);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getContext()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#getContext()
 	 */
 	public Context getContext() {
 		return getLocalDataset().getContext();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getDefaultGraph()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#getDefaultGraph()
 	 */
 	public Graph getDefaultGraph() {
 		return getLocalDataset().getDefaultGraph();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getGraph(com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#getGraph(org.apache.jena.graph.Node)
 	 */
 	public Graph getGraph(Node graphNode) {
 		return getLocalDataset().getGraph(graphNode);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#getLock()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#getLock()
 	 */
 	public Lock getLock() {
 		return getLocalDataset().getLock();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#isEmpty()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#isEmpty()
 	 */
 	public boolean isEmpty() {
 		return getLocalDataset().isEmpty();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#listGraphNodes()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#listGraphNodes()
 	 */
 	public Iterator<Node> listGraphNodes() {
 		return getLocalDataset().listGraphNodes();
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#removeGraph(com.hp.hpl.jena.graph.Node)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#removeGraph(org.apache.jena.graph.Node)
 	 */
 	public void removeGraph(Node graphName) {
 		getLocalDataset().removeGraph(graphName);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#setDefaultGraph(com.hp.hpl.jena.graph.Graph)
+	 * @see org.apache.jena.sparql.core.DatasetGraph#setDefaultGraph(org.apache.jena.graph.Graph)
 	 */
 	public void setDefaultGraph(Graph g) {
 		getLocalDataset().setDefaultGraph(g);
 	}
 
 	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.sparql.core.DatasetGraph#size()
+	 * @see org.apache.jena.sparql.core.DatasetGraph#size()
 	 */
 	public long size() {
 		return getLocalDataset().size();

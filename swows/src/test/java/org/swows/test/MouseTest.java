@@ -28,15 +28,14 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.RunnableQueue;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.sparql.function.FunctionRegistry;
 import org.apache.log4j.PropertyConfigurator;
 import org.swows.datatypes.SmartFileManager;
 import org.swows.function.Factory;
 import org.swows.mouse.MouseApp;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.sparql.function.FunctionRegistry;
 
 public class MouseTest {
 

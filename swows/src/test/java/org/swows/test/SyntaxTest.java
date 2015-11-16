@@ -19,9 +19,8 @@
  */
 package org.swows.test;
 
+import org.apache.jena.graph.Graph;
 import org.swows.graph.LoadGraph;
-
-import com.hp.hpl.jena.graph.Graph;
 
 public class SyntaxTest {
 

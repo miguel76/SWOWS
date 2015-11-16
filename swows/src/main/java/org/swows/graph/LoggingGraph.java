@@ -21,6 +21,8 @@ package org.swows.graph;
 
 import java.io.StringWriter;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -28,9 +30,6 @@ import org.swows.graph.events.EventManager;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.graph.events.SimpleEventManager;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * The Class LoggingGraph allows to log the graph

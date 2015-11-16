@@ -22,6 +22,14 @@ package org.swows.graph;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.sparql.core.DatasetGraphMap;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
@@ -29,15 +37,6 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.vocabulary.SWI;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 public class UpdatableFromEventsGraph extends DelegatingDynamicGraph {
 	

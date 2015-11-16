@@ -19,23 +19,21 @@
  */
 package org.swows.graph;
 
-import com.hp.hpl.jena.graph.BulkUpdateHandler;
-import com.hp.hpl.jena.graph.Capabilities;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphStatisticsHandler;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.TransactionHandler;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.TripleMatch;
-import com.hp.hpl.jena.graph.impl.SimpleEventManager;
-import com.hp.hpl.jena.graph.impl.SimpleTransactionHandler;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.shared.AddDeniedException;
-import com.hp.hpl.jena.shared.DeleteDeniedException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.shared.impl.PrefixMappingImpl;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import org.apache.jena.graph.Capabilities;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphStatisticsHandler;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.TransactionHandler;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.graph.impl.SimpleEventManager;
+import org.apache.jena.graph.impl.SimpleTransactionHandler;
+import org.apache.jena.query.Query;
+import org.apache.jena.shared.AddDeniedException;
+import org.apache.jena.shared.DeleteDeniedException;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.shared.impl.PrefixMappingImpl;
+import org.apache.jena.util.iterator.ExtendedIterator;
 
 public class SpinxFromQuery implements Graph {
 	
@@ -65,11 +63,6 @@ public class SpinxFromQuery implements Graph {
 
 	public TransactionHandler getTransactionHandler() {
 		return transactionHandler;
-	}
-
-	public BulkUpdateHandler getBulkUpdateHandler() {
-		// Should be ok to return null for a readonly graph
-		return null;
 	}
 
 	public Capabilities getCapabilities() {
@@ -133,7 +126,7 @@ public class SpinxFromQuery implements Graph {
 		throw new DeleteDeniedException("Read-Only Query-based Graph");
 	}
 
-	public ExtendedIterator<Triple> find(TripleMatch m) {
+	public ExtendedIterator<Triple> find(Triple m) {
 		// TODO Auto-generated method stub
 		return null;
 	}

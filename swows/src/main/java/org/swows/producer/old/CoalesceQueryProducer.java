@@ -1,8 +1,7 @@
 package org.swows.producer.old;
 
+import org.apache.jena.query.Query;
 import org.swows.graph.events.DynamicDataset;
-
-import com.hp.hpl.jena.query.Query;
 
 public class CoalesceQueryProducer extends QueryProducer {
 

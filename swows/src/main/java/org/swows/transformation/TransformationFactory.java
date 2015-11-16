@@ -1,7 +1,7 @@
 package org.swows.transformation;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 
 public interface TransformationFactory {
 	

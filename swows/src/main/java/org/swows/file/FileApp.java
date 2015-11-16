@@ -29,6 +29,9 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.util.RunnableQueue;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 import org.swows.graph.DynamicDatasetMap;
 import org.swows.graph.EventCachingGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -45,10 +48,6 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetFactory;
 
 public class FileApp extends JFrame {
 	

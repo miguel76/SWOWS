@@ -3,10 +3,10 @@ package org.swows.graph.algebra;
 import java.util.Iterator;
 import java.util.List;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphEventManager;
-import com.hp.hpl.jena.graph.GraphListener;
-import com.hp.hpl.jena.graph.Triple;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphEventManager;
+import org.apache.jena.graph.GraphListener;
+import org.apache.jena.graph.Triple;
 
 public class VoidEventManager implements GraphEventManager {
 

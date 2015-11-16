@@ -19,13 +19,13 @@
  */
 package org.swows.vocabulary;
 
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 
 /**
- * The Class TUIO maintains {@link com.hp.hpl.jena.rdf.model.Resource}
- * and {@link com.hp.hpl.jena.rdf.model.Property} instances for
+ * The Class TUIO maintains {@link org.apache.jena.rdf.model.Resource}
+ * and {@link org.apache.jena.rdf.model.Property} instances for
  * the TUIO ontology
  * (<a href="http://www.swows.org/tuio">http://www.swows.org/tuio</a>).
  */

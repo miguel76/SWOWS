@@ -22,6 +22,9 @@ package org.swows.graph;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
+import org.apache.jena.sparql.graph.GraphFactory;
 import org.apache.log4j.Logger;
 import org.swows.graph.events.DelegatingDynamicGraph;
 import org.swows.graph.events.DynamicGraph;
@@ -29,10 +32,6 @@ import org.swows.graph.events.DynamicGraphFromGraph;
 import org.swows.graph.events.GraphUpdate;
 import org.swows.graph.events.Listener;
 import org.swows.util.Utils;
-
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.GraphUtil;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * The Class LoggingGraph allows to log the graph

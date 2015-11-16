@@ -30,16 +30,17 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class QueryTransformation implements Transformation {
+public class Dataflow implements Transformation {
 	
 	private Query query;
+	private DataflowComponent components[];
 	
-	public QueryTransformation(Query query) {
-		this.query = query;
-	}
-
-	public QueryTransformation(Graph queryGraph, Node queryRoot) {
-		Resource rootRes = (Resource) ModelFactory.createModelForGraph(queryGraph).asRDFNode(queryRoot);
+	public Dataflow(Graph configGraph, Node configRoot) {
+		Resource rootRes =
+				(Resource)
+					ModelFactory
+						.createModelForGraph(configGraph)
+						.asRDFNode(configRoot);
 		this.query = ARQFactory.get().createQuery( SPINFactory.asQuery(rootRes) );
 	}
 	
@@ -50,7 +51,7 @@ public class QueryTransformation implements Transformation {
 				public Transformation transformationFromGraph(
 						Graph configGraph,
 						Node configRoot) {
-					return new QueryTransformation(configGraph, configRoot);
+					return new Dataflow(configGraph, configRoot);
 				}
 		};
 
