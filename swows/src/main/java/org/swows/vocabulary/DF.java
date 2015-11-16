@@ -63,6 +63,13 @@ public class DF {
     }
 
     /** The Constant Graph. */
+    public final static Resource Merger = resource("Merger");
+    public final static Resource Transformer = resource("Transformer");
+    public final static Resource DefaultGraphSelector = resource("DefaultGraphSelector");
+    public final static Resource NamedGraphSelector = resource("NamedGraphSelector");
+    
+    public final static Resource Transitioner = resource("Transitioner");
+
     public final static Resource Graph = resource("Graph");
     public final static Resource UnionGraph = resource("UnionGraph");
     public final static Resource DatasetProjGraph = resource("DatasetProjGraph");
@@ -104,12 +111,14 @@ public class DF {
     /** The Constant constructQuery. */
     public final static Property constructQuery = property("constructQuery");
     
+    public final static Property hasComponent = property("hasComponent");
+
     /** The Constant input. */
     public final static Property input = property("input");
     public final static Property namedInput = property("namedInput");
     public final static Property defaultInput = property("defaultInput");
     public final static Property name = property("name");
-
+    public final static Property datasetProducer = property("datasetProducer");
     /** The Constant config. */
     public final static Property config = property("config");
     public final static Property configTxt = property("configTxt");
