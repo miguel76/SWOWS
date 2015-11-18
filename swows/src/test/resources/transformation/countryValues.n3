@@ -1,0 +1,49 @@
+@prefix sp: <http://spinrdf.org/sp#>
+@prefix df: <http://www.swows.org/2012/06/dataflow#>
+
+<#query>
+	a sp:Construct ;
+	sp:text """
+PREFIX :      <http://www.swows.org/samples/WorldInfo#>
+PREFIX xsd:   <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX geo:   <http://www.fao.org/countryprofiles/geoinfo/geopolitical/resource/>
+
+CONSTRUCT {
+  ?country
+    a geo:self_governing ;
+    geo:codeISO2 ?codeISO2upper ;
+    :gdpPerCapita ?gdpPerCapita ;
+    :density ?density ;
+    :agriAreaRate ?agriAreaRate .
+}
+WHERE {
+      ?country
+        a geo:self_governing ;
+        geo:codeISO2 ?codeISO2upper ;
+        geo:GDPTotalInCurrentPrices ?gdp ;
+        geo:populationTotal ?pop ;
+        geo:landAreaTotal ?landArea ;
+        geo:agriculturalAreaTotal ?agriArea .
+  BIND( ?gdp / ?pop AS ?gdpPerCapita ) .
+  BIND( ?pop / ?landArea AS ?density ) .
+  BIND( ?agriArea / ?landArea AS ?agriAreaRate ) .
+}""".
+
+<#dataflow>
+  a df:Dataflow;
+  df:hasComponent _:transformer, _:defaultOutput;
+  df:defaultInput _:defaultOutput.
+
+_:defaultOutput  
+  a df:DefaultGraphSelector;
+  df:datasetProducer _:transformer.
+  
+_:defaultInput
+  a df:DefaultGraphSelector;
+  df:datasetProducer <#dataflow>.
+  
+_:transformer
+  a df:Transformer;
+  df:inlineConfig <#query>;
+  df:defaultInput _:defaultInput.

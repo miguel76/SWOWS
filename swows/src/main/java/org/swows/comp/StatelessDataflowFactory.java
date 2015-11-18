@@ -9,8 +9,8 @@ import org.swows.source.DatasetSource;
 import org.swows.transformation.Transformation;
 import org.swows.transformation.TransformationFactory;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 
 public class StatelessDataflowFactory implements TransformationFactory {
 

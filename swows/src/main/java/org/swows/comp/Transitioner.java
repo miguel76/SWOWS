@@ -8,8 +8,8 @@ import org.swows.source.DatasetSourceTemporal;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 
 public class Transitioner extends DatasetSourceTemporal {
 	

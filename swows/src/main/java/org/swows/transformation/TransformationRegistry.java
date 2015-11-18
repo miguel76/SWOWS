@@ -10,6 +10,7 @@ import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
 import org.apache.jena.vocabulary.RDF;
+import org.swows.comp.DataflowFactory;
 import org.swows.vocabulary.DF;
 import org.topbraid.spin.vocabulary.SP;
 
@@ -46,6 +47,8 @@ public class TransformationRegistry {
 		register(SP.Drop.asNode(), UpdateRequestTransformation.getOperationFactory());
 		
 		register(DF.UpdateRequest.asNode(), UpdateRequestTransformation.getRequestFactory());
+
+		register(DF.Dataflow.asNode(), DataflowFactory.get());
 
 	}
 	

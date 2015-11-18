@@ -95,7 +95,7 @@ public class Transformer extends DatasetSourceFromDatasets {
 					@Override
 					public DatasetSource create(DatasetSource inputDatasetSource) {
 						return transformationSource(
-								conf, confRoot,
+								conf, inlineConfNode,
 								inputProducer.create(inputDatasetSource));
 					}
 				};

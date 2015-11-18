@@ -12,10 +12,19 @@ import org.swows.source.DatasetSourceFromDatasets;
 import org.swows.transformation.Transformation;
 import org.swows.transformation.TransformationFactory;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 
 public class DataflowFactory implements TransformationFactory {
+	
+	private static DataflowFactory singleton = null;
+	
+	public static DataflowFactory get() {
+		if (singleton == null) {
+			singleton = new DataflowFactory();
+		}
+		return singleton;
+	}
 	
 	@Override
 	public Transformation transformationFromGraph(

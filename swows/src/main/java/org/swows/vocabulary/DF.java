@@ -31,7 +31,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
  */
 public class DF {
 
-	private static final String thisUri = "http://www.swows.org/dataflow#";
+	private static final String thisUri = "http://www.swows.org/2012/06/dataflow#";
 
 	/**
 	 * Gets the ontology URI.
@@ -105,6 +105,8 @@ public class DF {
     /** The Constant Update. */
     public final static Resource Update = resource("Update");
     public final static Resource UpdateRequest = resource("UpdateRequest");
+
+	public final static Resource Dataflow = resource("Dataflow");
 
     //public final static Property isConstructedBy = property("isConstructedBy");
     //public final static Property unionOf = property("unionOf");
