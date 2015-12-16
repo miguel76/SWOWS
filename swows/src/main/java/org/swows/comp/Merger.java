@@ -63,7 +63,7 @@ public class Merger extends DatasetSourceFromDatasets {
 	
 	@Override
 	protected void readyForExecution() {
-		setNewDataset(createDataset(inputGraphSources));;
+		setNewDataset(createDataset(inputGraphSources));
 	}
 
 	private static ProducerFactory<DatasetSource> factory =

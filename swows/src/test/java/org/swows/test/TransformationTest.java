@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.swows.source.DatasetSource;
 import org.swows.source.DatasetSourceFromDatasets;
@@ -33,7 +34,7 @@ public class TransformationTest {
 		
 		String baseUri = "src/test/resources/transformation/";
 
-    	String defaultGraphUri = baseUri + "faoOntology.rdf";
+    	String defaultGraphUri = baseUri + "faoOntologySample.rdf";
    		List<String> namedGraphUris = new Vector<String>();
 //		namedGraphUris.add(baseUri + "tuio_input_1.n3");
     	Dataset inputDataset = DatasetFactory.create(defaultGraphUri, namedGraphUris);
@@ -71,7 +72,7 @@ public class TransformationTest {
     	DatasetGraph outputDataset = outputDatasetSource.lastDataset();
       	logger.info("Transformation Executed");
           	
-    	System.out.println(outputDataset.getDefaultGraph());
+      	ModelFactory.createModelForGraph(outputDataset.getDefaultGraph()).write(System.out,"Turtle");
 
    	}
 

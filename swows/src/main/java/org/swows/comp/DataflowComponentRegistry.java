@@ -19,16 +19,16 @@ import org.apache.jena.vocabulary.RDF;
 
 public class DataflowComponentRegistry {
 	
-	private Map<Node, ProducerFactory<DatasetSource>> map =
+	private Map<Node, ProducerFactory<DatasetSource>> registry =
 			new HashMap<Node, ProducerFactory<DatasetSource>>();
 	
 	public void register(Node configClass, ProducerFactory<DatasetSource> factory) {
-		map.put(configClass, factory);
+		registry.put(configClass, factory);
 	}
 
 	public void unregister(Node configClass, ProducerFactory<DatasetSource> factory) {
-		if (map.get(configClass).equals(factory))
-			map.remove(configClass);
+		if (registry.get(configClass).equals(factory))
+			registry.remove(configClass);
 	}
 
 	private DataflowComponentRegistry() {
@@ -49,7 +49,7 @@ public class DataflowComponentRegistry {
 				.filterKeep(new Filter<Node>() {
 					@Override
 					public boolean accept(Node configClass) {
-						ProducerFactory<DatasetSource> factory = map.get(configClass);
+						ProducerFactory<DatasetSource> factory = registry.get(configClass);
 						if (factory != null)
 							factories.add(factory);
 						return false;

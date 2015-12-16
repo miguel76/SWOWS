@@ -12,8 +12,7 @@ CONSTRUCT {
     :agriAreaRate ?agriAreaRate .
 }
 WHERE {
-  SERVICE <http://localhost:3030/ds> {
-    GRAPH <http://www.fao.org/countryprofiles/geoinfo/geopolitical/data> {
+#  GRAPH <http://www.fao.org/countryprofiles/geoinfo/geopolitical/data> {
       ?country
         a geo:self_governing ;
         geo:codeISO2 ?codeISO2upper ;
@@ -21,8 +20,7 @@ WHERE {
         geo:populationTotal ?pop ;
         geo:landAreaTotal ?landArea ;
         geo:agriculturalAreaTotal ?agriArea .
-    }
-  } .
+#  } .
   BIND( ?gdp / ?pop AS ?gdpPerCapita ) .
   BIND( ?pop / ?landArea AS ?density ) .
   BIND( ?agriArea / ?landArea AS ?agriAreaRate ) .
