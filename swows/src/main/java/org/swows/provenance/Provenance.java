@@ -754,13 +754,11 @@ public class Provenance {
                 // Iteration is a new mapping of bnodes. 
                 bNodeMap.clear() ;
 
-                DatasetGraph originDatsetGraph = null;
 				Node provNode = binding.get(provResult.getRight());
-				if (provNode != null) {
-					originDatsetGraph = getNodesToOriginMap(queryExecution.getContext()).get(provNode);
-				}
-				
-//                List<Quad> quadList = new ArrayList<>(templateTriples.size());
+				DatasetGraph originDatsetGraph =
+						(provNode != null) ?
+								getNodesToOriginMap(queryExecution.getContext()).get(provNode) :
+								null;
 				
 				Stream<Triple> newTripleStream =
 						templateTriples
@@ -778,24 +776,16 @@ public class Provenance {
                 if (originDatsetGraph != null) {
                 	originManager.addOrigin(
                 			newTripleStream.map(triple -> new Quad(Quad.defaultGraphIRI, triple)).iterator(),
-                			originDatsetGraph.find());
+                			new Iterable<Quad>() {
+                				@Override
+								public Iterator<Quad> iterator() {
+									return originDatsetGraph.find();
+								} 
+                			});
                 } else {
                 	newTripleStream.count();
 				}
 
-//                for (Triple triple : templateTriples) {
-//                    Triple q = TemplateLib.subst(triple, binding, bNodeMap) ;
-//                    if ( ! q.isConcrete() || ! ModelUtils.isValidAsStatement(q.getSubject(), q.getPredicate(), q.getObject()) ) {
-//                        //Log.warn(TemplateLib.class, "Unbound quad: "+FmtUtils.stringForQuad(quad)) ;
-//                        continue ;
-//                    }
-//                    outputModel.add(outputModel.asStatement(q));
-//                    if (originDatsetGraph != null) {
-//                    	originManager.addOrigin(
-//                    			new Quad(Quad.defaultGraphIRI, q),
-//                    			originDatsetGraph.find());
-//                    }
-//                }
                                 
 			}
 		});
