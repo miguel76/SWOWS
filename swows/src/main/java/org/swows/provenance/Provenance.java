@@ -27,7 +27,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.ARQInternalErrorException;
 import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.Op;
-import org.apache.jena.sparql.algebra.OpAsQuery;
 import org.apache.jena.sparql.algebra.OpVars;
 import org.apache.jena.sparql.algebra.TransformCopy;
 import org.apache.jena.sparql.algebra.Transformer;
@@ -416,93 +415,13 @@ public class Provenance {
 		
 	}
 	
-//    public static void addProvenanceToQuery(Query query) {
-//    	(new Provenance()).addProvenance(query);
-//    }
-    
     private static void addReifiedTriple(Node node, Triple triple, Consumer<Triple> sink) {
     	sink.accept(new Triple(node, RDF.type.asNode(), RDF.Statement.asNode()));
     	sink.accept(new Triple(node, RDF.subject.asNode(), triple.getSubject()));
     	sink.accept(new Triple(node, RDF.predicate.asNode(), triple.getPredicate()));
     	sink.accept(new Triple(node, RDF.object.asNode(), triple.getObject()));
     }
-    
-//    public Op addProvenance(Op op, Iterable<Triple> templateTriples, Consumer<Triple> provTemplSink) {
-//        logger.info("Transforming Main Pattern: " + op);
-//
-//		List<Var> provVars = new ArrayList<Var>();
-//		Op newOp = Transformer.transform(new TransformCopy() {
-//			
-//			@Override
-//			public Op transform(OpBGP opBGP) {
-//		        logger.info("Transforming BGP: " + opBGP);
-//		        Var provVar = newVar();
-//		        List<Var> newBGPVars = new ArrayList<Var>();
-//		        provVars.add(provVar);
-//		        newBGPVars.add(provVar);
-//		        provTemplSink.accept(new Triple(provVar, RDF.type.asNode(), PROV.Collection.asNode()));
-//		        opBGP.getPattern().forEach(new Consumer<Triple>() {
-//					@Override
-//					public void accept(Triple t) {
-//						Var statementVar = newVar();
-//				        newBGPVars.add(statementVar);
-////						template.add(new Triple(provVar, PROV.wasDerivedFrom.asNode(), statementVar));
-//				        provTemplSink.accept(new Triple(provVar, PROV.hadMember.asNode(), statementVar));
-//				        addReifiedTriple(statementVar, t, provTemplSink);
-//					}
-//				});
-//		        VarExprList varExprList = new VarExprList();
-//		        newBGPVars.forEach(new Consumer<Var>() {
-//					@Override
-//					public void accept(Var var) {
-//						varExprList.add(var, new E_BNode());
-//					}
-//				});
-//				Op newOp = OpExtend.extend(opBGP, varExprList);
-//		        
-////				Op newOp = OpExtend.extend(opBGP, provVar, new E_BNode());
-//		        logger.info("BGP Transformed to: " + newOp);
-////				return OpExtend.extend(opBGP, newVar(), new E_BNode());
-//				return newOp;
-//			}
-//			
-////			@Override
-////			public Op transform(OpProject opProject, Op subOp) {
-////				OpVars.visibleVars(subOp)
-////				subOp
-////				// TODO Auto-generated method stub
-////				return super.transform(opProject, subOp);
-////			}
-//			
-//		}, op);
-//		
-//		List<Var> newTemplateVars = new ArrayList<Var>();
-//		templateTriples.forEach(new Consumer<Triple>() {
-//			@Override
-//			public void accept(Triple t) {
-//				Var statementVar = newVar();
-//				newTemplateVars.add(statementVar);
-//		        addReifiedTriple(statementVar, t, provTemplSink);
-//				for (Var provVar: provVars) {
-//					provTemplSink.accept(new Triple(statementVar, PROV.wasDerivedFrom.asNode(), provVar));
-//				}
-//			}
-//		});
-//		
-//        VarExprList varExprList = new VarExprList();
-//        newTemplateVars.forEach(new Consumer<Var>() {
-//			@Override
-//			public void accept(Var var) {
-//				varExprList.add(var, new E_BNode());
-//			}
-//		});
-//		newOp = OpExtend.extend(newOp, varExprList);
-//					
-//        logger.info("Main Pattern Transformed to: " + newOp);
-//
-//		return newOp;
-//	}
-    
+        
     public Pair<Op, Var> addProvenance(Op op) {
         logger.info("Transforming Main Pattern: " + op);
 
@@ -511,18 +430,12 @@ public class Provenance {
 			
 			@Override
 			public Op transform(OpBGP opBGP) {
-		        logger.info("Transforming BGP: " + opBGP);
 		        Var provVar = newVar();
-//		        Vector<Var> newBGPVars = new Vector<Var>();
 		        provVars.add(provVar);
-//		        newBGPVars.addElement(provVar);
 				Op newOp =
 						OpExtend.extend(
 								opBGP, provVar,
 								new E_BNodeForProvenance(new Template(opBGP.getPattern())));
-		        
-//				Op newOp = OpExtend.extend(opBGP, provVar, new E_BNode());
-		        logger.info("BGP Transformed to: " + newOp);
 				return newOp;
 			}
 			
@@ -563,24 +476,6 @@ public class Provenance {
 			@Override
 			public Op transform(OpGroup opGroup, Op subOp) {
 				return aggregate(opGroup.getGroupVars(), opGroup.getAggregators(), subOp);
-//				ExprList exprList = new ExprList();
-//				OpVars.visibleVars(subOp).forEach(new Consumer<Var>() {
-//					@Override
-//					public void accept(Var var) {
-//						if (provVars.contains(var)) {
-//							exprList.add(new ExprVar(var));
-//						}
-//					}
-//				});
-//								
-//				Var aggrVar = newVar();
-//				provVars.addElement(aggrVar);
-//				List<ExprAggregator> aggregators = opGroup.getAggregators();
-//				aggregators.add(
-//						new ExprAggregator(
-//								aggrVar,
-//								new ProvAggregator(exprList)));
-//				return new OpGroup(subOp, opGroup.getGroupVars(), aggregators);
 			}
 			
 			@Override
@@ -618,33 +513,6 @@ public class Provenance {
 		return new ImmutablePair<Op, Var>(newOp, provVar);
 	}
     
-//    public void addProvenance(Query query) {
-//		if (query.isConstructType()) {
-//			Op op = Algebra.compile(query) ;
-//	        BasicPattern template = query.getConstructTemplate().getBGP();
-//			BasicPattern originalTemplate = new BasicPattern(template);
-//			Op newOp = addProvenance(op, originalTemplate, new TripleConsumerFromBP(template));
-//			query.setQueryPattern(OpAsQuery.asQuery(newOp).getQueryPattern());
-//		}
-//	}
-    
-//    public Consumer<Triple> separateProvenance(Consumer<Triple> output, Consumer<Triple> provenance) {
-//    	return new Consumer<Triple>() {
-//			@Override
-//			public void accept(Triple t) {
-//				if (addedVars.contains(t.getSubject())) {
-//					provenance.accept(t);
-//				} else {
-//					output.accept(t);
-//				}
-//			}
-//		};
-//    }
-
-//    public void separateProvenance(Iterator<Triple> triples, Consumer<Triple> output, Consumer<Triple> provenance) {
-//    	triples.forEachRemaining(separateProvenance(output, provenance));
-//    }
-
     private static class TripleConsumerFromModel implements Consumer<Triple> {
     	
     	Model model;
@@ -675,31 +543,6 @@ public class Provenance {
 		
     }
     
-//    public void separateProvenance(Iterator<Triple> triples, Model output, Consumer<Triple> provenance) {
-//    	separateProvenance(triples, new TripleConsumerFromModel(output), provenance);
-//    }
-//
-//    public void separateProvenance(Iterator<Triple> triples, Consumer<Triple> output, Model provenance) {
-//    	separateProvenance(triples, output, new TripleConsumerFromModel(provenance));
-//    }
-//
-//    public void separateProvenance(Iterator<Triple> triples, Model output, Model provenance) {
-//    	separateProvenance(triples, new TripleConsumerFromModel(output), new TripleConsumerFromModel(provenance));
-//    }
-//
-//    public Pair<Model, Model> separateProvenance(Iterator<Triple> triples) {
-//    	Model output = ModelFactory.createDefaultModel(), provenance = ModelFactory.createDefaultModel();
-//    	separateProvenance(triples, output, provenance);
-//    	return new ImmutablePair<Model, Model>(output, provenance);
-//    }
-
-//    public static Pair<Model, Model> execWithProvenance(Query query, Dataset inputDataset) {
-//    	Provenance prov = new Provenance();
-//    	prov.addProvenance(query);
-//    	QueryExecution queryExecution = QueryExecutionFactory.create(query, inputDataset);
-//    	return prov.separateProvenance(queryExecution.execConstructTriples());
-//    }
-
     static private String labelForQuery(Query q) {
         if ( q.isSelectType() )     return "SELECT" ; 
         if ( q.isConstructType() )  return "CONSTRUCT" ; 
@@ -714,28 +557,10 @@ public class Provenance {
 		Op op = Algebra.compile(query);
     	Provenance prov = new Provenance();
     	Pair<Op, Var> provResult = prov.addProvenance(op);
-//		query.setQueryPattern(OpAsQuery.asQuery(provResult.getLeft()).getQueryPattern());
-//    	QueryExecution queryExecution = QueryExecutionFactory.create(query, inputDataset);
     	Template constructTemplate = query.getConstructTemplate();
     	List<Triple> templateTriples = constructTemplate.getTriples();
     	QueryExecution queryExecution = QueryExecutionFactory.create(provResult.getLeft(), inputDataset);
     	ResultSet resultSet = queryExecution.execSelect();
-//    	Iterator<Binding> outputBindings = new Iterator<Binding>() {
-//			@Override
-//			public Binding next() {
-//				Binding binding = resultSet.nextBinding();
-//				Node provNode = binding.get(provResult.getRight());
-//				if (provNode != null) {
-//					Graph originGraph = getNodesToOriginMap(queryExecution.getContext()).get(provNode);
-//					originManager.addOrigin(newQuads, originQuads);
-//				}
-//				return binding;
-//			}
-//			@Override
-//			public boolean hasNext() {
-//				return resultSet.hasNext();
-//			}
-//		};
     	(new Iterator<Binding>() {
     				@Override
     				public Binding next() {
