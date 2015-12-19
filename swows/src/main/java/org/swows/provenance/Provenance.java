@@ -22,7 +22,6 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecException;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.ARQInternalErrorException;
@@ -719,7 +718,7 @@ public class Provenance {
 //    	QueryExecution queryExecution = QueryExecutionFactory.create(query, inputDataset);
     	Template constructTemplate = query.getConstructTemplate();
     	List<Triple> templateTriples = constructTemplate.getTriples();
-    	QueryExecution queryExecution = QueryExecutionFactory.create(OpAsQuery.asQuery(provResult.getLeft()), inputDataset);
+    	QueryExecution queryExecution = QueryExecutionFactory.create(provResult.getLeft(), inputDataset);
     	ResultSet resultSet = queryExecution.execSelect();
 //    	Iterator<Binding> outputBindings = new Iterator<Binding>() {
 //			@Override
@@ -750,6 +749,8 @@ public class Provenance {
             Map<Node, Node> bNodeMap = new HashMap<>() ;
 			@Override
 			public void accept(Binding binding) {
+				logger.info(binding.toString());
+				
                 // Iteration is a new mapping of bnodes. 
                 bNodeMap.clear() ;
 
@@ -765,7 +766,7 @@ public class Provenance {
 						templateTriples
 						.stream()
 						.map(triple -> TemplateLib.subst(triple, binding, bNodeMap))
-						.filter(q -> ! q.isConcrete() || ! ModelUtils.isValidAsStatement(q.getSubject(), q.getPredicate(), q.getObject()) )
+						.filter(q -> q.isConcrete() && ModelUtils.isValidAsStatement(q.getSubject(), q.getPredicate(), q.getObject()) )
 						.map(new Function<Triple, Triple>() {
 							@Override
 							public Triple apply(Triple triple) {
