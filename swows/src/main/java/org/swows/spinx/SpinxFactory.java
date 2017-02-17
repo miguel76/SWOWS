@@ -82,6 +82,7 @@ import org.apache.jena.sparql.expr.Expr;
 import org.apache.jena.sparql.expr.ExprAggregator;
 import org.apache.jena.sparql.expr.ExprFunction;
 import org.apache.jena.sparql.expr.ExprFunctionOp;
+import org.apache.jena.sparql.expr.ExprList;
 import org.apache.jena.sparql.expr.ExprVar;
 import org.apache.jena.sparql.expr.FunctionLabel;
 import org.apache.jena.sparql.expr.NodeValue;
@@ -232,23 +233,25 @@ public class SpinxFactory {
 		return varNode;
 	}
 
-	private Node fromAggregator(Aggregator aggregator) {
+	private Node fromAggregator(Aggregator aggregator, Var var) {
 		Node aggrNode = createNode();
 		tripleStream.triple(new Triple( aggrNode, RDF.type.asNode(), SP.Expression.asNode() ));
 		tripleStream.triple(new Triple(aggrNode, RDF.type.asNode(), SP.Aggregation.asNode()));
 		tripleStream.triple(new Triple(aggrNode, RDF.type.asNode(), AggregatorSymbols.getUriNode(aggregator)));
-		Expr expression = aggregator.getExpr();
-		if (expression != null)
-			tripleStream.triple(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expression)));
-		if (aggregator instanceof AggGroupConcat || aggregator instanceof AggGroupConcatDistinct) {
-			Accumulator accumulator = aggregator.copy(new NodeValueString("")).createAccumulator();
-			accumulator.accumulate(null, null);
-			accumulator.accumulate(null, null);
-			String separator = accumulator.getValue().asString();
-			Node scalarvalNode = createNode();
-			tripleStream.triple(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
-			tripleStream.triple(new Triple( scalarvalNode, SPINX.key.asNode(), NodeFactory.createLiteral("separator") ));
-			tripleStream.triple(new Triple( scalarvalNode, SPINX.value.asNode(), NodeFactory.createLiteral(separator) ));
+		ExprList exprList = aggregator.getExprList();
+		for (Expr expression: exprList) {
+			if (expression != null)
+				tripleStream.triple(new Triple(aggrNode, SP.expression.asNode(), fromExpr(expression)));
+			if (aggregator instanceof AggGroupConcat || aggregator instanceof AggGroupConcatDistinct) {
+				Accumulator accumulator = aggregator.createAccumulator();
+//				accumulator.accumulate(null, null);
+//				accumulator.accumulate(null, null);
+				String separator = accumulator.getValue().asString();
+				Node scalarvalNode = createNode();
+				tripleStream.triple(new Triple( aggrNode, SPINX.scalarval.asNode(), scalarvalNode ));
+				tripleStream.triple(new Triple( scalarvalNode, SPINX.key.asNode(), NodeFactory.createLiteral("separator") ));
+				tripleStream.triple(new Triple( scalarvalNode, SPINX.value.asNode(), NodeFactory.createLiteral(separator) ));
+			}
 		}
 		return aggrNode;
 	}
@@ -299,7 +302,7 @@ public class SpinxFactory {
 		} else if (expr instanceof NodeValue) {
 			return fromNode( ((NodeValue) expr).asNode() );
 		} else if (expr instanceof ExprAggregator) {
-			return fromAggregator( ((ExprAggregator) expr).getAggregator() );
+			return fromAggregator( ((ExprAggregator) expr).getAggregator(), ((ExprAggregator) expr).getVar() );
 		} else
 			return SPINX.UnknownExpr.asNode();
 //		return exprRootNode;

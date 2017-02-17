@@ -21,15 +21,15 @@ package org.swows.jms;
 
 import org.swows.graph.events.DynamicDataset;
 import org.swows.graph.events.DynamicGraph;
-import org.swows.producer.GraphProducer;
-import org.swows.producer.RDFProducer;
 import org.swows.producer.ProducerMap;
+import org.swows.producer.old.GraphProducer;
+import org.swows.producer.old.RDFProducer;
 import org.swows.reader.ReaderFactory;
 import org.swows.util.GraphUtils;
 import org.swows.vocabulary.DF;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
 
 public class JmsInputGraphProducer extends GraphProducer {
 	

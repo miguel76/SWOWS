@@ -12,6 +12,7 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.swows.origin.GraphOriginManager;
+import org.swows.origin.OriginManager;
 
 public class ProvenanceTest {
 	
@@ -56,7 +57,9 @@ public class ProvenanceTest {
         Model outputModel = ModelFactory.createDefaultModel();
         
 //        Pair<Model,Model> outputModelAndProv = Provenance.execWithProvenance(query, inputDataset);
-        Provenance.execConstructWithProvenance(query, inputDataset, outputModel, new GraphOriginManager(provModel.getGraph()));
+        
+        OriginManager om = new GraphOriginManager(provModel.getGraph());
+        Provenance.execConstructWithProvenance(query, inputDataset, outputModel, om);
       
     	logger.info("Query with Provenance Executed");
     	

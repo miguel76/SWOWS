@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphUtil;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -40,6 +41,14 @@ public class GraphOriginManager extends OriginManagerBase {
     	return quadNode;
     }
     
+    private Quad getQuad(Node node) {
+    	return new Quad(
+    			GraphUtil.listObjects(graph, node, RDFS.isDefinedBy.asNode()).next(),
+    			GraphUtil.listObjects(graph, node, RDF.subject.asNode()).next(),
+    			GraphUtil.listObjects(graph, node, RDF.predicate.asNode()).next(),
+    			GraphUtil.listObjects(graph, node, RDF.object.asNode()).next());
+    }
+    
 	@Override
 	public void addOrigin(Quad newQuad, Iterator<Quad> originQuads) {
 		Node provNode = NodeFactory.createBlankNode();
@@ -49,6 +58,20 @@ public class GraphOriginManager extends OriginManagerBase {
 			graph.add(new Triple(
 					provNode, PROV.hadMember.asNode(), addReifiedQuad(originQuad))); } );
 
+	}
+
+	@Override
+	public Iterator<Iterator<Quad>> getOrigin(Quad quad) {
+		Node quadNode = reifiedQuadMap.get(quad);
+		if (quadNode == null) {
+			return null;
+		} else {
+			return
+					GraphUtil.listObjects(graph, quadNode, PROV.wasDerivedFrom.asNode())
+						.mapWith(provNode ->
+								GraphUtil.listObjects(graph, provNode, PROV.hadMember.asNode())
+									.mapWith(statNode -> getQuad(statNode)));
+		}
 	}
 
 }

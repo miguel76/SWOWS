@@ -55,8 +55,9 @@ public class QueryFactoryTest {
 //    	String baseUri = "/home/miguel/TUIO/circles/";
 //    	String baseUri = "/home/miguel/pampers3/dataflow/test_query_svg/";
 //    	String baseUri = "/home/miguel/svg2canvas/";
-    	String baseUri = //"/home/miguel/git/WorldInfo/";
-    	"/Users/miguel/Dropbox/Demo/";
+//    	String baseUri = //"/home/miguel/git/WorldInfo/";
+//    	"/Users/miguel/git/swows-examples/circles/";
+    	String baseUri = "/Users/miguel/Dropbox/AMW2016/code/";
 
 //    	PropertyFunctionRegistry registry = PropertyFunctionRegistry.get();
 //		registry.put(Factory.getBaseURI() + "bnode", Factory.getInstance());
@@ -69,7 +70,7 @@ public class QueryFactoryTest {
 //    	Query inputQuery = QueryFactory.read(baseUri + "quantityHistoryCurr_T.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/svg.sparql");
 //    	Query inputQuery = QueryFactory.read(baseUri + "dataflow/children2descendants.sparql");
-    	Query inputQuery = QueryFactory.read(baseUri + "normalize.sparql");
+    	Query inputQuery = QueryFactory.read(baseUri + "query.rq");
     	
     	Factory.getInstance();
     	

@@ -39,9 +39,9 @@ import org.swows.graph.DynamicChangingGraph;
 import org.swows.runnable.RunnableContextFactory;
 import org.swows.vocabulary.SWI;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 
 public class JmsInputGraph extends DynamicChangingGraph {
 	
